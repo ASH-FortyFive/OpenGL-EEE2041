@@ -32,6 +32,7 @@ private:
 public:
     //! Overloads functions from Mesh to Allow for Transforms and Colours
   	void Draw(
+		Matrix4x4 ModelViewMatrix,
         GLuint vertexPositionAttribute, 
         GLuint ColourUniformLocation = -1,
         GLuint vertexNormalAttribute = -1, 
@@ -59,6 +60,12 @@ public:
 
 
   	Model();
+	Model(
+		Vector3f initalPos, 
+		float initalSize = 1.0f,
+		Vector3f initalRot = Vector3f(0.0f,0.0f,0.0f),
+		float initalAngle = 0.0f, 
+		Vector3f initalColour = Vector3f(0.5f, 0.5f, 0.5f));
   	~Model();
 };
 

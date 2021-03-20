@@ -1,7 +1,22 @@
 #include "Model.h"
 
 
-Model::Model() : scaleFactor(1.0f), position(0.0f,0.0f,0.0f),  rotationAxis(0.0f,0.0f,1.0f), rotationAngle(0.0f), colour(0.5f, 0.5f, 0.5f)
+Model::Model() : 
+    scaleFactor(1.0f), 
+    position(0.0f,0.0f,0.0f),  
+    rotationAxis(0.0f,0.0f,1.0f), 
+    rotationAngle(0.0f), 
+    colour(0.5f, 0.5f, 0.5f)
+{
+    ModelMatrix.toIdentity();
+}
+
+Model::Model(Vector3f initalPos, float initalSize, Vector3f initalRot, float initalAngle, Vector3f initalColour) : 
+    scaleFactor(initalSize), 
+    position(initalPos),  
+    rotationAxis(initalRot), 
+    rotationAngle(initalAngle), 
+    colour(initalColour)
 {
     ModelMatrix.toIdentity();
 }
@@ -20,7 +35,7 @@ bool Model::loadOBJ(std::string filename, GLuint MatrixUniformLocation)
     MVMatrixUniformLocation = MatrixUniformLocation;
 }
 
-void Model::Draw(GLuint vertexPositionAttribute, GLuint colourUniformLocation, GLuint vertexNormalAttribute, GLuint vertexTexcordAttribute)
+void Model::Draw(Matrix4x4 ModelViewMatrix, GLuint vertexPositionAttribute, GLuint colourUniformLocation, GLuint vertexNormalAttribute, GLuint vertexTexcordAttribute)
 {
     //! Applies Basic Colours
     if(colourUniformLocation != -1)
@@ -30,7 +45,7 @@ void Model::Draw(GLuint vertexPositionAttribute, GLuint colourUniformLocation, G
 
 
     //! Applies All Transforms, may be possible to reduce the number of operations
-    ModelMatrix.toIdentity();
+    ModelMatrix = ModelViewMatrix; 
     ModelMatrix.translate(position.x, position.y, position.z);
     ModelMatrix.rotate(rotationAngle, rotationAxis.x, rotationAxis.y, rotationAxis.z);
     ModelMatrix.scale(scaleFactor, scaleFactor, scaleFactor);

@@ -5,18 +5,16 @@
 #include <iostream>
 #include <Matrix.h>
 #include <Mesh.h>
+#include <Vector.h>
+#include <math.h>
+#include <string>
+#include <Texture.h>
 
 #include <Geometry.h>
 #include <Camera.h>
 #include <Model.h>
 
-/*
-#include <Vector.h>
-#include <Texture.h>
-#include <SphericalCameraManipulator.h>
-#include <math.h>
-#include <string>
-*/
+
 
 //!Function Prototypes
 void initShader();
@@ -33,8 +31,8 @@ void initTemp();
 
 
 //! Screen size
-int screenWidth   	        = 1920;
-int screenHeight   	        = 1920;
+int screenWidth   	        = 1080;
+int screenHeight   	        = 1080;
 
 //! Array of key states
 bool keyStates[256];
@@ -60,14 +58,16 @@ GLuint ProjectionUniformLocation;	// Projection Matrix Uniform Location
 
 
 
-Mesh Monkey;
+Model Monkey;
+Model Cube;
 Model newTriangle;
 
 //! Bools for Toggles
 bool PentaToggle = false;
 bool WireFrame = false;
 
-
+Vector3f CamLocation = Vector3f(2.0,2.0,2.0);
+Vector3f CamLookAt = Vector3f(0.0,0.0,0.0);
 
 // Time
 float t_global = 0.0;
@@ -103,7 +103,9 @@ int main(int argc, char** argv)
 	glClearColor(0.3,0.3,0.3,1.0);
 	 
 	// Mesh 
-	Monkey.loadOBJ("../models/torus.obj");
+	Monkey.loadOBJ("../models/torus.obj", MVMatrixUniformLocation);
+	Monkey.translate(Vector3f(1.0f, 0.0f,0.0f));
+	Cube.loadOBJ("../models/cube.obj", MVMatrixUniformLocation);
 	newTriangle.loadOBJ("../models/triangle.obj", MVMatrixUniformLocation);
 
 
@@ -194,15 +196,27 @@ void display(void)
 		false,						//Transpose 
 		ProjectionMatrix.getPtr());	//Pointer to ModelViewMatrixValues
 
+	//use Lookat function
+	ModelViewMatrix.lookAt(
+		CamLocation,
+		CamLookAt,
+		Vector3f(0, 1, 0 )
+	);
+	
+	//Set modelview matrix uniform
+	glUniformMatrix4fv(	
+		MVMatrixUniformLocation,  	//Uniform location
+		1,							//Number of Uniforms
+		false,						//Transpose Matrix
+		ModelViewMatrix.getPtr());	//Pointer to ModelViewMatrixValues
 
 
 
-	if(PentaToggle)
-	{
-		Monkey.Draw(vertexPositionAttribute);
-	}
+	Monkey.Draw(ModelViewMatrix, vertexPositionAttribute, ColourUniformLocation);
 
-	newTriangle.Draw(vertexPositionAttribute, ColourUniformLocation);
+	Cube.Draw(ModelViewMatrix, vertexPositionAttribute, ColourUniformLocation);
+
+	newTriangle.Draw(ModelViewMatrix, vertexPositionAttribute, ColourUniformLocation);
 
 	
 
@@ -270,6 +284,13 @@ void keyboard(unsigned char key, int x, int y)
 		}
 		WireFrame = !WireFrame;
 	}
+	/*
+	else
+	{
+		std::cout << key << "" <<std::endl;
+	}
+	*/
+	
 
     
     //Set key status
@@ -311,6 +332,38 @@ void handleKeys()
 	{
 		newTriangle.rotate(-1.0f, Vector3f(0.0f,0.0f,1.0f));
 	}
+	if (keyStates['i'])
+	{
+		CamLocation.y += 0.1f;
+		CamLookAt.y += 0.1f;
+	}
+	if (keyStates['k'])
+	{
+		CamLocation.y -= 0.1f;
+		CamLookAt.y -= 0.1f;
+	}
+	if (keyStates['j'])
+	{
+		CamLocation.x -= 0.1f;
+		CamLookAt.x -= 0.1f;
+	}
+	if (keyStates['l'])
+	{
+		CamLocation.x += 0.1f;
+		CamLookAt.x += 0.1f;
+	}
+	if (keyStates['o'])
+	{
+		CamLocation.z -= 0.1f;
+		CamLookAt.z -= 0.1f;
+	}
+	if (keyStates['u'])
+	{
+		CamLocation.z += 0.1f;
+		CamLookAt.z += 0.1f;
+	}
+
+
 }
 
 //! Mouse Interaction
