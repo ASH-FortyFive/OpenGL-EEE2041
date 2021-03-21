@@ -26,6 +26,7 @@ void handleKeys();
 void mouse(int button, int state, int x, int y);
 void motion(int x, int y);
 void Timer(int value);
+void initTexture(std::string filename, GLuint & textureID);
 
 void initTemp();	
 
@@ -42,25 +43,28 @@ bool keyStates[256];
 GLuint shaderProgramID;				// Shader Program ID
 GLuint vertexPositionAttribute;		// Vertex Position Attribute Location
 GLuint vertexColourAttribute;		// Vertex Colour Attribute Location
-GLuint ColourUniformLocation;
-GLuint TimeUniformLocation; 
+GLuint ColourUniformLocation;		// Colour Uniform Location
+GLuint TimeUniformLocation; 		// Unsure
 	// Shaders - Textures
-GLuint vertexTexcoordAttribute;
-GLuint TextureMapUniformLocation;
-
-//! For Transformations
+GLuint vertexTexcoordAttribute;		// Vertex Texture Coordiante Attribute Location
+GLuint TextureMapUniformLocation;	// Texture Map Location
+	// For Transformations (and Camera)
 Matrix4x4 ModelViewMatrix;		  	// ModelView Matrix (Not Used)
 GLuint MVMatrixUniformLocation;		// ModelView Matrix Uniform
-
-//! For Camera
+	// For Camera
 Matrix4x4 ProjectionMatrix;		  	// Projection Matrix
 GLuint ProjectionUniformLocation;	// Projection Matrix Uniform Location
 
 
-
+//! Loaded Models
 Model Monkey;
 Model Cube;
 Model newTriangle;
+
+GLuint texture;
+GLuint texture1;
+GLuint texture2;
+
 
 //! Bools for Toggles
 bool PentaToggle = false;
@@ -105,9 +109,16 @@ int main(int argc, char** argv)
 	// Mesh 
 	Monkey.loadOBJ("../models/torus.obj", MVMatrixUniformLocation);
 	Monkey.translate(Vector3f(1.0f, 0.0f,0.0f));
-	Cube.loadOBJ("../models/cube.obj", MVMatrixUniformLocation);
-	newTriangle.loadOBJ("../models/triangle.obj", MVMatrixUniformLocation);
+	Monkey.setColour(0.0, 0.0, 1.0);
 
+
+	Cube.loadOBJ("../models/ground.obj", MVMatrixUniformLocation);
+	newTriangle.loadOBJ("../models/plane1.obj", MVMatrixUniformLocation);
+
+	initTexture("../models/plane1.bmp", texture);
+	initTexture("../models/grass.bmp", texture1);
+	initTexture("../models/Crate.bmp", texture2);
+	
 
     //Enter main loop
     glutMainLoop();
@@ -131,37 +142,38 @@ void initGLUTFunctions()
 	glutMotionFunc(motion);
 
     glutTimerFunc(100,Timer, 0); //Start start timer function after 100 milliseconds
-	glEnable(GL_TEXTURE_2D);
+
+	glEnable(GL_TEXTURE_2D); //Enables 2D textures in OpenGl
+	glEnable(GL_DEPTH_TEST); //Enables Depth Test to ensure things render in the correct order
 }
 
 //! Loads and Sets Up the Shaders
 void initShader()
 {
-	//Create/Load shader
+	//! Loads shader from file
     shaderProgramID = Shader::LoadFromFile("shader.vert","shader.frag");
     
+	//! For Positions and Transforms
     // Get a handle for our vertex position buffer
 	vertexPositionAttribute = glGetAttribLocation(shaderProgramID, "aVertexPosition");
-
-	//CGet a handle for our vertex colour buffer
-	vertexColourAttribute = glGetAttribLocation(shaderProgramID, "aVertexColour");
-
-	//Get Time Uniform Location
-	TimeUniformLocation=glGetUniformLocation(shaderProgramID,"t_uniform");
-
-	//Gets Matrix Uniform Location
+	//Gets Matrix Uniform Location, for camera and transform
 	MVMatrixUniformLocation=glGetUniformLocation(shaderProgramID,"MVMatrix_uniform");
-
-	//Gets Projection Matrix Uniform location
+	//Gets Projection Matrix Uniform location, for projection
 	ProjectionUniformLocation=glGetUniformLocation(shaderProgramID,"ProjMatrix_uniform");
 
+	//! For Colours
     //Colour Uniform Location
 	ColourUniformLocation = glGetUniformLocation(shaderProgramID, "Colour_uniform");
 
-	//For Textures	
-	//vertexTexcoordAttribute = glGetAttribLocation(shaderProgramID,"aVertexTexcoord");
-	
-	//TextureMapUniformLocation = glGetUniformLocation(shaderProgramID,"TextureMap_uniform");
+	//! For Textures
+	// Get a handle for our texture coordinate buffer	
+	vertexTexcoordAttribute = glGetAttribLocation(shaderProgramID,"aVertexTexcoord");
+	//Gets Texture Map Uniform location
+	TextureMapUniformLocation = glGetUniformLocation(shaderProgramID,"TextureMap_uniform");
+
+	//! Unknown
+	//Get Time Uniform Location
+	TimeUniformLocation=glGetUniformLocation(shaderProgramID,"t_uniform");
 }
 
 void initTemp()
@@ -169,6 +181,28 @@ void initTemp()
 
 }	
 
+void initTexture(std::string filename, GLuint & textureID)
+{
+	//Generate texture and bind
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+    
+	//Set texture parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+
+	//Get texture Data
+	int width, height;
+	char* data;
+	Texture::LoadBMP(filename, width, height, data);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+    //Cleanup data - copied to GPU
+    delete[] data;
+}
 
 //! Display Loop
 void display(void)
@@ -189,7 +223,7 @@ void display(void)
 	t_global += 0.001;
 	glUniform1f(TimeUniformLocation, t_global);
 
-	ProjectionMatrix.perspective(90,1.0,0.01,10.0);
+	ProjectionMatrix.perspective(90,1.0,0.01,100.0);
 	glUniformMatrix4fv(
 		ProjectionUniformLocation,	//Uniform location
 		1,							//Number of Uniforms
@@ -211,14 +245,28 @@ void display(void)
 		ModelViewMatrix.getPtr());	//Pointer to ModelViewMatrixValues
 
 
+	//Set Colour after program is in use
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	glUniform1i(TextureMapUniformLocation, 0);
 
-	Monkey.Draw(ModelViewMatrix, vertexPositionAttribute, ColourUniformLocation);
 
-	Cube.Draw(ModelViewMatrix, vertexPositionAttribute, ColourUniformLocation);
+	newTriangle.Draw(ModelViewMatrix, vertexPositionAttribute, ColourUniformLocation, -1, vertexTexcoordAttribute);
 
-	newTriangle.Draw(ModelViewMatrix, vertexPositionAttribute, ColourUniformLocation);
 
-	
+	//Set Colour after program is in use
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	glUniform1i(TextureMapUniformLocation, 0);
+
+	Cube.Draw(ModelViewMatrix, vertexPositionAttribute, ColourUniformLocation, -1, vertexTexcoordAttribute);
+
+	//Set Colour after program is in use
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	glUniform1i(TextureMapUniformLocation, 0);
+
+	Monkey.Draw(ModelViewMatrix, vertexPositionAttribute, ColourUniformLocation, -1, vertexTexcoordAttribute);	
 
     //Swap Buffers and post redisplay
 	glutSwapBuffers();
@@ -267,11 +315,11 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	else if(key == 'c')
 	{
-		newTriangle.setColour(Vector3f(1.0f,0.0f,0.0f));
+		newTriangle.setColour(1.0f,0.0f,0.0f);
 	}
 	else if(key == 'C')
 	{
-		newTriangle.setColour(Vector3f(0.0f,0.0f,1.0f));
+		newTriangle.setColour(0.0f,0.0f,1.0f);
 	}
 	else if(key == 'z' || key == 'Z')
 	{

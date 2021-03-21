@@ -1,2 +1,16 @@
-Practice for Git and OpenGL, part of EEE2041 at Surrey many files in common are not mine this will be clarified later.
+A Flight Simulator
+
+Practice for Git and OpenGL, part of EEE2041 at University of Surrey.
+
+Most of main.ccp and the following common files were written:
+* Model
+* Camera
+
+The following files in common were provided:
+* Matrix
+* Vector
+* Mesh
+* Shader
+* SphericalCameraManipulator
+
 
