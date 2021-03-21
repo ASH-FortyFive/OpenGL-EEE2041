@@ -32,6 +32,7 @@ void initTexture(std::string filename, GLuint & textureID);
 void initTemp();	
 void VectorPrinter(Vector3f vec);
 
+//Lights
 
 //! Screen size
 int screenWidth   	        = 1080;
@@ -56,6 +57,7 @@ GLuint MVMatrixUniformLocation;		// ModelView Matrix Uniform
 	// For Camera
 Matrix4x4 ProjectionMatrix;		  	// Projection Matrix
 GLuint ProjectionUniformLocation;	// Projection Matrix Uniform Location
+	// For Lighting
 
 
 //! Loaded Models
