@@ -42,12 +42,13 @@ int screenHeight   	        = 1080;
 bool keyStates[256];
 
 //! Global Variables
-	//Shaders
+	// Shaders
 GLuint shaderProgramID;				// Shader Program ID
+	// Shaders
 GLuint vertexPositionAttribute;		// Vertex Position Attribute Location
 GLuint vertexColourAttribute;		// Vertex Colour Attribute Location
 GLuint ColourUniformLocation;		// Colour Uniform Location
-GLuint TimeUniformLocation; 		// Unsure
+
 	// Shaders - Textures
 GLuint vertexTexcoordAttribute;		// Vertex Texture Coordiante Attribute Location
 GLuint TextureMapUniformLocation;	// Texture Map Location
@@ -57,7 +58,22 @@ GLuint MVMatrixUniformLocation;		// ModelView Matrix Uniform
 	// For Camera
 Matrix4x4 ProjectionMatrix;		  	// Projection Matrix
 GLuint ProjectionUniformLocation;	// Projection Matrix Uniform Location
+	// Unknown
+GLuint TimeUniformLocation; 		// Unsure
 	// For Lighting
+Vector3f lightPosition;				                // Light Position 
+GLuint LightPositionUniformLocation;                // Light Position Uniform   
+Vector3f colour;					                // Colour Variable 
+
+//! Light Settings
+GLuint AmbientUniformLocation;
+GLuint SpecularUniformLocation;
+GLuint SpecularPowerUniformLocation;
+
+//!Material Properties
+Vector3f ambient    = Vector3f(0.1,0.1,0.1);
+Vector3f specular   = Vector3f(0.0,1.0,0.0);
+float specularPower = 10.0;
 
 
 //! Loaded Models
@@ -86,7 +102,7 @@ int main(int argc, char** argv)
     glutInit(&argc, argv); //Init GLUT
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH); //Set Display Mode
     glutInitWindowSize(screenWidth, screenHeight); //Set Window Size
-    glutInitWindowPosition(0, 0); // Window Position
+    glutInitWindowPosition(200, 200); // Window Position
     glutCreateWindow("Plane Assignment"); //Create Window
 
 	// Init GLEW
@@ -147,9 +163,9 @@ void initShader()
     // Get a handle for our vertex position buffer
 	vertexPositionAttribute = glGetAttribLocation(shaderProgramID, "aVertexPosition");
 	//Gets Matrix Uniform Location, for camera and transform
-	MVMatrixUniformLocation=glGetUniformLocation(shaderProgramID,"MVMatrix_uniform");
+	MVMatrixUniformLocation = glGetUniformLocation(shaderProgramID,"MVMatrix_uniform");
 	//Gets Projection Matrix Uniform location, for projection
-	ProjectionUniformLocation=glGetUniformLocation(shaderProgramID,"ProjMatrix_uniform");
+	ProjectionUniformLocation = glGetUniformLocation(shaderProgramID,"ProjMatrix_uniform");
 
 	//! For Colours
     //Colour Uniform Location
@@ -161,13 +177,25 @@ void initShader()
 	//Gets Texture Map Uniform location
 	TextureMapUniformLocation = glGetUniformLocation(shaderProgramID,"TextureMap_uniform");
 
+	//! For Lighting
+	LightPositionUniformLocation = glGetUniformLocation(shaderProgramID, "LightPosition_uniform"); 
+	AmbientUniformLocation = glGetUniformLocation(shaderProgramID, "Ambient_uniform"); 
+	SpecularUniformLocation = glGetUniformLocation(shaderProgramID, "Specular_uniform"); 
+	SpecularPowerUniformLocation = glGetUniformLocation(shaderProgramID, "SpecularPower_uniform"); 
+
 	//! Unknown
 	//Get Time Uniform Location
-	TimeUniformLocation=glGetUniformLocation(shaderProgramID,"t_uniform");
+	TimeUniformLocation = glGetUniformLocation(shaderProgramID,"t_uniform");
 }
 
 void initTemp()
 {
+	//! Init Light
+	//Set colour variable and light position
+	colour = Vector3f(1.0,0.0,0.0);
+	lightPosition= Vector3f(20.0,20.0,20.0);
+
+
 	ModelHelper::initTexture("../models/plane1.bmp", texture);
 	ModelHelper::initTexture("../models/grass.bmp", texture1);
 	ModelHelper::initTexture("../models/Crate.bmp", texture2);
@@ -179,6 +207,8 @@ void initTemp()
 	ring.rotate(90.0f, Vector3f(0.0f,0.0f,1.0f));
 	ring.translate(Vector3f(0.0f,2.0f,0.0f));
 	ring.setScale(1.5f);
+
+	plane.translate(Vector3f(3.0f,2.0f,0.0f));
 }	
 
 //! Display Loop
@@ -227,6 +257,10 @@ void display(void)
 	//glBindTexture(GL_TEXTURE_2D, texture);
 	//glUniform1i(TextureMapUniformLocation, 0);
 	
+
+	//! Lighting
+	glUniform3f(ColourUniformLocation, colour.x,colour.y,colour.z);
+	glUniform3f(LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
 
 	plane.Draw(ModelViewMatrix, vertexPositionAttribute, -1, vertexTexcoordAttribute);
 	groundPlane.Draw(ModelViewMatrix, vertexPositionAttribute, -1, vertexTexcoordAttribute);
