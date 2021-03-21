@@ -59,10 +59,10 @@ SOURCES       = main.cpp \
 		../common/Mesh.cpp \
 		../common/Texture.cpp \
 		../common/SphericalCameraManipulator.cpp \
-		../common/Geometry.cpp \
 		../common/Object.cpp \
 		../common/Camera.cpp \
-		../common/Model.cpp 
+		../common/Model.cpp \
+		../common/Player.cpp 
 OBJECTS       = build/main.o \
 		build/Shader.o \
 		build/Vector.o \
@@ -70,10 +70,10 @@ OBJECTS       = build/main.o \
 		build/Mesh.o \
 		build/Texture.o \
 		build/SphericalCameraManipulator.o \
-		build/Geometry.o \
 		build/Object.o \
 		build/Camera.o \
-		build/Model.o
+		build/Model.o \
+		build/Player.o
 DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/common/unix.conf \
 		/usr/lib/qt/mkspecs/common/linux.conf \
@@ -188,20 +188,20 @@ DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		../common/Mesh.h \
 		../common/Texture.h \
 		../common/SphericalCameraManipulator.h \
-		../common/Geometry.h \
 		../common/Object.h \
 		../common/Camera.h \
-		../common/Model.h main.cpp \
+		../common/Model.h \
+		../common/Player.h main.cpp \
 		../common/Shader.cpp \
 		../common/Vector.cpp \
 		../common/Matrix.cpp \
 		../common/Mesh.cpp \
 		../common/Texture.cpp \
 		../common/SphericalCameraManipulator.cpp \
-		../common/Geometry.cpp \
 		../common/Object.cpp \
 		../common/Camera.cpp \
-		../common/Model.cpp
+		../common/Model.cpp \
+		../common/Player.cpp
 QMAKE_TARGET  = plane
 DESTDIR       = 
 TARGET        = plane
@@ -486,9 +486,6 @@ build/Texture.o: ../common/Texture.cpp ../common/Texture.h
 build/SphericalCameraManipulator.o: ../common/SphericalCameraManipulator.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/SphericalCameraManipulator.o ../common/SphericalCameraManipulator.cpp
 
-build/Geometry.o: ../common/Geometry.cpp ../common/Geometry.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Geometry.o ../common/Geometry.cpp
-
 build/Object.o: ../common/Object.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Object.o ../common/Object.cpp
 
@@ -497,6 +494,9 @@ build/Camera.o: ../common/Camera.cpp
 
 build/Model.o: ../common/Model.cpp ../common/Model.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Model.o ../common/Model.cpp
+
+build/Player.o: ../common/Player.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Player.o ../common/Player.cpp
 
 ####### Install
 

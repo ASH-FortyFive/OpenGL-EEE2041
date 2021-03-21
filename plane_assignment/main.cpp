@@ -10,7 +10,7 @@
 #include <string>
 #include <Texture.h>
 
-#include <Geometry.h>
+#include <Player.h>
 #include <Camera.h>
 #include <Model.h>
 
@@ -28,7 +28,9 @@ void motion(int x, int y);
 void Timer(int value);
 void initTexture(std::string filename, GLuint & textureID);
 
+//! Temp Functions
 void initTemp();	
+void VectorPrinter(Vector3f vec);
 
 
 //! Screen size
@@ -57,9 +59,9 @@ GLuint ProjectionUniformLocation;	// Projection Matrix Uniform Location
 
 
 //! Loaded Models
-Model Monkey;
-Model Cube;
-Model newTriangle;
+Model groundPlane;
+Model ring;
+Model plane;
 
 GLuint texture;
 GLuint texture1;
@@ -70,8 +72,8 @@ GLuint texture2;
 bool PentaToggle = false;
 bool WireFrame = false;
 
-Vector3f CamLocation = Vector3f(2.0,2.0,2.0);
-Vector3f CamLookAt = Vector3f(0.0,0.0,0.0);
+Vector3f CamLocation = Vector3f(4.0,4.0,4.0);
+Vector3f CamLookAt = Vector3f(2.0,2.0,2.0);
 
 // Time
 float t_global = 0.0;
@@ -105,20 +107,6 @@ int main(int argc, char** argv)
 	initTemp();
 	
 	glClearColor(0.3,0.3,0.3,1.0);
-	 
-	// Mesh 
-	Monkey.loadOBJ("../models/torus.obj", MVMatrixUniformLocation);
-	Monkey.translate(Vector3f(1.0f, 0.0f,0.0f));
-	Monkey.setColour(0.0, 0.0, 1.0);
-
-
-	Cube.loadOBJ("../models/ground.obj", MVMatrixUniformLocation);
-	newTriangle.loadOBJ("../models/plane1.obj", MVMatrixUniformLocation);
-
-	initTexture("../models/plane1.bmp", texture);
-	initTexture("../models/grass.bmp", texture1);
-	initTexture("../models/Crate.bmp", texture2);
-	
 
     //Enter main loop
     glutMainLoop();
@@ -178,31 +166,18 @@ void initShader()
 
 void initTemp()
 {
+	ModelHelper::initTexture("../models/plane1.bmp", texture);
+	ModelHelper::initTexture("../models/grass.bmp", texture1);
+	ModelHelper::initTexture("../models/Crate.bmp", texture2);
 
+	plane.loadOBJ("../models/plane1.obj", MVMatrixUniformLocation, TextureMapUniformLocation, texture);
+	groundPlane.loadOBJ("../models/ground.obj", MVMatrixUniformLocation, TextureMapUniformLocation, texture1);
+	ring.loadOBJ("../models/torus.obj", MVMatrixUniformLocation, TextureMapUniformLocation, texture2);
+
+	ring.rotate(90.0f, Vector3f(0.0f,0.0f,1.0f));
+	ring.translate(Vector3f(0.0f,2.0f,0.0f));
+	ring.setScale(1.5f);
 }	
-
-void initTexture(std::string filename, GLuint & textureID)
-{
-	//Generate texture and bind
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-    
-	//Set texture parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
-
-	//Get texture Data
-	int width, height;
-	char* data;
-	Texture::LoadBMP(filename, width, height, data);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glBindTexture(GL_TEXTURE_2D, 0);
-
-    //Cleanup data - copied to GPU
-    delete[] data;
-}
 
 //! Display Loop
 void display(void)
@@ -246,27 +221,14 @@ void display(void)
 
 
 	//Set Colour after program is in use
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glUniform1i(TextureMapUniformLocation, 0);
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+	//glUniform1i(TextureMapUniformLocation, 0);
+	
 
-
-	newTriangle.Draw(ModelViewMatrix, vertexPositionAttribute, ColourUniformLocation, -1, vertexTexcoordAttribute);
-
-
-	//Set Colour after program is in use
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-	glUniform1i(TextureMapUniformLocation, 0);
-
-	Cube.Draw(ModelViewMatrix, vertexPositionAttribute, ColourUniformLocation, -1, vertexTexcoordAttribute);
-
-	//Set Colour after program is in use
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-	glUniform1i(TextureMapUniformLocation, 0);
-
-	Monkey.Draw(ModelViewMatrix, vertexPositionAttribute, ColourUniformLocation, -1, vertexTexcoordAttribute);	
+	plane.Draw(ModelViewMatrix, vertexPositionAttribute, -1, vertexTexcoordAttribute);
+	groundPlane.Draw(ModelViewMatrix, vertexPositionAttribute, -1, vertexTexcoordAttribute);
+	ring.Draw(ModelViewMatrix, vertexPositionAttribute, -1, vertexTexcoordAttribute);	
 
     //Swap Buffers and post redisplay
 	glutSwapBuffers();
@@ -285,41 +247,28 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	else if(key == 'x')
     {
-		newTriangle.scale(-0.1);
+		plane.scale(-0.1);
 		std::cout << "shrink" << std::endl;
     }
 	else if (key == 'X')
 	{
 		std::cout << "grow" << std::endl;
-		newTriangle.scale(0.1);
+		plane.scale(0.1);
 	}
 	else if (key == 'p')
 	{
-		newTriangle.printMatrix();
+		plane.printMatrix();
 	}
-	else if (key == 'h')
+	else if (key == 'c')
 	{
-		//Penta.printMatrix();
+		std::cout <<"Cam: Location" << std::endl;
+		VectorPrinter(CamLocation);
+		std::cout <<"Cam: LookAt" << std::endl;
+		VectorPrinter(CamLookAt);
 	}
 	else if (key == 'g')
 	{
 		PentaToggle = !PentaToggle;
-	}
-	else if(key == 'b')
-	{
-		glClearColor(1.0,1.0,1.0,1.0);
-	}
-	else if(key == 'B')
-	{
-		glClearColor(0.0,0.0,0.0,1.0);
-	}
-	else if(key == 'c')
-	{
-		newTriangle.setColour(1.0f,0.0f,0.0f);
-	}
-	else if(key == 'C')
-	{
-		newTriangle.setColour(0.0f,0.0f,1.0f);
 	}
 	else if(key == 'z' || key == 'Z')
 	{
@@ -358,27 +307,27 @@ void handleKeys()
     //Keys are handled here
 	if(keyStates['w'])
     {
-		newTriangle.translate(Vector3f(0.0f,0.01f,0.0f));
+		plane.translate(Vector3f(0.0f,0.01f,0.0f));
     }
 	if (keyStates['s'])
 	{
-		newTriangle.translate(Vector3f(0.0f,-0.01f,0.0f));
+		plane.translate(Vector3f(0.0f,-0.01f,0.0f));
 	}
 	if(keyStates['a'])
     {
-		newTriangle.translate(Vector3f(-0.01f,0.0f,0.0f));
+		plane.translate(Vector3f(-0.01f,0.0f,0.0f));
     }
 	if (keyStates['d'])
 	{
-		newTriangle.translate(Vector3f(0.01f,0.0f,0.0f));
+		plane.translate(Vector3f(0.01f,0.0f,0.0f));
 	}
 	if(keyStates['q'])
     {
-		newTriangle.rotate(1.0f, Vector3f(0.0f,0.0f,1.0f));
+		plane.rotate(1.0f, Vector3f(0.0f,0.0f,1.0f));
     }
 	if (keyStates['e'])
 	{
-		newTriangle.rotate(-1.0f, Vector3f(0.0f,0.0f,1.0f));
+		plane.rotate(-1.0f, Vector3f(0.0f,0.0f,1.0f));
 	}
 	if (keyStates['i'])
 	{
@@ -435,5 +384,9 @@ void Timer(int value)
 	glutTimerFunc(10,Timer, 0);
 }
 
-
-
+void VectorPrinter(Vector3f vec)
+{
+	std::cout << "X:[" <<vec.x << "]\n";
+	std::cout << "Y:[" <<vec.y << "]\n";
+	std::cout << "Z:[" <<vec.z << "]\n";
+}

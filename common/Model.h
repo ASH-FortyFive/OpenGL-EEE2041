@@ -2,7 +2,7 @@
  * Created by ASH for EEE2041
  * Expands the provided Mesh Class to allow for Transforms and Textures
  *
- * Also handels the loading of textures
+ * Also handels the loading of textures (as the Texture.h does not do this)
  */
 #ifndef moodel_H_
 #define moodel_H_
@@ -28,6 +28,7 @@ private:
 
 	//!Uniform Locations
 	GLuint MVMatrixUniformLocation; 	// Matrix Uniform Location 
+	GLuint TextureMapUniformLocation; 	// Matrix Uniform Location 
 
 	//! Personal ModelViewMatrix	
 	Matrix4x4 ModelMatrix;
@@ -48,13 +49,16 @@ public:
   	void Draw(
 		Matrix4x4 ModelViewMatrix,
         GLuint vertexPositionAttribute, 
-        GLuint ColourUniformLocation = -1,
         GLuint vertexNormalAttribute = -1, 
         GLuint vertexTexcoordAttribute = -1);
 
     
     //Load and OBJ mesh from File, uses parent function
-    bool loadOBJ(std::string, GLuint);
+    bool loadOBJ(
+		std::string filename, 
+		GLuint MatrixUniformLocation,
+		GLuint TextureMapUniformLocation = -1,
+		GLuint texture = -1);
     /*
 	    //Creates geometry for a cube 
 	void initCube(GLunit MVMatrixUniformLocation);
@@ -70,12 +74,10 @@ public:
 	void translate(Vector3f); //Translates Position by Input
 	void setPosition(float, float, float); //Sets Position to Input
 		//! Incomplete Rotation Functions
-	void rotate(float, Vector3f); //Increments Rotation by Input (and sets Axis)
-	void setRotation(float, Vector3f ); //Sets Rotation and Axis to Input
+	void rotate(float increment, Vector3f newAxis); //Increments Rotation by Input (and sets Axis)
+	void setRotation(float newAngle, Vector3f newAxis); //Sets Rotation and Axis to Input
 	void setColour(float, float, float); //Sets Colour to Input (RGB)
 	
-	//! Texture Functions
-	void initTexture(std::string); //Loads Texture into TextureID
 
 	//! Debug Functions
 	void printMatrix(); //Shows Models Matrix
@@ -90,5 +92,11 @@ public:
 		Vector3f initalColour = Vector3f(0.5f, 0.5f, 0.5f));
   	~Model();
 };
+
+//! Helper Function
+namespace ModelHelper {
+	// Load Texture into Given Texture ID
+	void initTexture(std::string filename, GLuint & textureID);
+} 
 
 #endif

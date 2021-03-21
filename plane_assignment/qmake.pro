@@ -14,10 +14,10 @@ HEADERS	+= 	../common/Shader.h	    		\
 		../common/Mesh.h		        \
         	../common/Texture.h             	\		
         	../common/SphericalCameraManipulator.h  \
-		../common/Geometry.h			\
 		../common/Object.h			\
         	../common/Camera.h  			\
-        	../common/Model.h  
+        	../common/Model.h  			\
+		../common/Player.h  			
 			
 
 #Sources
@@ -28,16 +28,16 @@ SOURCES += 	main.cpp			        \
 		../common/Mesh.cpp		        \
         	../common/Texture.cpp           	\
         	../common/SphericalCameraManipulator.cpp\
-		../common/Geometry.cpp			\
 		../common/Object.cpp			\
         	../common/Camera.cpp 			\
         	../common/Model.cpp			\  
+		../common/Player.cpp			\  
 
-INCLUDEPATH += 	./ 				    \
-		        ../common/ 			\
+INCLUDEPATH += 	./ 				    	\
+		../common/ 				\
 
 		
 #Library Libraries
 LIBS +=	-lGLEW			    	    	        \
-		-lglut			        		        \
+	-lglut			        		\
         -lGL             	                  	\  

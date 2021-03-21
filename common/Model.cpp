@@ -1,6 +1,5 @@
 #include "Model.h"
 
-
 Model::Model() : 
     scaleFactor(1.0f), 
     position(0.0f,0.0f,0.0f),  
@@ -28,24 +27,32 @@ Model::~Model()
 
 
 //! Load the .OBJ File, mostly using parents function, but adds the matrix uniform used for the translations and the camera
-bool Model::loadOBJ(std::string filename, GLuint MatrixUniformLocation)
+bool Model::loadOBJ(std::string filename, GLuint _MVMatrixUniformLocation, GLuint _TextureMapUniformLocation, GLuint texture)
 {
-    if(!Mesh::loadOBJ(filename))
-    {
-        return -1;
-    }
-    MVMatrixUniformLocation = MatrixUniformLocation;
+    //! Uses Parent loadFunction
+    Mesh::loadOBJ(filename);
+
+    //! Adds the Uniforms
+    MVMatrixUniformLocation = _MVMatrixUniformLocation; //MatrixUniform for Transforms and Camera
+    TextureMapUniformLocation = _TextureMapUniformLocation; //TextureMapUniform for Textures
+    //! Adds the ID for the Texture
+    textureID = texture;
+
+    std::cout << "TextureID: " << textureID << std::endl;
+
+    //! Returns true for correctly loaded texture
     return true;
 }
 
 //! Main Function of the Class, draws the model (using parent function) and adds transforms and textures
-void Model::Draw(Matrix4x4 ModelViewMatrix, GLuint vertexPositionAttribute, GLuint colourUniformLocation, GLuint vertexNormalAttribute, GLuint vertexTexcoordAttribute)
+void Model::Draw(Matrix4x4 ModelViewMatrix, GLuint vertexPositionAttribute, GLuint vertexNormalAttribute, GLuint vertexTexcoordAttribute)
 {
     //! Applies Basic Colours
+    /*
     if(colourUniformLocation != -1)
     {
         glUniform4f(colourUniformLocation, colour.x, colour.y,  colour.z , 1.0f);
-    }
+    }*/
 
 
     //! Applies All Transforms, may be possible to reduce the number of operations
@@ -63,10 +70,16 @@ void Model::Draw(Matrix4x4 ModelViewMatrix, GLuint vertexPositionAttribute, GLui
     //! Sends the Correct Texture to Shader
 
     //! Applies Basic Colours
+    /*
     if(colourUniformLocation != -1)
     {
         glUniform4f(colourUniformLocation, 0.1f, 0.1f, 0.1f, 1.0f);
-    }
+    }*/
+
+    //! Loads the Texture
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureID);
+	glUniform1i(TextureMapUniformLocation, 0);
 
     //! Uses Parents Draw Function after applying Transforms and Texture
     Mesh::Draw(vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
@@ -127,8 +140,22 @@ void Model::setColour(float R, float G, float B)
     }
 }
 
+//! DEBUGS FUNCTIONS (DISABLE IN FINAL BUILD)
+//! Debug Function for Checking Rotation
+void Model::printMatrix()
+{
+    ModelMatrix.toIdentity();
+    ModelMatrix.translate(position.x, position.y, position.z);
+    ModelMatrix.rotate(rotationAngle, rotationAxis.x, rotationAxis.y, rotationAxis.z);
+    ModelMatrix.scale(scaleFactor, scaleFactor, scaleFactor);
+    ModelMatrix.print("MV");
+    ModelMatrix.toIdentity();
+    std::cout << "scaleFactor: "<< scaleFactor << std::endl;
+}
+
+//! Helper Function
 //!  Loads Texture based on string into given textureID 
-void Model::initTexture(std::string filename, GLuint & textureID)
+void ModelHelper::initTexture(std::string filename, GLuint & textureID)
 {
 	//Generate texture and bind
 	glGenTextures(1, &textureID);
@@ -151,18 +178,4 @@ void Model::initTexture(std::string filename, GLuint & textureID)
     delete[] data;
 }
 
-
-
-//! DEBUGS FUNCTIONS (DISABLE IN FINAL BUILD)
-//! Debug Function for Checking Rotation
-void Model::printMatrix()
-{
-    ModelMatrix.toIdentity();
-    ModelMatrix.translate(position.x, position.y, position.z);
-    ModelMatrix.rotate(rotationAngle, rotationAxis.x, rotationAxis.y, rotationAxis.z);
-    ModelMatrix.scale(scaleFactor, scaleFactor, scaleFactor);
-    ModelMatrix.print("MV");
-    ModelMatrix.toIdentity();
-    std::cout << "scaleFactor: "<< scaleFactor << std::endl;
-}
 
