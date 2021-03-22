@@ -62,7 +62,8 @@ SOURCES       = main.cpp \
 		../common/Object.cpp \
 		../common/Camera.cpp \
 		../common/Model.cpp \
-		../common/Player.cpp 
+		../common/Player.cpp \
+		../common/Skybox.cpp 
 OBJECTS       = build/main.o \
 		build/Shader.o \
 		build/Vector.o \
@@ -73,7 +74,8 @@ OBJECTS       = build/main.o \
 		build/Object.o \
 		build/Camera.o \
 		build/Model.o \
-		build/Player.o
+		build/Player.o \
+		build/Skybox.o
 DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/common/unix.conf \
 		/usr/lib/qt/mkspecs/common/linux.conf \
@@ -191,7 +193,8 @@ DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		../common/Object.h \
 		../common/Camera.h \
 		../common/Model.h \
-		../common/Player.h main.cpp \
+		../common/Player.h \
+		../common/Skybox.h main.cpp \
 		../common/Shader.cpp \
 		../common/Vector.cpp \
 		../common/Matrix.cpp \
@@ -201,7 +204,8 @@ DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		../common/Object.cpp \
 		../common/Camera.cpp \
 		../common/Model.cpp \
-		../common/Player.cpp
+		../common/Player.cpp \
+		../common/Skybox.cpp
 QMAKE_TARGET  = plane
 DESTDIR       = 
 TARGET        = plane
@@ -497,6 +501,9 @@ build/Model.o: ../common/Model.cpp ../common/Model.h
 
 build/Player.o: ../common/Player.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Player.o ../common/Player.cpp
+
+build/Skybox.o: ../common/Skybox.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Skybox.o ../common/Skybox.cpp
 
 ####### Install
 
