@@ -27,7 +27,7 @@ private:
     */
 
 	//!Uniform Locations
-	GLuint MVMatrixUniformLocation; 	// Matrix Uniform Location 
+	//GLuint MVMatrixUniformLocation; 	// Matrix Uniform Location 
 	GLuint TextureMapUniformLocation; 	// Matrix Uniform Location 
 
 	//! Personal ModelViewMatrix	
@@ -48,6 +48,7 @@ public:
     //! Overloads functions from Mesh to Allow for Transforms, Textures, and Colours (BROKEN)
   	void Draw(
 		Matrix4x4 ModelViewMatrix,
+		GLuint MVMatrixUniformLocation,
         GLuint vertexPositionAttribute, 
         GLuint vertexNormalAttribute = -1, 
         GLuint vertexTexcoordAttribute = -1);
@@ -56,7 +57,6 @@ public:
     //Load and OBJ mesh from File, uses parent function
     bool loadOBJ(
 		std::string filename, 
-		GLuint MatrixUniformLocation,
 		GLuint TextureMapUniformLocation = -1,
 		GLuint texture = -1);
     /*

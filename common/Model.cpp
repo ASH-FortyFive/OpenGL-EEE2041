@@ -27,13 +27,12 @@ Model::~Model()
 
 
 //! Load the .OBJ File, mostly using parents function, but adds the matrix uniform used for the translations and the camera
-bool Model::loadOBJ(std::string filename, GLuint _MVMatrixUniformLocation, GLuint _TextureMapUniformLocation, GLuint texture)
+bool Model::loadOBJ(std::string filename, GLuint _TextureMapUniformLocation, GLuint texture)
 {
     //! Uses Parent loadFunction
     Mesh::loadOBJ(filename);
 
     //! Adds the Uniforms
-    MVMatrixUniformLocation = _MVMatrixUniformLocation; //MatrixUniform for Transforms and Camera
     TextureMapUniformLocation = _TextureMapUniformLocation; //TextureMapUniform for Textures
     //! Adds the ID for the Texture
     textureID = texture;
@@ -45,7 +44,7 @@ bool Model::loadOBJ(std::string filename, GLuint _MVMatrixUniformLocation, GLuin
 }
 
 //! Main Function of the Class, draws the model (using parent function) and adds transforms and textures
-void Model::Draw(Matrix4x4 ModelViewMatrix, GLuint vertexPositionAttribute, GLuint vertexNormalAttribute, GLuint vertexTexcoordAttribute)
+void Model::Draw(Matrix4x4 ModelViewMatrix, GLuint MVMatrixUniformLocation, GLuint vertexPositionAttribute, GLuint vertexNormalAttribute, GLuint vertexTexcoordAttribute)
 {
     //! Applies Basic Colours
     /*

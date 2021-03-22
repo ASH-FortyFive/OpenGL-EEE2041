@@ -13,6 +13,7 @@
 #include <Player.h>
 #include <Camera.h>
 #include <Model.h>
+#include <Skybox.h>
 
 
 
@@ -32,21 +33,24 @@ void initTexture(std::string filename, GLuint & textureID);
 void initTemp();	
 void VectorPrinter(Vector3f vec);
 
+//Lights
 
 //! Screen size
-int screenWidth   	        = 1080;
+int screenWidth   	        = 1920;
 int screenHeight   	        = 1080;
 
 //! Array of key states
 bool keyStates[256];
 
 //! Global Variables
-	//Shaders
+	// Shader IDs
 GLuint shaderProgramID;				// Shader Program ID
+GLuint skyboxShaderID;
+	// Shaders
 GLuint vertexPositionAttribute;		// Vertex Position Attribute Location
+GLuint vertexNormalAttribute;		// Vertex Normal Attribute Location
 GLuint vertexColourAttribute;		// Vertex Colour Attribute Location
-GLuint ColourUniformLocation;		// Colour Uniform Location
-GLuint TimeUniformLocation; 		// Unsure
+//GLuint ColourUniformLocation;		// Colour Uniform Location
 	// Shaders - Textures
 GLuint vertexTexcoordAttribute;		// Vertex Texture Coordiante Attribute Location
 GLuint TextureMapUniformLocation;	// Texture Map Location
@@ -56,6 +60,21 @@ GLuint MVMatrixUniformLocation;		// ModelView Matrix Uniform
 	// For Camera
 Matrix4x4 ProjectionMatrix;		  	// Projection Matrix
 GLuint ProjectionUniformLocation;	// Projection Matrix Uniform Location
+	// Unknown
+GLuint TimeUniformLocation; 		// Unsure
+	// For Lighting
+GLuint LightPositionUniformLocation;                // Light Position Uniform   
+GLuint AmbientUniformLocation;
+GLuint SpecularUniformLocation;
+GLuint SpecularPowerUniformLocation;
+
+//! Light Settings
+Vector3f lightPosition;				                // Light Position 
+//Vector3f colour;					                // Colour Variable 
+	//Material Properties
+Vector3f ambient    = Vector3f(0.1,0.1,0.1);
+Vector3f specular   = Vector3f(1.0,1.0,1.0);
+float specularPower = 10.0;
 
 
 //! Loaded Models
@@ -67,6 +86,9 @@ GLuint texture;
 GLuint texture1;
 GLuint texture2;
 
+GLuint new_vertexPositionAttribute;
+GLuint new_MVMatrixUniformLocation;
+GLuint new_ProjectionUniformLocation;
 
 //! Bools for Toggles
 bool PentaToggle = false;
@@ -84,7 +106,7 @@ int main(int argc, char** argv)
     glutInit(&argc, argv); //Init GLUT
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH); //Set Display Mode
     glutInitWindowSize(screenWidth, screenHeight); //Set Window Size
-    glutInitWindowPosition(0, 0); // Window Position
+    glutInitWindowPosition(200, 200); // Window Position
     glutCreateWindow("Plane Assignment"); //Create Window
 
 	// Init GLEW
@@ -140,43 +162,76 @@ void initShader()
 {
 	//! Loads shader from file
     shaderProgramID = Shader::LoadFromFile("shader.vert","shader.frag");
+	skyboxShaderID = Shader::LoadFromFile("skybox_shader.vert","skybox_shader.frag");
     
 	//! For Positions and Transforms
-    // Get a handle for our vertex position buffer
-	vertexPositionAttribute = glGetAttribLocation(shaderProgramID, "aVertexPosition");
+    // Gets handle for vertex position buffer
+	vertexPositionAttribute 		= glGetAttribLocation(shaderProgramID, "aVertexPosition");
+	// Gets handel for vertex normal buffer
+	vertexNormalAttribute 			= glGetAttribLocation(shaderProgramID,    "aVertexNormal"); 
 	//Gets Matrix Uniform Location, for camera and transform
-	MVMatrixUniformLocation=glGetUniformLocation(shaderProgramID,"MVMatrix_uniform");
+	MVMatrixUniformLocation 		= glGetUniformLocation(shaderProgramID,"MVMatrix_uniform");
 	//Gets Projection Matrix Uniform location, for projection
-	ProjectionUniformLocation=glGetUniformLocation(shaderProgramID,"ProjMatrix_uniform");
+	ProjectionUniformLocation 		= glGetUniformLocation(shaderProgramID,"ProjMatrix_uniform");
 
-	//! For Colours
+ 	//! For Colours (NOT WORKING)
     //Colour Uniform Location
-	ColourUniformLocation = glGetUniformLocation(shaderProgramID, "Colour_uniform");
+	//ColourUniformLocation = glGetUniformLocation(shaderProgramID, "Colour_uniform");
 
 	//! For Textures
 	// Get a handle for our texture coordinate buffer	
-	vertexTexcoordAttribute = glGetAttribLocation(shaderProgramID,"aVertexTexcoord");
+	vertexTexcoordAttribute 		= glGetAttribLocation(shaderProgramID,"aVertexTexcoord");
 	//Gets Texture Map Uniform location
-	TextureMapUniformLocation = glGetUniformLocation(shaderProgramID,"TextureMap_uniform");
+	TextureMapUniformLocation 		= glGetUniformLocation(shaderProgramID,"TextureMap_uniform");
+
+	//! For Lighting
+	LightPositionUniformLocation	= glGetUniformLocation(shaderProgramID, "LightPosition_uniform"); 
+	AmbientUniformLocation 			= glGetUniformLocation(shaderProgramID, "Ambient_uniform"); 
+	SpecularUniformLocation 		= glGetUniformLocation(shaderProgramID, "Specular_uniform"); 
+	SpecularPowerUniformLocation 	= glGetUniformLocation(shaderProgramID, "SpecularPower_uniform"); 
+
+	std::cout 	<< LightPositionUniformLocation << " : "
+				<< AmbientUniformLocation << ": "
+				<< SpecularUniformLocation << ": "
+				<< SpecularPowerUniformLocation << std::endl;
 
 	//! Unknown
 	//Get Time Uniform Location
-	TimeUniformLocation=glGetUniformLocation(shaderProgramID,"t_uniform");
+	TimeUniformLocation = glGetUniformLocation(shaderProgramID,"t_uniform");
+
+
+	//! Multiple Shader Testing
+	new_vertexPositionAttribute 	= glGetAttribLocation(skyboxShaderID, "aVertexPosition");
+	new_MVMatrixUniformLocation 	= glGetUniformLocation(skyboxShaderID,"MVMatrix_uniform");
+	new_ProjectionUniformLocation 	= glGetUniformLocation(skyboxShaderID,"ProjMatrix_uniform");
 }
 
 void initTemp()
 {
+	//! Init Light
+	//Set colour variable and light position
+	//colour = Vector3f(1.0,0.0,0.0);
+	lightPosition= Vector3f(10.0,10.0,10.0);
+
+
 	ModelHelper::initTexture("../models/plane1.bmp", texture);
 	ModelHelper::initTexture("../models/grass.bmp", texture1);
 	ModelHelper::initTexture("../models/Crate.bmp", texture2);
 
-	plane.loadOBJ("../models/plane1.obj", MVMatrixUniformLocation, TextureMapUniformLocation, texture);
-	groundPlane.loadOBJ("../models/ground.obj", MVMatrixUniformLocation, TextureMapUniformLocation, texture1);
-	ring.loadOBJ("../models/torus.obj", MVMatrixUniformLocation, TextureMapUniformLocation, texture2);
+	plane.loadOBJ("../models/plane1.obj", TextureMapUniformLocation, texture);
+
+	groundPlane.loadOBJ("../models/ground.obj", TextureMapUniformLocation, texture1);
+
+	ring.loadOBJ("../models/torus.obj", TextureMapUniformLocation, texture2);
 
 	ring.rotate(90.0f, Vector3f(0.0f,0.0f,1.0f));
 	ring.translate(Vector3f(0.0f,2.0f,0.0f));
 	ring.setScale(1.5f);
+
+	plane.translate(Vector3f(3.0f,2.0f,0.0f));
+
+	groundPlane.translate(Vector3f(0.0f,0.0f,0.0f));
+	groundPlane.setScale(10.0f);
 }	
 
 //! Display Loop
@@ -186,7 +241,7 @@ void display(void)
     handleKeys();
 
 	//Set Viewport
-	glViewport(0,0,screenWidth, screenHeight);
+	//glViewport(0,0,screenWidth, screenHeight);
 	
 	// Clear the screen
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -194,18 +249,20 @@ void display(void)
 	//Use shader which were initialised in initShader()
 	glUseProgram(shaderProgramID);
 
-	//TIme
+	//! Time
 	t_global += 0.001;
 	glUniform1f(TimeUniformLocation, t_global);
 
+	//! Camera and Projection
 	ProjectionMatrix.perspective(90,1.0,0.01,100.0);
+
 	glUniformMatrix4fv(
 		ProjectionUniformLocation,	//Uniform location
 		1,							//Number of Uniforms
 		false,						//Transpose 
 		ProjectionMatrix.getPtr());	//Pointer to ModelViewMatrixValues
 
-	//use Lookat function
+		//Camera	
 	ModelViewMatrix.lookAt(
 		CamLocation,
 		CamLookAt,
@@ -220,22 +277,38 @@ void display(void)
 		ModelViewMatrix.getPtr());	//Pointer to ModelViewMatrixValues
 
 
-	//Set Colour after program is in use
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, texture);
-	//glUniform1i(TextureMapUniformLocation, 0);
-	
+	//! Lighting
+	glUniform3f(LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
+    glUniform4f(AmbientUniformLocation, ambient.x, ambient.y, ambient.z, 1.0);
+    glUniform4f(SpecularUniformLocation, specular.x, specular.y, specular.z, 1.0);
+    glUniform1f(SpecularPowerUniformLocation, specularPower);
 
-	plane.Draw(ModelViewMatrix, vertexPositionAttribute, -1, vertexTexcoordAttribute);
-	groundPlane.Draw(ModelViewMatrix, vertexPositionAttribute, -1, vertexTexcoordAttribute);
-	ring.Draw(ModelViewMatrix, vertexPositionAttribute, -1, vertexTexcoordAttribute);	
+	plane.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
+
+	groundPlane.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
+
+	//plane.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute);
+
+
+	glUseProgram(skyboxShaderID);
+
+	glUniformMatrix4fv(
+		new_ProjectionUniformLocation,	//Uniform location
+		1,							//Number of Uniforms
+		false,						//Transpose 
+		ProjectionMatrix.getPtr());	//Pointer to ModelViewMatrixValues
+
+	//ring.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
+
+	ring.Draw(ModelViewMatrix, new_MVMatrixUniformLocation, new_vertexPositionAttribute);
+
+	//Unuse Shader
+	glUseProgram(0);
 
     //Swap Buffers and post redisplay
 	glutSwapBuffers();
 	glutPostRedisplay();
 }
-
-
 
 //! Keyboard Interaction
 void keyboard(unsigned char key, int x, int y)
@@ -287,9 +360,7 @@ void keyboard(unsigned char key, int x, int y)
 		std::cout << key << "" <<std::endl;
 	}
 	*/
-	
 
-    
     //Set key status
     keyStates[key] = true;
 }
@@ -299,7 +370,6 @@ void keyUp(unsigned char key, int x, int y)
 {
     keyStates[key] = false;
 }
-
 
 //! Handle Keys
 void handleKeys()
@@ -359,8 +429,6 @@ void handleKeys()
 		CamLocation.z += 0.1f;
 		CamLookAt.z += 0.1f;
 	}
-
-
 }
 
 //! Mouse Interaction
@@ -384,6 +452,7 @@ void Timer(int value)
 	glutTimerFunc(10,Timer, 0);
 }
 
+//! Debug Print Function
 void VectorPrinter(Vector3f vec)
 {
 	std::cout << "X:[" <<vec.x << "]\n";
