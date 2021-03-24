@@ -1,30 +1,29 @@
-#include "Model.h"
+#include "Vector.h"
+#include <Model.h>
+#define toRads 0.0174532925199f
 
+//! Constructors and Destructors 
 Model::Model() : 
     scaleFactor(1.0f), 
     position(0.0f,0.0f,0.0f),  
-    rotationAxis(0.0f,0.0f,1.0f), 
-    rotationAngle(0.0f), 
+    rotationAngles(0.0f, 0.0f, 0.0f), 
     colour(0.5f, 0.5f, 0.5f)
 {
     ModelMatrix.toIdentity();
 }
 
-Model::Model(Vector3f initalPos, float initalSize, Vector3f initalRot, float initalAngle, Vector3f initalColour) : 
+Model::Model(Vector3f initalPos, float initalSize, Vector3f initalRot, Vector3f initalAngles, Vector3f initalColour) : 
     scaleFactor(initalSize), 
     position(initalPos),  
     rotationAxis(initalRot), 
-    rotationAngle(initalAngle), 
+    rotationAngles(initalAngles), 
     colour(initalColour)
 {
     ModelMatrix.toIdentity();
 }
 
 Model::~Model()
-{
-
-}
-
+{}
 
 //! Load the .OBJ File, mostly using parents function, but adds the matrix uniform used for the translations and the camera
 bool Model::loadOBJ(std::string filename, GLuint _TextureMapUniformLocation, GLuint texture)
@@ -46,19 +45,14 @@ bool Model::loadOBJ(std::string filename, GLuint _TextureMapUniformLocation, GLu
 //! Main Function of the Class, draws the model (using parent function) and adds transforms and textures
 void Model::Draw(Matrix4x4 ModelViewMatrix, GLuint MVMatrixUniformLocation, GLuint vertexPositionAttribute, GLuint vertexNormalAttribute, GLuint vertexTexcoordAttribute)
 {
-    //! Applies Basic Colours
-    /*
-    if(colourUniformLocation != -1)
-    {
-        glUniform4f(colourUniformLocation, colour.x, colour.y,  colour.z , 1.0f);
-    }*/
-
 
     //! Applies All Transforms, may be possible to reduce the number of operations
-    ModelMatrix = ModelMatrix * ModelViewMatrix; 
-    ModelMatrix.translate(position.x, position.y, position.z);
-    ModelMatrix.rotate(rotationAngle, rotationAxis.x, rotationAxis.y, rotationAxis.z);
-    ModelMatrix.scale(scaleFactor, scaleFactor, scaleFactor);
+    ModelMatrix = ModelMatrix * ModelViewMatrix;                // Starts by getting
+    ModelMatrix.translate(position.x, position.y, position.z);  // Translates
+    ModelMatrix.rotate(rotationAngles.x, 1.0f, 0.0f, 0.0f);     // Rotate around x
+    ModelMatrix.rotate(rotationAngles.y, 0.0f, 1.0f, 0.0f);     // Rotate around y
+    ModelMatrix.rotate(rotationAngles.z, 0.0f, 0.0f, 1.0f);     // Rotate around z
+    ModelMatrix.scale(scaleFactor, scaleFactor, scaleFactor);   // Scales
 
     glUniformMatrix4fv(
         MVMatrixUniformLocation,
@@ -66,14 +60,6 @@ void Model::Draw(Matrix4x4 ModelViewMatrix, GLuint MVMatrixUniformLocation, GLui
         false,
         ModelMatrix.getPtr());
 
-    //! Sends the Correct Texture to Shader
-
-    //! Applies Basic Colours
-    /*
-    if(colourUniformLocation != -1)
-    {
-        glUniform4f(colourUniformLocation, 0.1f, 0.1f, 0.1f, 1.0f);
-    }*/
 
     //! Loads the Texture
 	glActiveTexture(GL_TEXTURE0);
@@ -113,16 +99,16 @@ void Model::setPosition(float x, float y, float z)
 {
     position = Vector3f(x,y,z);
 }
-    // Changes Rotation Values (MAY REQUIRE A REDO)
-void Model::rotate(float increment, Vector3f newAxis)
+    // Changes Rotation Values 
+void Model::rotate(Vector3f increment)
 {
-    rotationAxis = newAxis;
-    rotationAngle += increment;
+    rotationAngles.x = (rotationAngles.x + increment.x);
+    rotationAngles.y = (rotationAngles.y + increment.y);
+    rotationAngles.z = (rotationAngles.z + increment.z);
 }
-void Model::setRotation(float newAngle, Vector3f newAxis)
+void Model::setRotation(Vector3f newAngle)
 {
-    rotationAxis = newAxis;
-    rotationAngle = newAngle;
+    rotationAngles = newAngle;
 }
     // Changes Colour (Currently Broken)
 void Model::setColour(float R, float G, float B)
@@ -137,6 +123,26 @@ void Model::setColour(float R, float G, float B)
     {
         std::cerr << "Invalid Colour Set" << std::endl;
     }
+}
+
+//
+Vector3f Model::facing()
+{
+    Vector3f rotationRadians(rotationAngles.z * toRads, rotationAngles.y * toRads, rotationAngles.z * toRads);
+
+    float x =  cos(rotationRadians.z) * cos(rotationRadians.y);
+    float y =  sin(rotationRadians.z); 
+    float z = -cos(rotationRadians.z) * sin(rotationRadians.y);
+
+    return Vector3f(x,y,z);
+}
+
+
+//! Gets Centre
+Vector3f Model::getMeshCentroid()
+{
+    Vector3f centroid(Mesh::getMeshCentroid());
+    return centroid + position;
 }
 
 //! DEBUGS FUNCTIONS (DISABLE IN FINAL BUILD)
@@ -161,8 +167,8 @@ void ModelHelper::initTexture(std::string filename, GLuint & textureID)
 	glBindTexture(GL_TEXTURE_2D, textureID);
     
 	//Set texture parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
 
@@ -176,5 +182,3 @@ void ModelHelper::initTexture(std::string filename, GLuint & textureID)
     //Cleanup data - copied to GPU
     delete[] data;
 }
-
-

@@ -38,6 +38,9 @@ private:
 	Vector3f position;
 	Vector3f rotationAxis;
 	float rotationAngle;
+
+	//! New Rotations
+	Vector3f rotationAngles;
 	
 	//! Visuals
     Vector3f colour;
@@ -74,10 +77,14 @@ public:
 	void translate(Vector3f); //Translates Position by Input
 	void setPosition(float, float, float); //Sets Position to Input
 		//! Incomplete Rotation Functions
-	void rotate(float increment, Vector3f newAxis); //Increments Rotation by Input (and sets Axis)
-	void setRotation(float newAngle, Vector3f newAxis); //Sets Rotation and Axis to Input
+	void rotate(Vector3f); //Increments Rotation by Input (and sets Axis)
+	void setRotation(Vector3f); //Sets Rotation and Axis to Input
 	void setColour(float, float, float); //Sets Colour to Input (RGB)
 	
+	//! Accessors 
+	Vector3f facing();
+	//! Overrides Mesh Function to get Centre of Translated Model
+	Vector3f getMeshCentroid();
 
 	//! Debug Functions
 	void printMatrix(); //Shows Models Matrix
@@ -88,7 +95,7 @@ public:
 		Vector3f initalPos, 
 		float initalSize = 1.0f,
 		Vector3f initalRot = Vector3f(0.0f,0.0f,0.0f),
-		float initalAngle = 0.0f, 
+		Vector3f initalAngles = Vector3f(0.0f,0.0f,0.0f), 
 		Vector3f initalColour = Vector3f(0.5f, 0.5f, 0.5f));
   	~Model();
 };

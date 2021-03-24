@@ -9,6 +9,7 @@
 #include <math.h>
 #include <string>
 #include <Texture.h>
+#include <iomanip>
 
 #include <Player.h>
 #include <Camera.h>
@@ -74,12 +75,16 @@ Vector3f lightPosition;				                // Light Position
 	//Material Properties
 Vector3f ambient    = Vector3f(0.1,0.1,0.1);
 Vector3f specular   = Vector3f(1.0,1.0,1.0);
-float specularPower = 10.0;
+float specularPower = 100.0f;
 
 
 //! Loaded Models
-Model groundPlane;
-Model ring;
+Model ground;
+
+Model ringX;
+Model ringY;
+Model ringZ;
+
 Model plane;
 
 GLuint texture;
@@ -89,6 +94,8 @@ GLuint texture2;
 GLuint new_vertexPositionAttribute;
 GLuint new_MVMatrixUniformLocation;
 GLuint new_ProjectionUniformLocation;
+
+Camera ThirdPerson;
 
 //! Bools for Toggles
 bool PentaToggle = false;
@@ -218,30 +225,38 @@ void initTemp()
 	ModelHelper::initTexture("../models/grass.bmp", texture1);
 	ModelHelper::initTexture("../models/Crate.bmp", texture2);
 
-	plane.loadOBJ("../models/plane1.obj", TextureMapUniformLocation, texture);
+	plane.loadOBJ("../models/plane2.obj", TextureMapUniformLocation, texture);
 
-	groundPlane.loadOBJ("../models/ground.obj", TextureMapUniformLocation, texture1);
+	ground.loadOBJ("../models/ground.obj", TextureMapUniformLocation, texture1);
 
-	ring.loadOBJ("../models/torus.obj", TextureMapUniformLocation, texture2);
+	ringX.loadOBJ("../models/torus.obj", TextureMapUniformLocation, texture);
+	ringY.loadOBJ("../models/torus.obj", TextureMapUniformLocation, texture1);
+	ringZ.loadOBJ("../models/torus.obj", TextureMapUniformLocation, texture2);
 
-	ring.rotate(90.0f, Vector3f(0.0f,0.0f,1.0f));
-	ring.translate(Vector3f(0.0f,2.0f,0.0f));
-	ring.setScale(1.5f);
+	ringX.rotate(Vector3f(0.0f,0.0f,90.0f));
+	ringY.rotate(Vector3f(0.0f,0.0f,90.0f));
+	ringZ.rotate(Vector3f(0.0f,0.0f,90.0f));
+
+	ringX.translate(Vector3f(0.0f,2.0f,0.0f));
+	ringY.translate(Vector3f(1.0f,2.0f,0.0f));
+	ringZ.translate(Vector3f(2.0f,2.0f,0.0f));
 
 	plane.translate(Vector3f(3.0f,2.0f,0.0f));
 
-	groundPlane.translate(Vector3f(0.0f,0.0f,0.0f));
-	groundPlane.setScale(10.0f);
+	ground.translate(Vector3f(0.0f,0.0f,0.0f));
+	ground.setScale(100.0f);
 }	
 
 //! Display Loop
 void display(void)
 {
+	//! Temp Movements
+	ringX.translate(Vector3f(	sin(t_global* 50) * 0.01f, 0.0f , 0.0f));
+	ringY.translate(Vector3f(	0.0f, sin(t_global* 50) * 0.01f, 0.0f));
+	ringZ.translate(Vector3f(	0.0f, 0.0f, sin(t_global* 50) * 0.01f));
+
     //Handle keys
     handleKeys();
-
-	//Set Viewport
-	//glViewport(0,0,screenWidth, screenHeight);
 	
 	// Clear the screen
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -253,30 +268,15 @@ void display(void)
 	t_global += 0.001;
 	glUniform1f(TimeUniformLocation, t_global);
 
+	//! 
+	//ThirdPerson.follow(plane.getMeshCentroid(), Vector3f(-4.0f, 1.0f, 0.0f));
+	ThirdPerson.follow(plane.getMeshCentroid(), plane.facing() * -4);
+
+
 	//! Camera and Projection
-	ProjectionMatrix.perspective(90,1.0,0.01,100.0);
-
-	glUniformMatrix4fv(
-		ProjectionUniformLocation,	//Uniform location
-		1,							//Number of Uniforms
-		false,						//Transpose 
-		ProjectionMatrix.getPtr());	//Pointer to ModelViewMatrixValues
-
-		//Camera	
-	ModelViewMatrix.lookAt(
-		CamLocation,
-		CamLookAt,
-		Vector3f(0, 1, 0 )
-	);
+	ThirdPerson.setProjection(ProjectionUniformLocation);
+	ThirdPerson.changeModelView(ModelViewMatrix);
 	
-	//Set modelview matrix uniform
-	glUniformMatrix4fv(	
-		MVMatrixUniformLocation,  	//Uniform location
-		1,							//Number of Uniforms
-		false,						//Transpose Matrix
-		ModelViewMatrix.getPtr());	//Pointer to ModelViewMatrixValues
-
-
 	//! Lighting
 	glUniform3f(LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
     glUniform4f(AmbientUniformLocation, ambient.x, ambient.y, ambient.z, 1.0);
@@ -285,22 +285,21 @@ void display(void)
 
 	plane.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
 
-	groundPlane.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
+	ground.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
 
 	//plane.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute);
 
 
-	glUseProgram(skyboxShaderID);
+//	glUseProgram(skyboxShaderID);
+	//ringY.Draw(ModelViewMatrix, new_MVMatrixUniformLocation, new_vertexPositionAttribute);
 
-	glUniformMatrix4fv(
-		new_ProjectionUniformLocation,	//Uniform location
-		1,							//Number of Uniforms
-		false,						//Transpose 
-		ProjectionMatrix.getPtr());	//Pointer to ModelViewMatrixValues
 
-	//ring.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
+	ThirdPerson.setProjection(new_ProjectionUniformLocation);
 
-	ring.Draw(ModelViewMatrix, new_MVMatrixUniformLocation, new_vertexPositionAttribute);
+	ringX.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
+	ringY.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
+	ringZ.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
+
 
 	//Unuse Shader
 	glUseProgram(0);
@@ -330,7 +329,13 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	else if (key == 'p')
 	{
-		plane.printMatrix();
+		VectorPrinter(plane.facing());
+		//plane.translate(plane.facing());
+		std::cout << plane.facing().length() << std::endl;		
+	}
+	else if (key == 'o')
+	{
+		plane.translate(plane.facing());
 	}
 	else if (key == 'c')
 	{
@@ -377,27 +382,28 @@ void handleKeys()
     //Keys are handled here
 	if(keyStates['w'])
     {
-		plane.translate(Vector3f(0.0f,0.01f,0.0f));
+		//Moving Forward
+		plane.rotate(Vector3f(0.0f,0.0f,1.0f));
     }
 	if (keyStates['s'])
 	{
-		plane.translate(Vector3f(0.0f,-0.01f,0.0f));
+		plane.rotate(Vector3f(0.0f,0.0f,-1.0f));
 	}
 	if(keyStates['a'])
     {
-		plane.translate(Vector3f(-0.01f,0.0f,0.0f));
+		plane.rotate(Vector3f(0.0f, 1.0f,0.0f));
     }
 	if (keyStates['d'])
 	{
-		plane.translate(Vector3f(0.01f,0.0f,0.0f));
+		plane.rotate(Vector3f(0.0f,-1.0f,0.0f));
 	}
 	if(keyStates['q'])
     {
-		plane.rotate(1.0f, Vector3f(0.0f,0.0f,1.0f));
+		plane.rotate(Vector3f(1.0f,0.0f,0.0f));
     }
 	if (keyStates['e'])
 	{
-		plane.rotate(-1.0f, Vector3f(0.0f,0.0f,1.0f));
+		plane.rotate(Vector3f(-1.0f,0.0f,0.0f));
 	}
 	if (keyStates['i'])
 	{
@@ -455,7 +461,7 @@ void Timer(int value)
 //! Debug Print Function
 void VectorPrinter(Vector3f vec)
 {
-	std::cout << "X:[" <<vec.x << "]\n";
-	std::cout << "Y:[" <<vec.y << "]\n";
-	std::cout << "Z:[" <<vec.z << "]\n";
+	std::cout << std::fixed << "X:[" << vec.x << "]\n";
+	std::cout << std::fixed << "Y:[" << vec.y << "]\n";
+	std::cout << std::fixed << "Z:[" << vec.z << "]\n";
 }

@@ -493,10 +493,10 @@ build/SphericalCameraManipulator.o: ../common/SphericalCameraManipulator.cpp
 build/Object.o: ../common/Object.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Object.o ../common/Object.cpp
 
-build/Camera.o: ../common/Camera.cpp 
+build/Camera.o: ../common/Camera.cpp ../common/Vector.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Camera.o ../common/Camera.cpp
 
-build/Model.o: ../common/Model.cpp ../common/Model.h
+build/Model.o: ../common/Model.cpp ../common/Vector.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Model.o ../common/Model.cpp
 
 build/Player.o: ../common/Player.cpp 
