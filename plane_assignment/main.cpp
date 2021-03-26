@@ -46,7 +46,6 @@ bool keyStates[256];
 //! Global Variables
 	// Shader IDs
 GLuint shaderProgramID;				// Shader Program ID
-GLuint skyboxShaderID;
 	// Shaders
 GLuint vertexPositionAttribute;		// Vertex Position Attribute Location
 GLuint vertexNormalAttribute;		// Vertex Normal Attribute Location
@@ -77,6 +76,18 @@ Vector3f ambient    = Vector3f(0.1,0.1,0.1);
 Vector3f specular   = Vector3f(1.0,1.0,1.0);
 float specularPower = 100.0f;
 
+//! Skybox 
+std::string skyboxPaths[6] = {
+"../models/skybox/right.bmp",
+"../models/skybox/left.bmp",
+"../models/skybox/top.bmp",
+"../models/skybox/bottom.bmp",
+"../models/skybox/front.bmp",
+"../models/skybox/back.bmp"};
+
+Skybox defaultSkybox(skyboxPaths);
+GLuint skyboxShaderID;
+
 
 //! Loaded Models
 Model ground;
@@ -85,15 +96,15 @@ Model ringX;
 Model ringY;
 Model ringZ;
 
-Model plane;
+Player plane;
 
 GLuint texture;
 GLuint texture1;
 GLuint texture2;
 
-GLuint new_vertexPositionAttribute;
-GLuint new_MVMatrixUniformLocation;
-GLuint new_ProjectionUniformLocation;
+GLuint skybox_vertexPositionAttribute;
+GLuint skybox_MVMatrixUniformLocation;
+GLuint skybox_ProjectionUniformLocation;
 
 Camera ThirdPerson;
 
@@ -181,10 +192,6 @@ void initShader()
 	//Gets Projection Matrix Uniform location, for projection
 	ProjectionUniformLocation 		= glGetUniformLocation(shaderProgramID,"ProjMatrix_uniform");
 
- 	//! For Colours (NOT WORKING)
-    //Colour Uniform Location
-	//ColourUniformLocation = glGetUniformLocation(shaderProgramID, "Colour_uniform");
-
 	//! For Textures
 	// Get a handle for our texture coordinate buffer	
 	vertexTexcoordAttribute 		= glGetAttribLocation(shaderProgramID,"aVertexTexcoord");
@@ -202,15 +209,13 @@ void initShader()
 				<< SpecularUniformLocation << ": "
 				<< SpecularPowerUniformLocation << std::endl;
 
-	//! Unknown
 	//Get Time Uniform Location
 	TimeUniformLocation = glGetUniformLocation(shaderProgramID,"t_uniform");
 
-
-	//! Multiple Shader Testing
-	new_vertexPositionAttribute 	= glGetAttribLocation(skyboxShaderID, "aVertexPosition");
-	new_MVMatrixUniformLocation 	= glGetUniformLocation(skyboxShaderID,"MVMatrix_uniform");
-	new_ProjectionUniformLocation 	= glGetUniformLocation(skyboxShaderID,"ProjMatrix_uniform");
+	//! Multiple Shader Testing	
+	skybox_vertexPositionAttribute 	= glGetAttribLocation(skyboxShaderID, "aVertexPosition");
+	skybox_MVMatrixUniformLocation 	= glGetUniformLocation(skyboxShaderID,"MVMatrix_uniform");
+	skybox_ProjectionUniformLocation 	= glGetUniformLocation(skyboxShaderID,"ProjMatrix_uniform");
 }
 
 void initTemp()
@@ -219,7 +224,6 @@ void initTemp()
 	//Set colour variable and light position
 	//colour = Vector3f(1.0,0.0,0.0);
 	lightPosition= Vector3f(10.0,10.0,10.0);
-
 
 	ModelHelper::initTexture("../models/plane1.bmp", texture);
 	ModelHelper::initTexture("../models/grass.bmp", texture1);
@@ -244,7 +248,7 @@ void initTemp()
 	plane.translate(Vector3f(3.0f,2.0f,0.0f));
 
 	ground.translate(Vector3f(0.0f,0.0f,0.0f));
-	ground.setScale(100.0f);
+	ground.setScale(10.0f);
 }	
 
 //! Display Loop
@@ -261,45 +265,47 @@ void display(void)
 	// Clear the screen
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
+	//! Renders the Skybox
+	glUseProgram(skyboxShaderID);
+	defaultSkybox.Draw(ModelViewMatrix, skybox_MVMatrixUniformLocation, skybox_vertexPositionAttribute);
+
 	//Use shader which were initialised in initShader()
 	glUseProgram(shaderProgramID);
-
+	
 	//! Time
 	t_global += 0.001;
 	glUniform1f(TimeUniformLocation, t_global);
 
 	//! 
 	//ThirdPerson.follow(plane.getMeshCentroid(), Vector3f(-4.0f, 1.0f, 0.0f));
-	ThirdPerson.follow(plane.getMeshCentroid(), plane.facing() * -4);
-
+	//ThirdPerson.follow(plane.getMeshCentroid(), plane.facing() * -4);
 
 	//! Camera and Projection
 	ThirdPerson.setProjection(ProjectionUniformLocation);
 	ThirdPerson.changeModelView(ModelViewMatrix);
-	
+
 	//! Lighting
 	glUniform3f(LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
     glUniform4f(AmbientUniformLocation, ambient.x, ambient.y, ambient.z, 1.0);
     glUniform4f(SpecularUniformLocation, specular.x, specular.y, specular.z, 1.0);
     glUniform1f(SpecularPowerUniformLocation, specularPower);
 
+	plane.updatePosition(t_global);
+
 	plane.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
 
 	ground.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
 
-	//plane.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute);
-
+	
 
 //	glUseProgram(skyboxShaderID);
 	//ringY.Draw(ModelViewMatrix, new_MVMatrixUniformLocation, new_vertexPositionAttribute);
 
-
-	ThirdPerson.setProjection(new_ProjectionUniformLocation);
-
+	/*
 	ringX.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
 	ringY.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
 	ringZ.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
-
+	*/
 
 	//Unuse Shader
 	glUseProgram(0);
@@ -434,6 +440,10 @@ void handleKeys()
 	{
 		CamLocation.z += 0.1f;
 		CamLookAt.z += 0.1f;
+	}
+	if (keyStates[' '])
+	{
+		plane.translate(plane.facing() * .01f);
 	}
 }
 
