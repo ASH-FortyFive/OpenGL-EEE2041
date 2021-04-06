@@ -49,9 +49,9 @@ void Model::Draw(Matrix4x4 ModelViewMatrix, GLuint MVMatrixUniformLocation, GLui
     //! Applies All Transforms, may be possible to reduce the number of operations
     ModelMatrix = ModelMatrix * ModelViewMatrix;                // Starts by getting
     ModelMatrix.translate(position.x, position.y, position.z);  // Translates
-    ModelMatrix.rotate(rotationAngles.x, 1.0f, 0.0f, 0.0f);     // Rotate around x
     ModelMatrix.rotate(rotationAngles.y, 0.0f, 1.0f, 0.0f);     // Rotate around y
     ModelMatrix.rotate(rotationAngles.z, 0.0f, 0.0f, 1.0f);     // Rotate around z
+    ModelMatrix.rotate(rotationAngles.x, 1.0f, 0.0f, 0.0f);     // Rotate around x
     ModelMatrix.scale(scaleFactor, scaleFactor, scaleFactor);   // Scales
 
     glUniformMatrix4fv(
@@ -59,7 +59,6 @@ void Model::Draw(Matrix4x4 ModelViewMatrix, GLuint MVMatrixUniformLocation, GLui
         1,
         false,
         ModelMatrix.getPtr());
-
 
     //! Loads the Texture
 	glActiveTexture(GL_TEXTURE0);
@@ -76,9 +75,7 @@ void Model::Draw(Matrix4x4 ModelViewMatrix, GLuint MVMatrixUniformLocation, GLui
         1,
         false,
         ModelMatrix.getPtr());
-    
 }
-
 
 //! All the Mutator Functions, both incrementing and setting (Currently Lacks Error Checking & Rotation may be changed to Quaternions)
     // Changes Scale of Model in Wold
@@ -94,6 +91,11 @@ void Model::setScale(float newScale)
 void Model::translate(Vector3f increment)
 {
     position = position + increment;
+}
+    // Overload for floats
+void Model::translate(float x, float y, float z)
+{
+    translate(Vector3f(x,y,z));
 }
 void Model::setPosition(float x, float y, float z)
 {
@@ -160,24 +162,24 @@ void Model::printMatrix()
 
 //! Helper Function
 //!  Loads Texture based on string into given textureID 
-void ModelHelper::initTexture(std::string filename, GLuint & textureID)
+void ModelHelper::initTexture(std::string filename, GLuint & textureID, GLuint TEXTURE_TYPE)
 {
 	//Generate texture and bind
 	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_2D, textureID);
+	glBindTexture(TEXTURE_TYPE, textureID);
     
 	//Set texture parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);	
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
+    glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_WRAP_T, GL_REPEAT);	
+	glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
 
 	//Get texture Data
 	int width, height;
 	char* data;
 	Texture::LoadBMP(filename, width, height, data);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glTexImage2D(TEXTURE_TYPE, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glBindTexture(TEXTURE_TYPE, 0);
 
     //Cleanup data - copied to GPU
     delete[] data;

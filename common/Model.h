@@ -4,8 +4,8 @@
  *
  * Also handels the loading of textures (as the Texture.h does not do this)
  */
-#ifndef moodel_H_
-#define moodel_H_
+#ifndef model_H_
+#define model_H_
 
 #include <GL/glew.h>
 #include <GL/glut.h>
@@ -21,13 +21,7 @@
 class Model : public Mesh {
 //! Member Variables
 private:
-    /*
-	GLuint vertexColourAttribute;		// Vertex Position Attribute Location
-	GLuint vertexColourBuffer;		    // Vertex Position Buffer  
-    */
-
 	//!Uniform Locations
-	//GLuint MVMatrixUniformLocation; 	// Matrix Uniform Location 
 	GLuint TextureMapUniformLocation; 	// Matrix Uniform Location 
 
 	//! Personal ModelViewMatrix	
@@ -75,6 +69,7 @@ public:
 	void scale(float); //Increases Scale by Input
 	void setScale(float); //Sets Scale to Input
 	void translate(Vector3f); //Translates Position by Input
+	void translate(float, float, float); //Translates Position by Input
 	void setPosition(float, float, float); //Sets Position to Input
 		//! Incomplete Rotation Functions
 	void rotate(Vector3f); //Increments Rotation by Input (and sets Axis)
@@ -103,7 +98,9 @@ public:
 //! Helper Function
 namespace ModelHelper {
 	// Load Texture into Given Texture ID
-	void initTexture(std::string filename, GLuint & textureID);
+	void initTexture(	std::string filename, 
+						GLuint & textureID, 
+						GLuint TEXTURE_TYPE = GL_TEXTURE_2D);
 } 
 
 #endif

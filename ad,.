@@ -1,0 +1,57 @@
+[33mcommit 9530d9fc34323ede0d4d911eb0e1ad670452ef5b[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;32mShading_and_Lights[m[33m)[m
+Author: ASH-FortyFive <as03095@surrey.ac.uk>
+Date:   Wed Mar 24 09:40:45 2021 +0000
+
+    Added Movement in direction plane is facing, should be possible in a cleaner way.
+
+[33mcommit a20034f5f36ac215f3a03ffa114af7be62a2a5f9[m[33m ([m[1;31morigin/master[m[33m)[m
+Merge: 835c0b4 88e519e
+Author: Alexandre Symeonidis-Herzig <as03095@surrey.ac.uk>
+Date:   Mon Mar 22 08:41:29 2021 +0000
+
+    Merge pull request #1 from ASH-FortyFive/Shading_and_Lights
+    
+    Shading and lights
+
+[33mcommit 88e519e04700a8ddc818f7e4ee59dc53cc2d0409[m[33m ([m[1;31morigin/Shading_and_Lights[m[33m)[m
+Author: ASH-FortyFive <as03095@surrey.ac.uk>
+Date:   Mon Mar 22 08:39:26 2021 +0000
+
+    Added basic support for multiple shaders
+
+[33mcommit 00eaee248c627c153107636416eb53cac40e821e[m
+Author: ASH-FortyFive <as03095@surrey.ac.uk>
+Date:   Sun Mar 21 16:39:03 2021 +0000
+
+    Setting up main for lighting, still requires work with shader files
+
+[33mcommit 1294bf50985e817e913412d2a6ebf93a33591e30[m
+Author: ASH-FortyFive <as03095@surrey.ac.uk>
+Date:   Sun Mar 21 13:52:09 2021 +0000
+
+    Honestly just testing branches
+
+[33mcommit 835c0b4935504c1515350d55db375e1ba8fe4d96[m[33m ([m[1;32mShading[m[33m)[m
+Author: ASH-FortyFive <as03095@surrey.ac.uk>
+Date:   Sun Mar 21 13:45:42 2021 +0000
+
+    Added Textures to Model Class
+
+[33mcommit 01cda5bba42c5f34e3bd03fe6b910516c029e3d0[m
+Author: ASH-FortyFive <as03095@surrey.ac.uk>
+Date:   Sun Mar 21 11:52:11 2021 +0000
+
+    Cleaned up Model class, added comments and removed unused class.
+    Prepared for moving textures to the model class.
+
+[33mcommit ada8e4d302ddb60258a68babef1df5944233e676[m
+Author: ASH-FortyFive <as03095@surrey.ac.uk>
+Date:   Sat Mar 20 13:38:00 2021 +0000
+
+    Added Basic Camera Motion and Converted all Mesh to Models class to allow for transforms
+
+[33mcommit 63c9e2a69abf1e7abbce8003dd69d8b7e0a41d9e[m
+Author: ASH-FortyFive <as03095@surrey.ac.uk>
+Date:   Sat Mar 20 10:33:32 2021 +0000
+
+    Inital Commit

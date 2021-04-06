@@ -1,10 +1,10 @@
 #version 120
 
-uniform sampler2D TextureMap_uniform;
+uniform samplerCube cubemape;
 
 varying vec2 uv;
 
 void main()
 {
-	gl_FragColor = texture2D(TextureMap_uniform, uv);
+	gl_FragColor = texture(skyboxVertices, uv);
 }
