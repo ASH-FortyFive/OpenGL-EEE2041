@@ -19,6 +19,7 @@ class Skybox
 private:
     GLuint cubemapTextureID;
     GLuint vertexPositionBuffer;
+    GLuint vao, vbo;
 public:
 //! Functions
 private:

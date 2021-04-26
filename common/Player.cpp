@@ -7,12 +7,14 @@ Player::Player()
 Player::~Player()
 {}
 
-void Player::update(float time_global)
+void Player::update(float frac)
 {
-    //! Changes speed to be consistent based on frame rate
-    GLfloat adjustedSpeed(5.0f * (time_global - prevT_global));
-    
-    //Model::translate(Model::facing() * adjustedSpeed);
+    //addForce(gravity * frac);
+    Model::translate((velocity + gravity * frac) * frac);
+    velocity = velocity * (0.99f);
+}
 
-    prevT_global = time_global;
+void Player::addForce(Vector3f newForce)
+{
+    velocity = velocity + newForce;
 }

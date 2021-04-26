@@ -1,10 +1,9 @@
-#version 120
+#version 400
 
-uniform samplerCube cubemape;
+in vec3 texcoords;
+uniform samplerCube cube_texture;
+out vec4 frag_colour;
 
-varying vec2 uv;
-
-void main()
-{
-	gl_FragColor = texture(skyboxVertices, uv);
+void main() {
+  frag_colour = texture(cube_texture, texcoords);
 }

@@ -218,6 +218,8 @@ void initShader()
 	skybox_vertexPositionAttribute 	= glGetAttribLocation(skyboxShaderID, "aVertexPosition");
 	skybox_MVMatrixUniformLocation 	= glGetUniformLocation(skyboxShaderID,"MVMatrix_uniform");
 	skybox_ProjectionUniformLocation 	= glGetUniformLocation(skyboxShaderID,"ProjMatrix_uniform");
+
+	defaultSkybox.Init();
 }
 
 void initTemp()
@@ -250,7 +252,7 @@ void initTemp()
 	plane.translate(Vector3f(0.0f,0.75f,0.0f));
 
 	ground.translate(Vector3f(0.0f,0.0f,0.0f));
-	ground.setScale(10.0f);
+	ground.setScale(250.0f);
 }	
 
 //! Display Loop
@@ -277,9 +279,15 @@ void display(void)
 	glUseProgram(shaderProgramID);
 	
 	//! Time
-	//std::cout << glutGet(GLUT_ELAPSED_TIME) << std::endl;
+	t_old	 = t_new;	
 	t_new = glutGet(GLUT_ELAPSED_TIME);
+	t_delta = (t_new - t_old) / 1000;
+
 	glUniform1f(TimeUniformLocation, t_new);
+
+	//! Updates all Physics Items
+	plane.update(t_delta);
+
 
 	//! Calculates Third Person Camera Follow
 	ThirdPerson.follow(plane.getMeshCentroid(),plane.facing(), Vector3f(-4.0f,0.5f,0.0f), Vector3f(0.0f,0.0f,0.0f));
@@ -294,7 +302,9 @@ void display(void)
     glUniform4f(SpecularUniformLocation, specular.x, specular.y, specular.z, 1.0);
     glUniform1f(SpecularPowerUniformLocation, specularPower);
 
-	plane.update(t_new);
+	Vector3f diff;
+	diff = plane.getMeshCentroid() - ThirdPerson.getPosition();
+	VectorPrinter(plane.getMeshCentroid());
 
 	plane.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
 
@@ -451,7 +461,7 @@ void handleKeys()
 	}
 	if (keyStates[' '])
 	{
-		plane.translate(plane.facing() * .1f);
+		plane.addForce(plane.facing());
 	}
 }
 

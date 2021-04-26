@@ -14,11 +14,9 @@ class Player : public Model
 {
 //! Member Variables
 private:
-    Vector3f direction;
-    GLfloat speed;
-
-    float prevT_global; // The time when UpdatePosition was last called, avoids speed being frame rate based.
-    //GLfloat acceleration;
+    Vector3f velocity;
+    //Vector3f gravity = Vector3f(0.0f, -9.8f, 0.0f);
+    Vector3f gravity = Vector3f(0.0f, 0.0f, 0.0f);
 public:
 
 //! Member Functions
@@ -26,7 +24,7 @@ private:
 
 
 public:
-    void takeInput(); // Takes the input and turns it into motion
+    void addForce(Vector3f); // Takes the input and turns it into motion
     void update(float);
 
 	//! Constructors and Destructors     

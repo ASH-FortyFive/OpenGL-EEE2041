@@ -62,16 +62,8 @@ void Camera::follow(Vector3f newTarget, Vector3f facing, Vector3f posOffset, Vec
     target 	 = newTarget;// + relativeTargetOffset;
 	position = newTarget + relativePosOffset;
 	
-	/*
-	std::cout << "Facing:	" << std::fixed << "X:" << facing.x << " Y:" << facing.y << " Z:" << facing.z <<"\n";
-	std::cout << "Up: 		" << std::fixed << "X:" << targetUp.x << " Y:" << targetUp.y << " Z:" << targetUp.z <<"\n";
-	std::cout << "Right:	" << std::fixed << "X:" << targetRight.x << " Y:" << targetRight.y << " Z:" << targetRight.z <<"\n";
-	*/
-	//relativeOffset = offset;
 
-	
-
-	this->update(); 
+	//this->update(); 
 	
 	
 }

@@ -99,17 +99,8 @@ void Skybox::Init()
 //! Main Function of the Class, draws the skybox and adds textures
 void Skybox::Draw(Matrix4x4 ModelViewMatrix, GLuint MVMatrixUniformLocation, GLuint vertexPositionAttribute)
 {
-    
+
     glDepthMask(GL_FALSE);
-    /*
-    glDepthMask(GL_FALSE);
-	// ... set view and projection matrix
-	glBindVertexArray(skyboxVAO);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	
-	// ... draw rest of the scene
-    */
 
     glUniformMatrix4fv(
         MVMatrixUniformLocation,
@@ -119,8 +110,6 @@ void Skybox::Draw(Matrix4x4 ModelViewMatrix, GLuint MVMatrixUniformLocation, GLu
 
     glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTextureID);
-
-   
     
 
 
