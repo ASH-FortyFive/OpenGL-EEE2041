@@ -7,12 +7,12 @@ Player::Player()
 Player::~Player()
 {}
 
-void Player::updatePosition(float time_global)
+void Player::update(float time_global)
 {
     //! Changes speed to be consistent based on frame rate
     GLfloat adjustedSpeed(5.0f * (time_global - prevT_global));
     
-    Model::translate(Model::facing() * adjustedSpeed);
+    //Model::translate(Model::facing() * adjustedSpeed);
 
     prevT_global = time_global;
 }

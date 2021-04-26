@@ -15,7 +15,7 @@
 #include <Camera.h>
 #include <Model.h>
 #include <Skybox.h>
-
+#include <HUD.h>
 
 
 //!Function Prototypes
@@ -108,15 +108,17 @@ GLuint skybox_ProjectionUniformLocation;
 
 Camera ThirdPerson;
 
+HUD ThirdPersonHUD;
+
 //! Bools for Toggles
 bool PentaToggle = false;
 bool WireFrame = false;
 
-Vector3f CamLocation = Vector3f(4.0,4.0,4.0);
-Vector3f CamLookAt = Vector3f(2.0,2.0,2.0);
 
 // Time
-float t_global = 0.0;
+float t_new = 0.0;
+float t_old = 0.0;
+float t_delta = 0.0;
 
 //! Main Program Entry
 int main(int argc, char** argv)
@@ -245,7 +247,7 @@ void initTemp()
 	ringY.translate(Vector3f(1.0f,2.0f,0.0f));
 	ringZ.translate(Vector3f(2.0f,2.0f,0.0f));
 
-	plane.translate(Vector3f(3.0f,2.0f,0.0f));
+	plane.translate(Vector3f(0.0f,0.75f,0.0f));
 
 	ground.translate(Vector3f(0.0f,0.0f,0.0f));
 	ground.setScale(10.0f);
@@ -255,9 +257,11 @@ void initTemp()
 void display(void)
 {
 	//! Temp Movements
+	/*
 	ringX.translate(Vector3f(	sin(t_global* 50) * 0.01f, 0.0f , 0.0f));
 	ringY.translate(Vector3f(	0.0f, sin(t_global* 50) * 0.01f, 0.0f));
 	ringZ.translate(Vector3f(	0.0f, 0.0f, sin(t_global* 50) * 0.01f));
+	*/
 
     //Handle keys
     handleKeys();
@@ -273,12 +277,12 @@ void display(void)
 	glUseProgram(shaderProgramID);
 	
 	//! Time
-	t_global += 0.001;
-	glUniform1f(TimeUniformLocation, t_global);
+	//std::cout << glutGet(GLUT_ELAPSED_TIME) << std::endl;
+	t_new = glutGet(GLUT_ELAPSED_TIME);
+	glUniform1f(TimeUniformLocation, t_new);
 
-	//! 
-	//ThirdPerson.follow(plane.getMeshCentroid(), Vector3f(-4.0f, 1.0f, 0.0f));
-	//ThirdPerson.follow(plane.getMeshCentroid(), plane.facing() * -4);
+	//! Calculates Third Person Camera Follow
+	ThirdPerson.follow(plane.getMeshCentroid(),plane.facing(), Vector3f(-4.0f,0.5f,0.0f), Vector3f(0.0f,0.0f,0.0f));
 
 	//! Camera and Projection
 	ThirdPerson.setProjection(ProjectionUniformLocation);
@@ -290,25 +294,30 @@ void display(void)
     glUniform4f(SpecularUniformLocation, specular.x, specular.y, specular.z, 1.0);
     glUniform1f(SpecularPowerUniformLocation, specularPower);
 
-	plane.updatePosition(t_global);
+	plane.update(t_new);
 
 	plane.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
 
 	ground.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
 
-	
+	ringX.setScale(10.0f);
+	ringX.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
 
 //	glUseProgram(skyboxShaderID);
 	//ringY.Draw(ModelViewMatrix, new_MVMatrixUniformLocation, new_vertexPositionAttribute);
 
 	/*
-	ringX.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
+	
 	ringY.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
 	ringZ.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
 	*/
 
 	//Unuse Shader
 	glUseProgram(0);
+
+	//! HUD Elements
+	ThirdPersonHUD.render2dText("Top?",1.0f,1.0f,1.0f,0.5f,-0.5f);
+	ThirdPersonHUD.render2dText("Bottom?",1.0f,0.7f,1.0f,0.0f,0.0f);
 
     //Swap Buffers and post redisplay
 	glutSwapBuffers();
@@ -335,24 +344,29 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	else if (key == 'p')
 	{
+		std::cout << "Plane is Facing" << std::endl;
 		VectorPrinter(plane.facing());
-		//plane.translate(plane.facing());
-		std::cout << plane.facing().length() << std::endl;		
-	}
-	else if (key == 'o')
-	{
-		plane.translate(plane.facing());
+		
+		std::cout << "Plane is at" << std::endl;
+		VectorPrinter(plane.getMeshCentroid());
+
+		std::cout << "Cam is Facing" << std::endl;
+		VectorPrinter(ThirdPerson.getDirection());
+		std::cout << "Cam is at" << std::endl;
+		VectorPrinter(ThirdPerson.getPosition());
+		std::cout << "==========================" << std::endl;
 	}
 	else if (key == 'c')
 	{
 		std::cout <<"Cam: Location" << std::endl;
-		VectorPrinter(CamLocation);
+		//VectorPrinter(CamLocation);
 		std::cout <<"Cam: LookAt" << std::endl;
-		VectorPrinter(CamLookAt);
+		//VectorPrinter(CamLookAt);
 	}
 	else if (key == 'g')
 	{
 		PentaToggle = !PentaToggle;
+		//ThirdPerson.follow(plane.getMeshCentroid(), Vector3f(0.0f,0.0f,0.0f));
 	}
 	else if(key == 'z' || key == 'Z')
 	{
@@ -413,37 +427,31 @@ void handleKeys()
 	}
 	if (keyStates['i'])
 	{
-		CamLocation.y += 0.1f;
-		CamLookAt.y += 0.1f;
+		ThirdPerson.move(Vector3f(0.25f,0.0f,0.0f));
 	}
 	if (keyStates['k'])
 	{
-		CamLocation.y -= 0.1f;
-		CamLookAt.y -= 0.1f;
+		ThirdPerson.move(Vector3f(-0.25f,0.0f,0.0f));
 	}
 	if (keyStates['j'])
 	{
-		CamLocation.x -= 0.1f;
-		CamLookAt.x -= 0.1f;
+		ThirdPerson.move(Vector3f(0.0f,0.0f,0.25f));
 	}
 	if (keyStates['l'])
 	{
-		CamLocation.x += 0.1f;
-		CamLookAt.x += 0.1f;
+		ThirdPerson.move(Vector3f(0.0f,0.0f,-0.25f));
 	}
 	if (keyStates['o'])
 	{
-		CamLocation.z -= 0.1f;
-		CamLookAt.z -= 0.1f;
+		ThirdPerson.move(Vector3f(0.0f,-0.25f,0.0f));
 	}
 	if (keyStates['u'])
 	{
-		CamLocation.z += 0.1f;
-		CamLookAt.z += 0.1f;
+		ThirdPerson.move(Vector3f(0.0f,0.25f,0.0f));
 	}
 	if (keyStates[' '])
 	{
-		plane.translate(plane.facing() * .01f);
+		plane.translate(plane.facing() * .1f);
 	}
 }
 
@@ -471,7 +479,6 @@ void Timer(int value)
 //! Debug Print Function
 void VectorPrinter(Vector3f vec)
 {
-	std::cout << std::fixed << "X:[" << vec.x << "]\n";
-	std::cout << std::fixed << "Y:[" << vec.y << "]\n";
-	std::cout << std::fixed << "Z:[" << vec.z << "]\n";
+	std::cout << std::fixed << "X:" << vec.x << " Y:" << vec.y << " Z:" << vec.z <<"\n";
+	//std::cout << std::fixed << "Mag:" << sqrt(vec.x*vec.x + vec.y*vec.y +vec.z*vec.z) << "\n";
 }

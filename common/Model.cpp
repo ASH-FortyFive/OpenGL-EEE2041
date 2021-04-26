@@ -51,7 +51,7 @@ void Model::Draw(Matrix4x4 ModelViewMatrix, GLuint MVMatrixUniformLocation, GLui
     ModelMatrix.translate(position.x, position.y, position.z);  // Translates
     ModelMatrix.rotate(rotationAngles.y, 0.0f, 1.0f, 0.0f);     // Rotate around y
     ModelMatrix.rotate(rotationAngles.z, 0.0f, 0.0f, 1.0f);     // Rotate around z
-    ModelMatrix.rotate(rotationAngles.x, 1.0f, 0.0f, 0.0f);     // Rotate around x
+    ModelMatrix.rotate(rotationAngles.x, 1.0f, 0.0f, 0.0f);     // Rotate around x               
     ModelMatrix.scale(scaleFactor, scaleFactor, scaleFactor);   // Scales
 
     glUniformMatrix4fv(
@@ -101,6 +101,10 @@ void Model::setPosition(float x, float y, float z)
 {
     position = Vector3f(x,y,z);
 }
+void Model::setPosition(Vector3f pos)
+{
+    position = pos;
+}
     // Changes Rotation Values 
 void Model::rotate(Vector3f increment)
 {
@@ -136,15 +140,26 @@ Vector3f Model::facing()
     float y =  sin(rotationRadians.z); 
     float z = -cos(rotationRadians.z) * sin(rotationRadians.y);
 
-    return Vector3f(x,y,z);
+    return rotationRadians.normalise(Vector3f(x,y,z));
+}
+
+Matrix4x4 Model::getRotiationMatrix()
+{
+    Matrix4x4 RotMatrix;
+    RotMatrix.toIdentity();
+    RotMatrix.rotate(rotationAngles.y, 0.0f, 1.0f, 0.0f);     // Rotate around y
+    RotMatrix.rotate(rotationAngles.z, 0.0f, 0.0f, 1.0f);     // Rotate around z
+    RotMatrix.rotate(rotationAngles.x, 1.0f, 0.0f, 0.0f);     // Rotate around x
+    return RotMatrix;
 }
 
 
 //! Gets Centre
 Vector3f Model::getMeshCentroid()
 {
-    Vector3f centroid(Mesh::getMeshCentroid());
-    return centroid + position;
+    //Vector3f centroid(Mesh::getMeshCentroid());
+    //return centroid + position;
+    return position;
 }
 
 //! DEBUGS FUNCTIONS (DISABLE IN FINAL BUILD)

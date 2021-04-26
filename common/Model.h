@@ -71,6 +71,7 @@ public:
 	void translate(Vector3f); //Translates Position by Input
 	void translate(float, float, float); //Translates Position by Input
 	void setPosition(float, float, float); //Sets Position to Input
+	void setPosition(Vector3f); //Sets Position to Input
 		//! Incomplete Rotation Functions
 	void rotate(Vector3f); //Increments Rotation by Input (and sets Axis)
 	void setRotation(Vector3f); //Sets Rotation and Axis to Input
@@ -78,6 +79,7 @@ public:
 	
 	//! Accessors 
 	Vector3f facing();
+	Matrix4x4 getRotiationMatrix();
 	//! Overrides Mesh Function to get Centre of Translated Model
 	Vector3f getMeshCentroid();
 

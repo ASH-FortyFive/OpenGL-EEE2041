@@ -27,7 +27,7 @@ private:
 
 public:
     void takeInput(); // Takes the input and turns it into motion
-    void updatePosition(float);
+    void update(float);
 
 	//! Constructors and Destructors     
     Player();
