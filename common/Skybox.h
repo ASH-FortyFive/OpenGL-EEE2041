@@ -11,25 +11,27 @@
 #include <Texture.h>
 #include <Shader.h>
 #include <Matrix.h>
+#include <Model.h>
 
 
 class Skybox
 {
 //! Member Variables
 private:
-    GLuint cubemapTextureID;
-    GLuint vertexPositionBuffer;
-    GLuint vao, vbo;
+     //! Skybox
+    GLuint cubeTextureID[6];
+    Model cube[6];
+
 public:
 //! Functions
 private:
-    bool loadCubemapTexture(std::string*);
+    void makeBox();
 public:
-    void Draw(Matrix4x4 ModelViewMatrix, GLuint MVMatrixUniformLocation, GLuint vertexPositionAttribute);
-    void Init();
+    void Draw(Vector3f, Matrix4x4, GLuint, GLuint, GLuint, GLuint);
+    void Init(GLuint, std::string*);
 
     //! Constructors and Destructors 
-    Skybox(std::string*);
+    Skybox();
     ~Skybox();   
 }; 
 

@@ -86,7 +86,7 @@ std::string skyboxPaths[6] = {
 "../models/skybox/front.bmp",
 "../models/skybox/back.bmp"};
 
-Skybox defaultSkybox(skyboxPaths);
+Skybox defaultSkybox;
 GLuint skyboxShaderID;
 
 
@@ -104,8 +104,11 @@ GLuint texture1;
 GLuint texture2;
 
 GLuint skybox_vertexPositionAttribute;
+GLuint skybox_vertexNormalAttribute;
 GLuint skybox_MVMatrixUniformLocation;
 GLuint skybox_ProjectionUniformLocation;
+GLuint skybox_vertexTexcoordAttribute;	
+GLuint skybox_TextureMapUniformLocation;
 
 Camera ThirdPerson;
 
@@ -216,11 +219,14 @@ void initShader()
 	TimeUniformLocation = glGetUniformLocation(shaderProgramID,"t_uniform");
 
 	//! Multiple Shader Testing	
-	skybox_vertexPositionAttribute 	= glGetAttribLocation(skyboxShaderID, "aVertexPosition");
-	skybox_MVMatrixUniformLocation 	= glGetUniformLocation(skyboxShaderID,"MVMatrix_uniform");
-	skybox_ProjectionUniformLocation 	= glGetUniformLocation(skyboxShaderID,"ProjMatrix_uniform");
+	skybox_vertexPositionAttribute 	= glGetAttribLocation(skyboxShaderID, "aVertexPosition"); 	//
+	skybox_vertexNormalAttribute 	= glGetAttribLocation(skyboxShaderID,    "aVertexNormal"); 
+	skybox_MVMatrixUniformLocation 	= glGetUniformLocation(skyboxShaderID,"MVMatrix_uniform");	//
+	skybox_ProjectionUniformLocation= glGetUniformLocation(skyboxShaderID,"ProjMatrix_uniform");//
+	skybox_vertexTexcoordAttribute 	= glGetAttribLocation(skyboxShaderID,"aVertexTexcoord"); 	//
+	skybox_TextureMapUniformLocation= glGetUniformLocation(skyboxShaderID,"TextureMap_uniform");//
 
-	defaultSkybox.Init();
+	defaultSkybox.Init(TextureMapUniformLocation, skyboxPaths);
 }
 
 void initTemp()
@@ -272,9 +278,6 @@ void display(void)
 	// Clear the screen
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-	//! Renders the Skybox
-	glUseProgram(skyboxShaderID);
-	defaultSkybox.Draw(ModelViewMatrix, skybox_MVMatrixUniformLocation, skybox_vertexPositionAttribute);
 
 	//Use shader which were initialised in initShader()
 	glUseProgram(shaderProgramID);
@@ -303,22 +306,22 @@ void display(void)
     glUniform4f(SpecularUniformLocation, specular.x, specular.y, specular.z, 1.0);
     glUniform1f(SpecularPowerUniformLocation, specularPower);
 
-	Vector3f diff;
-	diff = plane.getMeshCentroid() - ThirdPerson.getPosition();
-	VectorPrinter(plane.getMeshCentroid());
+
+	//! Renders the Skybox
+	glUseProgram(skyboxShaderID);
+	glDepthMask(GL_FALSE);
+	ThirdPerson.setProjection(skybox_ProjectionUniformLocation);
+	defaultSkybox.Draw(ThirdPerson.getPosition(),ModelViewMatrix, skybox_MVMatrixUniformLocation, skybox_vertexPositionAttribute, skybox_vertexNormalAttribute, skybox_vertexTexcoordAttribute);
+	glDepthMask(GL_TRUE);
+	glUseProgram(shaderProgramID);
 
 	plane.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
-
-	ground.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
-
-	ringX.setScale(10.0f);
 	ringX.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
 
-//	glUseProgram(skyboxShaderID);
-	//ringY.Draw(ModelViewMatrix, new_MVMatrixUniformLocation, new_vertexPositionAttribute);
-
-	/*
+	ground.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
 	
+	/*
+	ringX.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
 	ringY.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
 	ringZ.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
 	*/
