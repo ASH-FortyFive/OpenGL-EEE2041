@@ -16,6 +16,7 @@
 #include <Model.h>
 #include <Skybox.h>
 #include <HUD.h>
+#include <Map.h>
 
 
 //!Function Prototypes

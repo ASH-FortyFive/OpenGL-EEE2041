@@ -19,7 +19,8 @@ HEADERS	+= 	../common/Shader.h	    		\
         	../common/Model.h  			\
 		../common/Player.h  			\
 		../common/Skybox.h  			\
-		../common/HUD.h  			
+		../common/HUD.h  			\
+		../common/Map.h  			
 			
 
 #Sources
@@ -36,6 +37,7 @@ SOURCES += 	main.cpp			        \
 		../common/Player.cpp			\  
 		../common/Skybox.cpp  			\
 		../common/HUD.cpp  			\
+		../common/Map.cpp  			\
 
 INCLUDEPATH += 	./ 				    	\
 		../common/ 				\
