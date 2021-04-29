@@ -259,7 +259,9 @@ void initTemp()
 	plane.translate(Vector3f(0.0f,0.75f,0.0f));
 
 	ground.translate(Vector3f(0.0f,0.0f,0.0f));
-	ground.setScale(250.0f);
+	ground.setScale(10.0f);
+
+	ThirdPerson.follow(plane.getMeshCentroid(),plane.facing(), Vector3f(-4.0f,0.5f,0.0f), Vector3f(0.0f,0.0f,0.0f));
 }	
 
 //! Display Loop
@@ -292,13 +294,10 @@ void display(void)
 	//! Updates all Physics Items
 	plane.update(t_delta);
 
+	ringX.rotate(Vector3f(0,t_new / 10000,0));
 
 	//! Calculates Third Person Camera Follow
 	ThirdPerson.follow(plane.getMeshCentroid(),plane.facing(), Vector3f(-4.0f,0.5f,0.0f), Vector3f(0.0f,0.0f,0.0f));
-
-	//! Camera and Projection
-	ThirdPerson.setProjection(ProjectionUniformLocation);
-	ThirdPerson.changeModelView(ModelViewMatrix);
 
 	//! Lighting
 	glUniform3f(LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
@@ -306,6 +305,9 @@ void display(void)
     glUniform4f(SpecularUniformLocation, specular.x, specular.y, specular.z, 1.0);
     glUniform1f(SpecularPowerUniformLocation, specularPower);
 
+	//! Camera and Projection
+	ThirdPerson.setProjection(ProjectionUniformLocation);
+	ThirdPerson.changeModelView(ModelViewMatrix);
 
 	//! Renders the Skybox
 	glUseProgram(skyboxShaderID);
@@ -317,6 +319,8 @@ void display(void)
 
 	plane.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
 	ringX.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
+	ringY.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
+
 
 	ground.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
 	
@@ -441,31 +445,35 @@ void handleKeys()
 	}
 	if (keyStates['i'])
 	{
-		ThirdPerson.move(Vector3f(0.25f,0.0f,0.0f));
+		lightPosition = lightPosition + Vector3f(1.0,0.0,0.0);
 	}
 	if (keyStates['k'])
 	{
-		ThirdPerson.move(Vector3f(-0.25f,0.0f,0.0f));
+		lightPosition = lightPosition + Vector3f(-1.0,0.0,0.0);
 	}
 	if (keyStates['j'])
 	{
-		ThirdPerson.move(Vector3f(0.0f,0.0f,0.25f));
+		lightPosition = lightPosition + Vector3f(0.0,0.0,1.0);
 	}
 	if (keyStates['l'])
 	{
-		ThirdPerson.move(Vector3f(0.0f,0.0f,-0.25f));
+		lightPosition = lightPosition + Vector3f(0.0,0.0,-1.0);
 	}
 	if (keyStates['o'])
 	{
-		ThirdPerson.move(Vector3f(0.0f,-0.25f,0.0f));
+		lightPosition = lightPosition + Vector3f(0.0,1.0,0.0);
 	}
 	if (keyStates['u'])
 	{
-		ThirdPerson.move(Vector3f(0.0f,0.25f,0.0f));
+		lightPosition = lightPosition + Vector3f(0.0,-1.0,0.0);
 	}
 	if (keyStates[' '])
 	{
-		plane.addForce(plane.facing());
+		plane.addForce(plane.facing() * 0.2f);
+	}
+	if (keyStates['b'])
+	{
+		plane.addForce(plane.facing() * -0.2f);
 	}
 }
 

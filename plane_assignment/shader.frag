@@ -17,7 +17,8 @@ void main( void )
    float fNDotL           = dot( fvNormal, fvLightDirection ); 
    
    vec3  fvReflection     = normalize( ( ( 2.0 * fvNormal ) * fNDotL ) - fvLightDirection ); 
-   vec3  fvViewDirection  = normalize( ViewDirection );
+   //vec3  fvViewDirection  = normalize( ViewDirection );
+   vec3  fvViewDirection  = vec3(0,0,0);
    float fRDotV           = max( 0.0, dot( fvReflection, fvViewDirection ) );
    
    vec4  fvTotalDiffuse   = fNDotL *  texture2D(Texture_uniform, texCoord);
