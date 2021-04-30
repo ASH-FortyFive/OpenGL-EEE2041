@@ -110,7 +110,7 @@ GLuint skybox_ProjectionUniformLocation;
 GLuint skybox_vertexTexcoordAttribute;	
 GLuint skybox_TextureMapUniformLocation;
 
-Camera ThirdPerson;
+Camera ThirdPerson(Vector3f(-4.0f,0.0f,0.0f));
 
 HUD ThirdPersonHUD;
 
@@ -260,8 +260,6 @@ void initTemp()
 
 	ground.translate(Vector3f(0.0f,0.0f,0.0f));
 	ground.setScale(10.0f);
-
-	ThirdPerson.follow(plane.getMeshCentroid(),plane.facing(), Vector3f(-4.0f,0.5f,0.0f), Vector3f(0.0f,0.0f,0.0f));
 }	
 
 //! Display Loop
@@ -297,7 +295,6 @@ void display(void)
 	ringX.rotate(Vector3f(0,t_new / 10000,0));
 
 	//! Calculates Third Person Camera Follow
-	ThirdPerson.follow(plane.getMeshCentroid(),plane.facing(), Vector3f(-4.0f,0.5f,0.0f), Vector3f(0.0f,0.0f,0.0f));
 
 	//! Lighting
 	glUniform3f(LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
@@ -306,15 +303,18 @@ void display(void)
     glUniform1f(SpecularPowerUniformLocation, specularPower);
 
 	//! Camera and Projection
-	ThirdPerson.setProjection(ProjectionUniformLocation);
-	ThirdPerson.changeModelView(ModelViewMatrix);
+	//ThirdPerson.setProjection(ProjectionUniformLocation);
+	//ThirdPerson.changeModelView(ModelViewMatrix);
+	ThirdPerson.update(plane, ModelViewMatrix, ProjectionUniformLocation);
 
 	//! Renders the Skybox
+	
 	glUseProgram(skyboxShaderID);
 	glDepthMask(GL_FALSE);
 	ThirdPerson.setProjection(skybox_ProjectionUniformLocation);
 	defaultSkybox.Draw(ThirdPerson.getPosition(),ModelViewMatrix, skybox_MVMatrixUniformLocation, skybox_vertexPositionAttribute, skybox_vertexNormalAttribute, skybox_vertexTexcoordAttribute);
 	glDepthMask(GL_TRUE);
+	
 	glUseProgram(shaderProgramID);
 
 	plane.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
@@ -368,7 +368,10 @@ void keyboard(unsigned char key, int x, int y)
 		std::cout << "Plane is at" << std::endl;
 		VectorPrinter(plane.getMeshCentroid());
 
-		std::cout << "Cam is Facing" << std::endl;
+		std::cout << "Plane is rotated" << std::endl ;
+		VectorPrinter(plane.getRotiation());
+
+		std::cout << std::endl << "Cam is Facing" << std::endl;
 		VectorPrinter(ThirdPerson.getDirection());
 		std::cout << "Cam is at" << std::endl;
 		VectorPrinter(ThirdPerson.getPosition());
@@ -384,7 +387,8 @@ void keyboard(unsigned char key, int x, int y)
 	else if (key == 'g')
 	{
 		PentaToggle = !PentaToggle;
-		//ThirdPerson.follow(plane.getMeshCentroid(), Vector3f(0.0f,0.0f,0.0f));
+		plane.setRotation(Vector3f());
+		plane.setPosition(Vector3f(0.0f,0.75f,0.0f));
 	}
 	else if(key == 'z' || key == 'Z')
 	{
@@ -421,27 +425,27 @@ void handleKeys()
 	if(keyStates['w'])
     {
 		//Moving Forward
-		plane.rotate(Vector3f(0.0f,0.0f,1.0f));
+		plane.addSpin(Vector3f(0.0f,0.0f,3.0f));
     }
 	if (keyStates['s'])
 	{
-		plane.rotate(Vector3f(0.0f,0.0f,-1.0f));
+		plane.addSpin(Vector3f(0.0f,0.0f,-3.0f));
 	}
 	if(keyStates['a'])
     {
-		plane.rotate(Vector3f(0.0f, 1.0f,0.0f));
+		plane.addSpin(Vector3f(0.0f, 3.0f,0.0f));
     }
 	if (keyStates['d'])
 	{
-		plane.rotate(Vector3f(0.0f,-1.0f,0.0f));
+		plane.addSpin(Vector3f(0.0f,-3.0f,0.0f));
 	}
 	if(keyStates['q'])
     {
-		plane.rotate(Vector3f(1.0f,0.0f,0.0f));
+		plane.addSpin(Vector3f(3.0f,0.0f,0.0f));
     }
 	if (keyStates['e'])
 	{
-		plane.rotate(Vector3f(-1.0f,0.0f,0.0f));
+		plane.addSpin(Vector3f(-3.0f,0.0f,0.0f));
 	}
 	if (keyStates['i'])
 	{

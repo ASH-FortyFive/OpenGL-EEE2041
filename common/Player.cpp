@@ -9,12 +9,21 @@ Player::~Player()
 
 void Player::update(float frac)
 {
-    //addForce(gravity * frac);
-    Model::translate((velocity + gravity * frac) * frac);
-    velocity = velocity * (0.99f);
+    //addForce( gravity * frac );
+    Model::translate(velocity * frac);
+    Model::rotate(spin * frac);
+
+    //! Decays Forces
+    velocity = velocity * (0.95f);
+    spin = spin * (0.95f);
 }
 
 void Player::addForce(Vector3f newForce)
 {
     velocity = velocity + newForce;
+}
+
+void Player::addSpin(Vector3f newSpin)
+{
+    spin = spin + newSpin;
 }

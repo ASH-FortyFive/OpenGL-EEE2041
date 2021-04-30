@@ -80,6 +80,7 @@ public:
 	//! Accessors 
 	Vector3f facing();
 	Matrix4x4 getRotiationMatrix();
+	Vector3f getRotiation();
 	//! Overrides Mesh Function to get Centre of Translated Model
 	Vector3f getMeshCentroid();
 

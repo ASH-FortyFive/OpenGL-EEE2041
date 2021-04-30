@@ -90,7 +90,7 @@ void Model::setScale(float newScale)
     // Changes Position of Model in World
 void Model::translate(Vector3f increment)
 {
-    position = position + increment;
+    setPosition(position + increment);
 }
     // Overload for floats
 void Model::translate(float x, float y, float z)
@@ -99,7 +99,7 @@ void Model::translate(float x, float y, float z)
 }
 void Model::setPosition(float x, float y, float z)
 {
-    position = Vector3f(x,y,z);
+    setPosition(Vector3f(x,y,z));
 }
 void Model::setPosition(Vector3f pos)
 {
@@ -108,13 +108,18 @@ void Model::setPosition(Vector3f pos)
     // Changes Rotation Values 
 void Model::rotate(Vector3f increment)
 {
-    rotationAngles.x = (rotationAngles.x + increment.x);
-    rotationAngles.y = (rotationAngles.y + increment.y);
-    rotationAngles.z = (rotationAngles.z + increment.z);
+    setRotation(Vector3f(
+        rotationAngles.x + increment.x,
+        rotationAngles.y + increment.y,
+        rotationAngles.z + increment.z
+    ));
 }
 void Model::setRotation(Vector3f newAngle)
 {
-    rotationAngles = newAngle;
+    
+    rotationAngles.x =fmod(newAngle.x + 360.0f, 360.0f);
+    rotationAngles.y =fmod(newAngle.y + 360.0f, 360.0f);
+    rotationAngles.z =fmod(newAngle.z + 360.0f, 360.0f);
 }
     // Changes Colour (Currently Broken)
 void Model::setColour(float R, float G, float B)
@@ -131,7 +136,7 @@ void Model::setColour(float R, float G, float B)
     }
 }
 
-//
+//! Accessors
 Vector3f Model::facing()
 {
     Vector3f rotationRadians(rotationAngles.z * toRads, rotationAngles.y * toRads, rotationAngles.z * toRads);
@@ -152,6 +157,12 @@ Matrix4x4 Model::getRotiationMatrix()
     RotMatrix.rotate(rotationAngles.x, 1.0f, 0.0f, 0.0f);     // Rotate around x
     return RotMatrix;
 }
+
+Vector3f Model::getRotiation()
+{
+    return rotationAngles;
+}
+
 
 
 //! Gets Centre
