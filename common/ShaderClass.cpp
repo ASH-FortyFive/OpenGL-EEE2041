@@ -21,7 +21,8 @@ void MasterShader::loadShader(std::string vert, std::string frag)
 	// Gets handel for vertex normal buffer
 	vertexNormalAttribute 			= glGetAttribLocation(ID,    "aVertexNormal"); 
 	//Gets Matrix Uniform Location, for camera and transform
-	MVMatrixUniformLocation 		= glGetUniformLocation(ID,"MVMatrix_uniform");
+	ModelMatrixUniformLocation 		= glGetUniformLocation(ID,"ModelMatrix_uniform");
+	ViewMatrixUniformLocation 		= glGetUniformLocation(ID,"ViewMatrix_uniform");
 	//Gets Projection Matrix Uniform location, for projection
 	ProjectionUniformLocation 		= glGetUniformLocation(ID,"ProjMatrix_uniform");
 
@@ -40,7 +41,7 @@ void MasterShader::loadShader(std::string vert, std::string frag)
 	//! For Time
 	TimeUniformLocation = glGetUniformLocation(ID,"t_uniform");
 
-    std::cout <<    vertexPositionAttribute << " : " <<  vertexNormalAttribute << " : " << MVMatrixUniformLocation << " : " << ProjectionUniformLocation << " : " << 
+    std::cout <<    vertexPositionAttribute << " : " <<  vertexNormalAttribute << " : " << ModelMatrixUniformLocation << " : " << ViewMatrixUniformLocation << " : " << ProjectionUniformLocation << " : " << 
                     vertexTexcoordAttribute << " : " << TextureMapUniformLocation << " : " << 
                     LightPositionUniformLocation << " : " << AmbientUniformLocation << " : " << SpecularUniformLocation << " : " << SpecularPowerUniformLocation << std::endl;
 }

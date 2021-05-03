@@ -18,7 +18,8 @@ public:
     //! For Positions and Transforms
     GLuint vertexPositionAttribute = -1;
     GLuint vertexNormalAttribute = -1;
-    GLuint MVMatrixUniformLocation = -1;
+    GLuint ModelMatrixUniformLocation = -1;
+    GLuint ViewMatrixUniformLocation = -1;
     GLuint ProjectionUniformLocation = -1;
 
     //! For Textures

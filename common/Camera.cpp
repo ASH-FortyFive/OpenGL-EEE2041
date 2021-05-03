@@ -15,22 +15,19 @@ Camera::~Camera()
 {}
 
 //! Perspective
-void Camera::setProjection(GLuint _ProjectionUniformLocation)
+void Camera::updateShader(MasterShader shader)
 {
     glUniformMatrix4fv(
-		_ProjectionUniformLocation,	//Uniform location
+		shader.ProjectionUniformLocation,	//Uniform location
 		1,							//Number of Uniforms
 		false,						//Transpose 
 		ProjectionMatrix.getPtr());	//Pointer to ModelViewMatrixValues
-}
 
-void Camera::changeModelView(Matrix4x4& _ModelViewMatrix)
-{
-    _ModelViewMatrix.lookAt(
-		position,
-		target,
-		GlobalUp
-	);
+	glUniformMatrix4fv(
+        shader.ViewMatrixUniformLocation,
+        1,
+        false,
+        ViewMatrix.getPtr());
 }
 
 //! Accessors
@@ -42,7 +39,6 @@ Vector3f Camera::getDirection()
 {
     return direction;
 }
-
 
 
 //! Moves Camera
@@ -83,12 +79,13 @@ void Camera::follow(Player player, Vector3f posOffset, Vector3f targetOffset)
 }
 
 //! Main Function that Updates the Camera Position
-void Camera::update(Player player, Matrix4x4& _ModelViewMatrix, GLuint _ProjectionUniformLocation)
+void Camera::followUpdate(Player player)
 {
-
 	follow(player, positionOffset, targetOffset);
 
-	changeModelView(_ModelViewMatrix);
-
-	setProjection(_ProjectionUniformLocation);	
+	ViewMatrix.lookAt(
+		position,
+		target,
+		GlobalUp
+	);
 }

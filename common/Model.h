@@ -45,7 +45,6 @@ private:
 public:
     //! Overloads functions from Mesh to Allow for Transforms, Textures, and Colours (BROKEN)
 	void Draw(
-		Matrix4x4 ModelViewMatrix,
 		MasterShader shader);
 
     

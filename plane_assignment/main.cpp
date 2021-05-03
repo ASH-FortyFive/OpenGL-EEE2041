@@ -46,7 +46,7 @@ int screenHeight   	        = 1080;
 bool keyStates[256];
 
 //! Global Variables
-Matrix4x4 ModelViewMatrix;	
+Matrix4x4 ViewMatrix;	
 
 //! Light Settings
 Vector3f lightPosition;				                // Light Position 
@@ -83,7 +83,7 @@ GLuint texture;
 GLuint texture1;
 GLuint texture2;
 
-Camera ThirdPerson(Vector3f(-4.0f,0.0f,0.0f));
+Camera ThirdPerson(Vector3f(-4.0f,0.65f,0.0f));
 
 HUD ThirdPersonHUD;
 
@@ -168,7 +168,7 @@ void initTemp()
 	//! Init Light
 	//Set colour variable and light position
 	//colour = Vector3f(1.0,0.0,0.0);
-	lightPosition= Vector3f(10.0,10.0,10.0);
+	lightPosition= Vector3f(10.0,10.0,-14.14f);
 
 	ModelHelper::initTexture("../models/plane1.bmp", texture);
 	ModelHelper::initTexture("../models/grass.bmp", texture1);
@@ -187,7 +187,8 @@ void initTemp()
 	ringZ.rotate(Vector3f(0.0f,0.0f,90.0f));
 
 	ringX.translate(Vector3f(0.0f,2.0f,0.0f));
-	ringY.translate(Vector3f(1.0f,2.0f,0.0f));
+	ringY.translate(Vector3f(10.0f,4.0f,0.0f));
+	ringY.setScale(2.0f);
 	ringZ.translate(Vector3f(2.0f,2.0f,0.0f));
 
 	plane.translate(Vector3f(0.0f,0.75f,0.0f));
@@ -199,36 +200,38 @@ void initTemp()
 //! Display Loop
 void display(void)
 {
-	//! Temp Movements
-	/*
-	ringX.translate(Vector3f(	sin(t_global* 50) * 0.01f, 0.0f , 0.0f));
-	ringY.translate(Vector3f(	0.0f, sin(t_global* 50) * 0.01f, 0.0f));
-	ringZ.translate(Vector3f(	0.0f, 0.0f, sin(t_global* 50) * 0.01f));
-	*/
-
     //Handle keys
     handleKeys();
 	
 	// Clear the screen
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-
-	//Use shader which were initialised in initShader()
-	glUseProgram(defaultShader.ID);
-	
 	//! Time
 	t_old	 = t_new;	
 	t_new = glutGet(GLUT_ELAPSED_TIME);
 	t_delta = (t_new - t_old) / 1000;
 
-	glUniform1f(defaultShader.TimeUniformLocation, t_new);
 
 	//! Updates all Physics Items
+	//=============================================================//
 	plane.update(t_delta);
-
-	ringX.rotate(Vector3f(0,t_new / 10000,0));
+	//=============================================================//
 
 	//! Calculates Third Person Camera Follow
+	ThirdPerson.followUpdate(plane);
+	
+
+	//! Renders the Skybox
+	glUseProgram(skyboxShader.ID);
+
+	glDepthMask(GL_FALSE);
+	ThirdPerson.updateShader(skyboxShader);
+	defaultSkybox.Draw(ThirdPerson.getPosition(),ViewMatrix, skyboxShader);
+	glDepthMask(GL_TRUE);
+	
+
+	//! Draws Main Models
+	glUseProgram(defaultShader.ID);
 
 	//! Lighting
 	glUniform3f(defaultShader.LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
@@ -236,27 +239,13 @@ void display(void)
     glUniform4f(defaultShader.SpecularUniformLocation, specular.x, specular.y, specular.z, 1.0);
     glUniform1f(defaultShader.SpecularPowerUniformLocation, specularPower);
 
-	//! Camera and Projection
-	ThirdPerson.update(plane, ModelViewMatrix, defaultShader.ProjectionUniformLocation);
+	//! Probaly Needs to be Changed
+	plane.Draw(defaultShader);
+	//ringX.Draw(defaultShader);	
+	ringY.Draw(defaultShader);	
 
-	//! Renders the Skybox
-	
-	glUseProgram(skyboxShader.ID);
-	glDepthMask(GL_FALSE);
-	ThirdPerson.setProjection(skyboxShader.ProjectionUniformLocation);
-	defaultSkybox.Draw(ThirdPerson.getPosition(),ModelViewMatrix, skyboxShader);
-	glDepthMask(GL_TRUE);
-	
-	glUseProgram(defaultShader.ID);
-
-	//plane.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
-	plane.Draw(ModelViewMatrix, defaultShader);
-	ringX.Draw(ModelViewMatrix, defaultShader);	
-	ringY.Draw(ModelViewMatrix, defaultShader);	
-
-
-	ground.Draw(ModelViewMatrix,defaultShader);
-	
+	ground.Draw(defaultShader);
+	ThirdPerson.updateShader(defaultShader);
 
 	//Unuse Shader
 	glUseProgram(0);

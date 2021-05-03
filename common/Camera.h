@@ -14,6 +14,7 @@
 #include <Vector.h>
 #include <Player.h>
 #include <math.h>
+#include <ShaderClass.h>
 
 class Camera
 {
@@ -31,12 +32,10 @@ private:
     Vector3f targetOffset,positionOffset;
 
     bool flipped = false;
-public:
+
     //! Perspective Module
     Matrix4x4 ProjectionMatrix;
-
-    
-
+    Matrix4x4 ViewMatrix;
 //! Functios
 public:
     //! Moving Camera
@@ -46,10 +45,10 @@ public:
     Vector3f getPosition();
     Vector3f getDirection();
 
-    void setProjection(GLuint); //Sends projection to given address
     
+    void updateShader(MasterShader); //Sends projection to given address
 
-    void update(Player player, Matrix4x4& _ModelViewMatrix, GLuint _ProjectionUniformLocation);
+    void followUpdate(Player);
 
     //! Constructors and Destructors 
     Camera();
@@ -57,8 +56,6 @@ public:
     ~Camera();
 private:
     //! Transforms
-    void changeModelView(Matrix4x4&); //Adjust given matrix to "look at" the correct place
-
     void follow(Player, Vector3f, Vector3f);
 
 };

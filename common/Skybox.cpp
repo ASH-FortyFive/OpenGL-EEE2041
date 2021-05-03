@@ -40,8 +40,6 @@ void Skybox::makeBox()
 //! Main Function of the Class, draws the skybox and adds textures
 void Skybox::Draw(Vector3f camPos,Matrix4x4 ModelViewMatrix, MasterShader shader)
 {
-    Matrix4x4 RotModelViewMatrix(ModelViewMatrix);
-
     //! Better Solution May be used later    
     for(int i(0); i < 6; i++)
         cube[i].setPosition(camPos);
@@ -49,5 +47,5 @@ void Skybox::Draw(Vector3f camPos,Matrix4x4 ModelViewMatrix, MasterShader shader
     makeBox();
 
     for(int i(0); i < 6; i++)
-        cube[i].Draw(RotModelViewMatrix, shader);
+        cube[i].Draw(shader);
 }
