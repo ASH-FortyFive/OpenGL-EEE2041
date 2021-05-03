@@ -58,6 +58,7 @@ void Camera::follow(Player player, Vector3f posOffset, Vector3f targetOffset)
 	Vector3f facing = player.facing();
 	Vector3f rot = player.getRotiation();
 
+//! Not quite right
 	if(rot.z > 90.0f && rot.z < 270.0f)
 	{
 		std::cout << "Flipped" << std::endl;
@@ -73,10 +74,6 @@ void Camera::follow(Player player, Vector3f posOffset, Vector3f targetOffset)
 	Vector3f targetUp 				= targetUp.cross(facing,targetRight);
 	Vector3f relativePosOffset 		= facing * posOffset.x + targetUp * posOffset.y + targetRight * posOffset.z;
 	Vector3f relativeTargetOffset 	= facing * targetOffset.x + targetUp * targetOffset.y + targetRight * targetOffset.z;
-
-
-
-	std::cout << std::fixed << "X:" << rot.x << " Y:" <<  rot.y << " Z:" <<  rot.z <<"\n";
 
 
 	target 		= player.getMeshCentroid() + relativeTargetOffset;

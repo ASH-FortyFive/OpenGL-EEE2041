@@ -58,28 +58,30 @@ SOURCES       = main.cpp \
 		../common/Matrix.cpp \
 		../common/Mesh.cpp \
 		../common/Texture.cpp \
-		../common/SphericalCameraManipulator.cpp \
 		../common/Object.cpp \
 		../common/Camera.cpp \
 		../common/Model.cpp \
 		../common/Player.cpp \
 		../common/Skybox.cpp \
 		../common/HUD.cpp \
-		../common/Map.cpp 
+		../common/Map.cpp \
+		../common/ShaderClass.cpp \
+		../common/Hitbox.cpp 
 OBJECTS       = build/main.o \
 		build/Shader.o \
 		build/Vector.o \
 		build/Matrix.o \
 		build/Mesh.o \
 		build/Texture.o \
-		build/SphericalCameraManipulator.o \
 		build/Object.o \
 		build/Camera.o \
 		build/Model.o \
 		build/Player.o \
 		build/Skybox.o \
 		build/HUD.o \
-		build/Map.o
+		build/Map.o \
+		build/ShaderClass.o \
+		build/Hitbox.o
 DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/common/unix.conf \
 		/usr/lib/qt/mkspecs/common/linux.conf \
@@ -291,27 +293,29 @@ DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		../common/Matrix.h \
 		../common/Mesh.h \
 		../common/Texture.h \
-		../common/SphericalCameraManipulator.h \
 		../common/Object.h \
 		../common/Camera.h \
 		../common/Model.h \
 		../common/Player.h \
 		../common/Skybox.h \
 		../common/HUD.h \
-		../common/Map.h main.cpp \
+		../common/Map.h \
+		../common/ShaderClass.h \
+		../common/Hitbox.h main.cpp \
 		../common/Shader.cpp \
 		../common/Vector.cpp \
 		../common/Matrix.cpp \
 		../common/Mesh.cpp \
 		../common/Texture.cpp \
-		../common/SphericalCameraManipulator.cpp \
 		../common/Object.cpp \
 		../common/Camera.cpp \
 		../common/Model.cpp \
 		../common/Player.cpp \
 		../common/Skybox.cpp \
 		../common/HUD.cpp \
-		../common/Map.cpp
+		../common/Map.cpp \
+		../common/ShaderClass.cpp \
+		../common/Hitbox.cpp
 QMAKE_TARGET  = plane
 DESTDIR       = 
 TARGET        = plane
@@ -789,9 +793,6 @@ build/Mesh.o: ../common/Mesh.cpp ../common/Mesh.h
 build/Texture.o: ../common/Texture.cpp ../common/Texture.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Texture.o ../common/Texture.cpp
 
-build/SphericalCameraManipulator.o: ../common/SphericalCameraManipulator.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/SphericalCameraManipulator.o ../common/SphericalCameraManipulator.cpp
-
 build/Object.o: ../common/Object.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Object.o ../common/Object.cpp
 
@@ -812,6 +813,12 @@ build/HUD.o: ../common/HUD.cpp ../common/HUD.h
 
 build/Map.o: ../common/Map.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Map.o ../common/Map.cpp
+
+build/ShaderClass.o: ../common/ShaderClass.cpp ../common/ShaderClass.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/ShaderClass.o ../common/ShaderClass.cpp
+
+build/Hitbox.o: ../common/Hitbox.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Hitbox.o ../common/Hitbox.cpp
 
 ####### Install
 

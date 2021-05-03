@@ -13,14 +13,15 @@ HEADERS	+= 	../common/Shader.h	    		\
 		../common/Matrix.h		        \
 		../common/Mesh.h		        \
         	../common/Texture.h             	\		
-        	../common/SphericalCameraManipulator.h  \
 		../common/Object.h			\
         	../common/Camera.h  			\
         	../common/Model.h  			\
 		../common/Player.h  			\
 		../common/Skybox.h  			\
 		../common/HUD.h  			\
-		../common/Map.h  			
+		../common/Map.h  			\
+		../common/ShaderClass.h  		\
+		../common/Hitbox.h  			\			
 			
 
 #Sources
@@ -30,7 +31,6 @@ SOURCES += 	main.cpp			        \
 		../common/Matrix.cpp		    	\
 		../common/Mesh.cpp		        \
         	../common/Texture.cpp           	\
-        	../common/SphericalCameraManipulator.cpp\
 		../common/Object.cpp			\
         	../common/Camera.cpp 			\
         	../common/Model.cpp			\  
@@ -38,6 +38,8 @@ SOURCES += 	main.cpp			        \
 		../common/Skybox.cpp  			\
 		../common/HUD.cpp  			\
 		../common/Map.cpp  			\
+		../common/ShaderClass.cpp  		\
+		../common/Hitbox.cpp 			\
 
 INCLUDEPATH += 	./ 				    	\
 		../common/ 				\

@@ -43,7 +43,7 @@ bool Model::loadOBJ(std::string filename, GLuint _TextureMapUniformLocation, GLu
 }
 
 //! Main Function of the Class, draws the model (using parent function) and adds transforms and textures
-void Model::Draw(Matrix4x4 ModelViewMatrix, GLuint MVMatrixUniformLocation, GLuint vertexPositionAttribute, GLuint vertexNormalAttribute, GLuint vertexTexcoordAttribute)
+void Model::Draw(Matrix4x4 ModelViewMatrix, MasterShader shader)
 {
 
     //! Applies All Transforms, may be possible to reduce the number of operations
@@ -55,7 +55,7 @@ void Model::Draw(Matrix4x4 ModelViewMatrix, GLuint MVMatrixUniformLocation, GLui
     ModelMatrix.scale(scaleFactor, scaleFactor, scaleFactor);   // Scales
 
     glUniformMatrix4fv(
-        MVMatrixUniformLocation,
+        shader.MVMatrixUniformLocation,
         1,
         false,
         ModelMatrix.getPtr());
@@ -66,12 +66,12 @@ void Model::Draw(Matrix4x4 ModelViewMatrix, GLuint MVMatrixUniformLocation, GLui
 	glUniform1i(TextureMapUniformLocation, 0);
 
     //! Uses Parents Draw Function after applying Transforms and Texture
-    Mesh::Draw(vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
+    Mesh::Draw(shader.vertexPositionAttribute, shader.vertexNormalAttribute, shader.vertexTexcoordAttribute);
     
     //! Resets for Next Model (MIGHT EVENTUALLY BE OBSOLETE) 
     ModelMatrix.toIdentity();
     glUniformMatrix4fv(
-        MVMatrixUniformLocation,
+        shader.MVMatrixUniformLocation,
         1,
         false,
         ModelMatrix.getPtr());

@@ -17,6 +17,7 @@
 #include <Matrix.h>
 #include <Mesh.h>
 #include <Texture.h>
+#include <ShaderClass.h>
 
 class Model : public Mesh {
 //! Member Variables
@@ -43,12 +44,9 @@ private:
 //! Functions
 public:
     //! Overloads functions from Mesh to Allow for Transforms, Textures, and Colours (BROKEN)
-  	void Draw(
+	void Draw(
 		Matrix4x4 ModelViewMatrix,
-		GLuint MVMatrixUniformLocation,
-        GLuint vertexPositionAttribute, 
-        GLuint vertexNormalAttribute = -1, 
-        GLuint vertexTexcoordAttribute = -1);
+		MasterShader shader);
 
     
     //Load and OBJ mesh from File, uses parent function

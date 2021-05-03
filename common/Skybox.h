@@ -12,6 +12,7 @@
 #include <Shader.h>
 #include <Matrix.h>
 #include <Model.h>
+#include <ShaderClass.h>
 
 
 class Skybox
@@ -27,7 +28,7 @@ public:
 private:
     void makeBox();
 public:
-    void Draw(Vector3f, Matrix4x4, GLuint, GLuint, GLuint, GLuint);
+    void Draw(Vector3f, Matrix4x4, MasterShader);
     void Init(GLuint, std::string*);
 
     //! Constructors and Destructors 

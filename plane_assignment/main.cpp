@@ -17,6 +17,7 @@
 #include <Skybox.h>
 #include <HUD.h>
 #include <Map.h>
+#include <ShaderClass.h>
 
 
 //!Function Prototypes
@@ -45,29 +46,7 @@ int screenHeight   	        = 1080;
 bool keyStates[256];
 
 //! Global Variables
-	// Shader IDs
-GLuint shaderProgramID;				// Shader Program ID
-	// Shaders
-GLuint vertexPositionAttribute;		// Vertex Position Attribute Location
-GLuint vertexNormalAttribute;		// Vertex Normal Attribute Location
-GLuint vertexColourAttribute;		// Vertex Colour Attribute Location
-//GLuint ColourUniformLocation;		// Colour Uniform Location
-	// Shaders - Textures
-GLuint vertexTexcoordAttribute;		// Vertex Texture Coordiante Attribute Location
-GLuint TextureMapUniformLocation;	// Texture Map Location
-	// For Transformations (and Camera)
-Matrix4x4 ModelViewMatrix;		  	// ModelView Matrix (Not Used)
-GLuint MVMatrixUniformLocation;		// ModelView Matrix Uniform
-	// For Camera
-Matrix4x4 ProjectionMatrix;		  	// Projection Matrix
-GLuint ProjectionUniformLocation;	// Projection Matrix Uniform Location
-	// Unknown
-GLuint TimeUniformLocation; 		// Unsure
-	// For Lighting
-GLuint LightPositionUniformLocation;                // Light Position Uniform   
-GLuint AmbientUniformLocation;
-GLuint SpecularUniformLocation;
-GLuint SpecularPowerUniformLocation;
+Matrix4x4 ModelViewMatrix;	
 
 //! Light Settings
 Vector3f lightPosition;				                // Light Position 
@@ -76,6 +55,9 @@ Vector3f lightPosition;				                // Light Position
 Vector3f ambient    = Vector3f(0.1,0.1,0.1);
 Vector3f specular   = Vector3f(1.0,1.0,1.0);
 float specularPower = 100.0f;
+
+MasterShader defaultShader;
+MasterShader skyboxShader;
 
 //! Skybox 
 std::string skyboxPaths[6] = {
@@ -89,7 +71,6 @@ std::string skyboxPaths[6] = {
 Skybox defaultSkybox;
 GLuint skyboxShaderID;
 
-
 //! Loaded Models
 Model ground;
 
@@ -102,13 +83,6 @@ Player plane;
 GLuint texture;
 GLuint texture1;
 GLuint texture2;
-
-GLuint skybox_vertexPositionAttribute;
-GLuint skybox_vertexNormalAttribute;
-GLuint skybox_MVMatrixUniformLocation;
-GLuint skybox_ProjectionUniformLocation;
-GLuint skybox_vertexTexcoordAttribute;	
-GLuint skybox_TextureMapUniformLocation;
 
 Camera ThirdPerson(Vector3f(-4.0f,0.0f,0.0f));
 
@@ -146,6 +120,10 @@ int main(int argc, char** argv)
     for(int i = 0 ; i < 256; i++)
         keyStates[i] = false;
     
+
+	defaultShader.loadShader("shader.vert","shader.frag");
+	skyboxShader.loadShader("skybox_shader.vert","skybox_shader.frag");
+
     //Sets up shader program
     initShader();
 
@@ -158,7 +136,8 @@ int main(int argc, char** argv)
     glutMainLoop();
 
 	//Clean-Up
-    glDeleteProgram(shaderProgramID);
+    glDeleteProgram(defaultShader.ID);
+	glDeleteProgram(skyboxShader.ID);
 
     return 0;
 }
@@ -184,53 +163,13 @@ void initGLUTFunctions()
 //! Loads and Sets Up the Shaders
 void initShader()
 {
-	//! Loads shader from file
-    shaderProgramID = Shader::LoadFromFile("shader.vert","shader.frag");
-	skyboxShaderID = Shader::LoadFromFile("skybox_shader.vert","skybox_shader.frag");
-    
-	//! For Positions and Transforms
-    // Gets handle for vertex position buffer
-	vertexPositionAttribute 		= glGetAttribLocation(shaderProgramID, "aVertexPosition");
-	// Gets handel for vertex normal buffer
-	vertexNormalAttribute 			= glGetAttribLocation(shaderProgramID,    "aVertexNormal"); 
-	//Gets Matrix Uniform Location, for camera and transform
-	MVMatrixUniformLocation 		= glGetUniformLocation(shaderProgramID,"MVMatrix_uniform");
-	//Gets Projection Matrix Uniform location, for projection
-	ProjectionUniformLocation 		= glGetUniformLocation(shaderProgramID,"ProjMatrix_uniform");
 
-	//! For Textures
-	// Get a handle for our texture coordinate buffer	
-	vertexTexcoordAttribute 		= glGetAttribLocation(shaderProgramID,"aVertexTexcoord");
-	//Gets Texture Map Uniform location
-	TextureMapUniformLocation 		= glGetUniformLocation(shaderProgramID,"TextureMap_uniform");
-
-	//! For Lighting
-	LightPositionUniformLocation	= glGetUniformLocation(shaderProgramID, "LightPosition_uniform"); 
-	AmbientUniformLocation 			= glGetUniformLocation(shaderProgramID, "Ambient_uniform"); 
-	SpecularUniformLocation 		= glGetUniformLocation(shaderProgramID, "Specular_uniform"); 
-	SpecularPowerUniformLocation 	= glGetUniformLocation(shaderProgramID, "SpecularPower_uniform"); 
-
-	std::cout 	<< LightPositionUniformLocation << " : "
-				<< AmbientUniformLocation << ": "
-				<< SpecularUniformLocation << ": "
-				<< SpecularPowerUniformLocation << std::endl;
-
-	//Get Time Uniform Location
-	TimeUniformLocation = glGetUniformLocation(shaderProgramID,"t_uniform");
-
-	//! Multiple Shader Testing	
-	skybox_vertexPositionAttribute 	= glGetAttribLocation(skyboxShaderID, "aVertexPosition"); 	//
-	skybox_vertexNormalAttribute 	= glGetAttribLocation(skyboxShaderID,    "aVertexNormal"); 
-	skybox_MVMatrixUniformLocation 	= glGetUniformLocation(skyboxShaderID,"MVMatrix_uniform");	//
-	skybox_ProjectionUniformLocation= glGetUniformLocation(skyboxShaderID,"ProjMatrix_uniform");//
-	skybox_vertexTexcoordAttribute 	= glGetAttribLocation(skyboxShaderID,"aVertexTexcoord"); 	//
-	skybox_TextureMapUniformLocation= glGetUniformLocation(skyboxShaderID,"TextureMap_uniform");//
-
-	defaultSkybox.Init(TextureMapUniformLocation, skyboxPaths);
 }
 
 void initTemp()
 {
+	defaultSkybox.Init(skyboxShader.TextureMapUniformLocation, skyboxPaths);
+
 	//! Init Light
 	//Set colour variable and light position
 	//colour = Vector3f(1.0,0.0,0.0);
@@ -240,13 +179,13 @@ void initTemp()
 	ModelHelper::initTexture("../models/grass.bmp", texture1);
 	ModelHelper::initTexture("../models/Crate.bmp", texture2);
 
-	plane.loadOBJ("../models/plane2.obj", TextureMapUniformLocation, texture);
+	plane.loadOBJ("../models/plane2.obj", defaultShader.TextureMapUniformLocation, texture);
 
-	ground.loadOBJ("../models/ground.obj", TextureMapUniformLocation, texture1);
+	ground.loadOBJ("../models/ground.obj", defaultShader.TextureMapUniformLocation, texture1);
 
-	ringX.loadOBJ("../models/torus.obj", TextureMapUniformLocation, texture);
-	ringY.loadOBJ("../models/torus.obj", TextureMapUniformLocation, texture1);
-	ringZ.loadOBJ("../models/torus.obj", TextureMapUniformLocation, texture2);
+	ringX.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture);
+	ringY.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture1);
+	ringZ.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture2);
 
 	ringX.rotate(Vector3f(0.0f,0.0f,90.0f));
 	ringY.rotate(Vector3f(0.0f,0.0f,90.0f));
@@ -280,14 +219,14 @@ void display(void)
 
 
 	//Use shader which were initialised in initShader()
-	glUseProgram(shaderProgramID);
+	glUseProgram(defaultShader.ID);
 	
 	//! Time
 	t_old	 = t_new;	
 	t_new = glutGet(GLUT_ELAPSED_TIME);
 	t_delta = (t_new - t_old) / 1000;
 
-	glUniform1f(TimeUniformLocation, t_new);
+	glUniform1f(defaultShader.TimeUniformLocation, t_new);
 
 	//! Updates all Physics Items
 	plane.update(t_delta);
@@ -297,38 +236,32 @@ void display(void)
 	//! Calculates Third Person Camera Follow
 
 	//! Lighting
-	glUniform3f(LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
-    glUniform4f(AmbientUniformLocation, ambient.x, ambient.y, ambient.z, 1.0);
-    glUniform4f(SpecularUniformLocation, specular.x, specular.y, specular.z, 1.0);
-    glUniform1f(SpecularPowerUniformLocation, specularPower);
+	glUniform3f(defaultShader.LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
+    glUniform4f(defaultShader.AmbientUniformLocation, ambient.x, ambient.y, ambient.z, 1.0);
+    glUniform4f(defaultShader.SpecularUniformLocation, specular.x, specular.y, specular.z, 1.0);
+    glUniform1f(defaultShader.SpecularPowerUniformLocation, specularPower);
 
 	//! Camera and Projection
-	//ThirdPerson.setProjection(ProjectionUniformLocation);
-	//ThirdPerson.changeModelView(ModelViewMatrix);
-	ThirdPerson.update(plane, ModelViewMatrix, ProjectionUniformLocation);
+	ThirdPerson.update(plane, ModelViewMatrix, defaultShader.ProjectionUniformLocation);
 
 	//! Renders the Skybox
 	
-	glUseProgram(skyboxShaderID);
+	glUseProgram(skyboxShader.ID);
 	glDepthMask(GL_FALSE);
-	ThirdPerson.setProjection(skybox_ProjectionUniformLocation);
-	defaultSkybox.Draw(ThirdPerson.getPosition(),ModelViewMatrix, skybox_MVMatrixUniformLocation, skybox_vertexPositionAttribute, skybox_vertexNormalAttribute, skybox_vertexTexcoordAttribute);
+	ThirdPerson.setProjection(skyboxShader.ProjectionUniformLocation);
+	defaultSkybox.Draw(ThirdPerson.getPosition(),ModelViewMatrix, skyboxShader);
 	glDepthMask(GL_TRUE);
 	
-	glUseProgram(shaderProgramID);
+	glUseProgram(defaultShader.ID);
 
-	plane.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
-	ringX.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
-	ringY.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
+	//plane.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
+	plane.Draw(ModelViewMatrix, defaultShader);
+	ringX.Draw(ModelViewMatrix, defaultShader);	
+	ringY.Draw(ModelViewMatrix, defaultShader);	
 
 
-	ground.Draw(ModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
+	ground.Draw(ModelViewMatrix,defaultShader);
 	
-	/*
-	ringX.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
-	ringY.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
-	ringZ.Draw(ModelViewMatrix, MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);	
-	*/
 
 	//Unuse Shader
 	glUseProgram(0);

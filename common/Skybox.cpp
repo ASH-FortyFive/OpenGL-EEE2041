@@ -17,17 +17,6 @@ void Skybox::Init(GLuint TextureMapUniformLocation, std::string * texture_faces)
         cube[i].loadOBJ("../models/ground.obj", TextureMapUniformLocation, cubeTextureID[i]);
     } 
 
-
-    /*
-    std::string skyboxPaths[6] = {
-    "../models/skybox/right.bmp",
-    "../models/skybox/left.bmp",
-    "../models/skybox/top.bmp",
-    "../models/skybox/bottom.bmp",
-    "../models/skybox/front.bmp",
-    "../models/skybox/back.bmp"};
-    */
-
     //! Rotates Cubes Correctly
     cube[0].setRotation (Vector3f(90.0f,0.0f,90.0f));
     cube[1].setRotation (Vector3f(90.0f,180.0f,90.0f));
@@ -49,29 +38,16 @@ void Skybox::makeBox()
 }
 
 //! Main Function of the Class, draws the skybox and adds textures
-void Skybox::Draw(Vector3f camPos,Matrix4x4 ModelViewMatrix, GLuint MVMatrixUniformLocation, GLuint vertexPositionAttribute, GLuint vertexNormalAttribute, GLuint vertexTexcoordAttribute)
+void Skybox::Draw(Vector3f camPos,Matrix4x4 ModelViewMatrix, MasterShader shader)
 {
     Matrix4x4 RotModelViewMatrix(ModelViewMatrix);
 
-    float* mvmPtr = RotModelViewMatrix.getPtr();
+    //! Better Solution May be used later    
+    for(int i(0); i < 6; i++)
+        cube[i].setPosition(camPos);
 
-	//mvmPtr[3] = 0;
-	//mvmPtr[7] = 0;
-	//mvmPtr[11] = 0;
-
-
-    
-    cube[0].setPosition(camPos);
-    cube[1].setPosition(camPos); 
-    cube[2].setPosition(camPos);
-    cube[3].setPosition(camPos);
-    cube[4].setPosition(camPos);
-    cube[5].setPosition(camPos);
-    
     makeBox();
 
     for(int i(0); i < 6; i++)
-    {
-        cube[i].Draw(RotModelViewMatrix,MVMatrixUniformLocation, vertexPositionAttribute, vertexNormalAttribute, vertexTexcoordAttribute);
-    }
+        cube[i].Draw(RotModelViewMatrix, shader);
 }
