@@ -18,6 +18,7 @@
 #include <HUD.h>
 #include <Map.h>
 #include <ShaderClass.h>
+#include <Hitbox.h>
 
 
 //!Function Prototypes
@@ -55,8 +56,7 @@ Vector3f ambient    = Vector3f(0.1,0.1,0.1);
 Vector3f specular   = Vector3f(1.0,1.0,1.0);
 float specularPower = 100.0f;
 
-MasterShader defaultShader;
-MasterShader skyboxShader;
+MasterShader defaultShader,skyboxShader, hitboxShader;
 
 //! Skybox 
 std::string skyboxPaths[6] = {
@@ -67,8 +67,7 @@ std::string skyboxPaths[6] = {
 "../models/skybox/front.bmp",
 "../models/skybox/back.bmp"};
 
-Skybox defaultSkybox;
-GLuint skyboxShaderID;
+Skybox skybox;
 
 //! Loaded Models
 Model ground;
@@ -95,6 +94,10 @@ bool WireFrame = false;
 float t_new = 0.0;
 float t_old = 0.0;
 float t_delta = 0.0;
+
+GLuint vertexPositionBuffer;
+
+Hitbox hitbox;
 
 //! Main Program Entry
 int main(int argc, char** argv)
@@ -157,18 +160,23 @@ void initGLUTFunctions()
 //! Loads and Sets Up the Shaders
 void initShader()
 {
-	defaultShader.loadShader("shader.vert","shader.frag");
-	skyboxShader.loadShader("skybox_shader.vert","skybox_shader.frag");
+	defaultShader.loadShader("../shaders/shader.vert","../shaders/shader.frag");
+	skyboxShader.loadShader("../shaders/skybox_shader.vert","../shaders/skybox_shader.frag");
+	hitboxShader.loadShader("../shaders/hitbox_shader.vert","../shaders/hitbox_shader.frag");
 }
 
 void initTemp()
 {
-	defaultSkybox.Init(skyboxShader.TextureMapUniformLocation, skyboxPaths);
+
+	skybox.Init(skyboxShader.TextureMapUniformLocation, skyboxPaths);
+
+	hitbox.loadHitboxes(Vector3f(0,0,0), 1,1,1);
+
 
 	//! Init Light
 	//Set colour variable and light position
 	//colour = Vector3f(1.0,0.0,0.0);
-	lightPosition= Vector3f(10.0,10.0,-14.14f);
+	lightPosition= Vector3f(1000.0,1000.0,-1414.0f);
 
 	ModelHelper::initTexture("../models/plane1.bmp", texture);
 	ModelHelper::initTexture("../models/grass.bmp", texture1);
@@ -179,7 +187,7 @@ void initTemp()
 	ground.loadOBJ("../models/ground.obj", defaultShader.TextureMapUniformLocation, texture1);
 
 	ringX.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture);
-	ringY.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture1);
+	ringY.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture2);
 	ringZ.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture2);
 
 	ringX.rotate(Vector3f(0.0f,0.0f,90.0f));
@@ -226,12 +234,21 @@ void display(void)
 
 	glDepthMask(GL_FALSE);
 	ThirdPerson.updateShader(skyboxShader);
-	defaultSkybox.Draw(ThirdPerson.getPosition(),ViewMatrix, skyboxShader);
+	skybox.Draw(ThirdPerson.getPosition(),ViewMatrix, skyboxShader);
 	glDepthMask(GL_TRUE);
 	
+	//! Hitboxes
+	glUseProgram(hitboxShader.ID);
+	ThirdPerson.updateShader(hitboxShader);
+	hitbox.Draw(hitboxShader);
 
 	//! Draws Main Models
 	glUseProgram(defaultShader.ID);
+	ThirdPerson.updateShader(defaultShader);
+
+	
+	
+
 
 	//! Lighting
 	glUniform3f(defaultShader.LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
@@ -245,7 +262,7 @@ void display(void)
 	ringY.Draw(defaultShader);	
 
 	ground.Draw(defaultShader);
-	ThirdPerson.updateShader(defaultShader);
+	
 
 	//Unuse Shader
 	glUseProgram(0);

@@ -57,7 +57,6 @@ void Camera::follow(Player player, Vector3f posOffset, Vector3f targetOffset)
 //! Not quite right
 	if(rot.z > 90.0f && rot.z < 270.0f)
 	{
-		std::cout << "Flipped" << std::endl;
 		GlobalUp = Vector3f(0,-1,0);
 	}
 	else
