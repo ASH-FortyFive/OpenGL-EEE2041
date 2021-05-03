@@ -50,8 +50,7 @@ Matrix4x4 ModelViewMatrix;
 
 //! Light Settings
 Vector3f lightPosition;				                // Light Position 
-//Vector3f colour;					                // Colour Variable 
-	//Material Properties
+//Material Properties
 Vector3f ambient    = Vector3f(0.1,0.1,0.1);
 Vector3f specular   = Vector3f(1.0,1.0,1.0);
 float specularPower = 100.0f;
@@ -92,7 +91,6 @@ HUD ThirdPersonHUD;
 bool PentaToggle = false;
 bool WireFrame = false;
 
-
 // Time
 float t_new = 0.0;
 float t_old = 0.0;
@@ -120,10 +118,6 @@ int main(int argc, char** argv)
     for(int i = 0 ; i < 256; i++)
         keyStates[i] = false;
     
-
-	defaultShader.loadShader("shader.vert","shader.frag");
-	skyboxShader.loadShader("skybox_shader.vert","skybox_shader.frag");
-
     //Sets up shader program
     initShader();
 
@@ -163,7 +157,8 @@ void initGLUTFunctions()
 //! Loads and Sets Up the Shaders
 void initShader()
 {
-
+	defaultShader.loadShader("shader.vert","shader.frag");
+	skyboxShader.loadShader("skybox_shader.vert","skybox_shader.frag");
 }
 
 void initTemp()

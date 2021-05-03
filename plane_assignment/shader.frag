@@ -1,14 +1,16 @@
 #version 120
 
-uniform vec4        Ambient_uniform;
-uniform vec4        Specular_uniform;
-uniform float       SpecularPower_uniform;
-uniform sampler2D   Texture_uniform;
+uniform vec4         Ambient_uniform;
+uniform vec4         Specular_uniform;
+uniform float        SpecularPower_uniform;
+uniform sampler2D    Texture_uniform;
 
-varying vec3    ViewDirection;
-varying vec3    LightDirection;
-varying vec3    Normal;
-varying vec2    texCoord;
+uniform vec3         lightPos;
+
+varying vec3         ViewDirection;
+varying vec3         LightDirection;
+varying vec3         Normal;
+varying vec2         texCoord;
 
 void main( void )
 {
