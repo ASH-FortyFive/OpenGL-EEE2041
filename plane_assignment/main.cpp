@@ -313,10 +313,8 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	else if (key == 'c')
 	{
-		std::cout <<"Cam: Location" << std::endl;
-		//VectorPrinter(CamLocation);
-		std::cout <<"Cam: LookAt" << std::endl;
-		//VectorPrinter(CamLookAt);
+		std::cout << "Oh no" <<std::endl;
+		hitbox.Test();
 	}
 	else if (key == 'g')
 	{
@@ -335,12 +333,12 @@ void keyboard(unsigned char key, int x, int y)
 		}
 		WireFrame = !WireFrame;
 	}
-	/*
+	
 	else
 	{
 		std::cout << key << "" <<std::endl;
 	}
-	*/
+
 
     //Set key status
     keyStates[key] = true;
