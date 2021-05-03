@@ -4,118 +4,78 @@
 //! Constructors and Destructors 
 Hitbox::Hitbox()
 {
-	
-
 }
+
+Hitbox::Hitbox(Vector3f newCentre, float h, float w, float d): centre(newCentre), height(h), width(w), debth(d)
+{
+	loadHitbox();
+}
+
 
 Hitbox::~Hitbox()
 {
-
 }
 
-void Hitbox::loadHitboxes(Vector3f centre, float h, float w, float t)
+
+void Hitbox::changeHitbox(Vector3f newCentre, float h, float w, float d)
 {
+	centre = newCentre;
+	height = h; width = w; debth = d;
 
-    /*
-    GLfloat vertexPositionData[24] = 
-	{ 
-		 x,  y,  z, //0 Bottom,front, left
-		 x,  y,  z+, //1 Bottom,front, right
-		 x+, y,  z, //2 Bottom,back,  left
-         x+, y,  z+, //3 Bottom,back,  right
-         x,  y+, z, //4 Top,   front, left
-         x,  y+, z+, //5 Top,   front, right
-         x+, y+, z, //6 Top,   back,  left
-         x+, y+, z+  //7 Top,   back,  right
-	};
-    
-
-    	{ 
-		 x,  y,  z,  000 = 0
-		 x,  y,  z+, 001 = 1
-		 x,  y+, z,  010 = 2
-         x,  y+, z+, 011 = 3
-         x+, y,  z,  100 = 4
-         x+, y,  z+, 101 = 5
-         x+, y+, z,  110 = 6
-         x+, y+, z+  111 = 7
-                     
-	};
-    
-    for(int i(0); i < 24; i++)
-    {   
-        vertexPositionData[24]
-    }
-
-    vertexPositionData[0] = 1;
-    vertexPositionData[1] = 2;
-    vertexPositionData[0] = 1;
-
-    vertexPositionData[1] = 2;
-    vertexPositionData[0] = 1;
-    vertexPositionData[1] = 2;
-    
-    vertexPositionData[0] = 1;
-    vertexPositionData[1] = 2;
-    vertexPositionData[0] = 1;
-    
-    vertexPositionData[1] = 2;
-    vertexPositionData[0] = 1;
-    vertexPositionData[1] = 2;
-    
-    vertexPositionData[0] = 1;
-    vertexPositionData[1] = 2;
-    vertexPositionData[0] = 1;
-    
-    vertexPositionData[1] = 2;
-    vertexPositionData[0] = 1;
-    vertexPositionData[1] = 2;
-
-    vertexPositionData[0] = 1;
-    vertexPositionData[1] = 2;
-    vertexPositionData[0] = 1;
-    
-    vertexPositionData[1] = 2;
-    vertexPositionData[0] = 1;
-    vertexPositionData[1] = 2;
-
-    //Vertex Data
-	*/
-
-
-	//Create Vertex Buffer and upload data
-	glGenBuffers(1, &vertexPositionBuffer);  
-	glBindBuffer(GL_ARRAY_BUFFER, vertexPositionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositionData), vertexPositionData, GL_STATIC_DRAW);
-
-    //Create Vertex Index Buffer
-	
-
-	glGenBuffers(1, &elementbuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(vertexIndexData) * sizeof(unsigned int), vertexIndexData, GL_STATIC_DRAW);
+	loadHitbox();
 }
+
+void Hitbox::loadHitbox()
+{
+	//! Calculates the 'first point', in the (F)ront (B)ottom and (L)eft of the rectangle.
+	Vector3f FBL = Vector3f(
+		centre.x - width/2,
+		centre.y - height/2,
+		centre.z - debth/2
+	);
+
+	vertexPositionData[0] = FBL.x;
+	vertexPositionData[3] = FBL.x;
+	vertexPositionData[6] = FBL.x;
+	vertexPositionData[9] = FBL.x;
+	vertexPositionData[12] = FBL.x + width;
+	vertexPositionData[15] = FBL.x + width;
+	vertexPositionData[18] = FBL.x + width;
+	vertexPositionData[21] = FBL.x + width;
+
+	vertexPositionData[1] 	= FBL.y;
+	vertexPositionData[4] 	= FBL.y;
+	vertexPositionData[7] 	= FBL.y + height;
+	vertexPositionData[10] 	= FBL.y + height;
+	vertexPositionData[13] 	= FBL.y;
+	vertexPositionData[16] 	= FBL.y;
+	vertexPositionData[19] 	= FBL.y + height;
+	vertexPositionData[22] 	= FBL.y + height;
+
+	vertexPositionData[2] 	= FBL.z;
+	vertexPositionData[5] 	= FBL.z + debth;
+	vertexPositionData[8] 	= FBL.z;
+	vertexPositionData[11] 	= FBL.z + debth;
+	vertexPositionData[14] 	= FBL.z;
+	vertexPositionData[17] 	= FBL.z + debth;
+	vertexPositionData[20] 	= FBL.z;
+	vertexPositionData[23] 	= FBL.z + debth;
+}
+
 
 void Hitbox::Test()
 {
-    
-    vertexPositionData[1] += 1;
-    vertexPositionData[4] += 1;
-    vertexPositionData[7] += 1;
-
-    vertexPositionData[10] += 1;
-    vertexPositionData[13] += 1;
-    vertexPositionData[16] += 1;
-    
-    vertexPositionData[19] += 1;
-    vertexPositionData[22] += 1;
-
     
 }
 
 void Hitbox::Draw(MasterShader shader)
 {
 
+	for(unsigned int i(0); i<24; i++)
+	{
+		
+	}
+\
     //Create Vertex Buffer and upload data
 	glGenBuffers(1, &vertexPositionBuffer);  
 	glBindBuffer(GL_ARRAY_BUFFER, vertexPositionBuffer);

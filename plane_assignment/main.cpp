@@ -97,7 +97,7 @@ float t_delta = 0.0;
 
 GLuint vertexPositionBuffer;
 
-Hitbox hitbox;
+Hitbox hitbox(Vector3f(1,1,1),1,2,1);
 
 //! Main Program Entry
 int main(int argc, char** argv)
@@ -169,9 +169,6 @@ void initTemp()
 {
 
 	skybox.Init(skyboxShader.TextureMapUniformLocation, skyboxPaths);
-
-	hitbox.loadHitboxes(Vector3f(0,0,0), 1,1,1);
-
 
 	//! Init Light
 	//Set colour variable and light position
