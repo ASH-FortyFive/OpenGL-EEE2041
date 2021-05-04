@@ -330,12 +330,12 @@ void keyboard(unsigned char key, int x, int y)
 		}
 		WireFrame = !WireFrame;
 	}
-	
+	/*
 	else
 	{
 		std::cout << key << "" <<std::endl;
 	}
-
+	*/
 
     //Set key status
     keyStates[key] = true;

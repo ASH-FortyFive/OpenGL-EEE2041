@@ -70,20 +70,12 @@ void Hitbox::Test()
 
 void Hitbox::Draw(MasterShader shader)
 {
-
-	for(unsigned int i(0); i<24; i++)
-	{
-		
-	}
-\
     //Create Vertex Buffer and upload data
 	glGenBuffers(1, &vertexPositionBuffer);  
 	glBindBuffer(GL_ARRAY_BUFFER, vertexPositionBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositionData), vertexPositionData, GL_STATIC_DRAW);
 
     //Create Vertex Index Buffer
-	
-
 	glGenBuffers(1, &elementbuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(vertexIndexData) * sizeof(unsigned int), vertexIndexData, GL_STATIC_DRAW);

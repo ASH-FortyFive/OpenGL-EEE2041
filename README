@@ -2,13 +2,9 @@ A Flight Simulator
 
 Practice for Git and OpenGL, part of EEE2041 at University of Surrey.
 
-Most of main.ccp and the following common files were written:
-* Model
-* Camera
-
-The following files in common were provided:
+Most of main.ccp and the common files were written by me, however the following where provided:
 * Matrix
-* Vector
+* Vector (4D vectors added by me)
 * Mesh
 * Shader
 * SphericalCameraManipulator
