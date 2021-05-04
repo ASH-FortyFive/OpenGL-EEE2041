@@ -23,6 +23,15 @@
 class Hitbox{
 //! Member Variables
 private:
+    struct OBB
+    {
+        Vector3f centrePoint;
+        Vector3f localAxis[3];
+        Vector3f extents;
+    }
+    
+
+
     GLuint vertexPositionBuffer;
     GLuint elementbuffer;
 
