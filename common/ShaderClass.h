@@ -35,6 +35,9 @@ public:
     //! Time Related (may no longer be useful)
     GLuint TimeUniformLocation = -1;
 
+    //! For basic colours
+    GLuint ColourUniformLocation = -1;
+
 //! Functions
 public:
     //! Constructors and Destructors 

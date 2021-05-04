@@ -71,6 +71,9 @@ public:
 //! Functions
 private:
 void loadHitbox();
+bool drawLine(Vector3f, Vector3f);
+bool againstAxis(Vector3f, Hitbox&, Hitbox&);
+
 public:
     bool doCollsions(Hitbox&);
 

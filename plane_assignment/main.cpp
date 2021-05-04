@@ -249,7 +249,8 @@ void display(void)
 	boxhit.Draw(hitboxShader, ringY.getMatrix());
 	hitbox.Draw(hitboxShader, plane.getMatrix());
 
-	std::cout << hitbox.doCollsions(boxhit) << std::endl;
+	hitbox.doCollsions(boxhit);
+	//std::cout << hitbox.doCollsions(boxhit) << std::endl;
 	//boxhit.doCollsions(boxhit);
 
 	//std::cout << hitbox.centre << " to " << boxhit.centre << std::endl;
@@ -268,7 +269,7 @@ void display(void)
     glUniform1f(defaultShader.SpecularPowerUniformLocation, specularPower);
 
 	//! Probaly Needs to be Changed
-	plane.Draw(defaultShader);
+	//plane.Draw(defaultShader);
 	//ringX.Draw(defaultShader);
 	//ringY.rotate(Vector3f(0.0f,1.0f,0.0f));	
 	ringY.Draw(defaultShader);	
