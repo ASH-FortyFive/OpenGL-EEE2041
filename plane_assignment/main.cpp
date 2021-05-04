@@ -94,6 +94,11 @@ float t_new = 0.0;
 float t_old = 0.0;
 float t_delta = 0.0;
 
+float t_sinceSecond = 0.0;
+int frames;
+std::string fps_count;
+
+
 GLuint vertexPositionBuffer;
 
 Hitbox hitbox(Vector3f(-1,0.0,0)	,2,0.5f,0.5f);
@@ -192,7 +197,7 @@ void initTemp()
 	ringZ.rotate(Vector3f(0.0f,0.0f,90.0f));
 
 	ringX.translate(Vector3f(0.0f,2.0f,0.0f));
-	ringY.translate(Vector3f(10.0f,4.0f,0.0f));
+	ringY.translate(Vector3f(10.0f,1.0f,0.0f));
 	ringY.setScale(2.0f);
 	ringZ.translate(Vector3f(2.0f,2.0f,0.0f));
 
@@ -215,6 +220,7 @@ void display(void)
 	t_old	 = t_new;	
 	t_new = glutGet(GLUT_ELAPSED_TIME);
 	t_delta = (t_new - t_old) / 1000;
+
 
 
 	//! Updates all Physics Items
@@ -242,6 +248,12 @@ void display(void)
 	boxhit.Draw(hitboxShader, ringY.getMatrix());
 	hitbox.Draw(hitboxShader, plane.getMatrix());
 
+	hitbox.doCollsions(boxhit);
+
+	//std::cout << hitbox.centre << " to " << boxhit.centre << std::endl;
+
+	
+
 	//! Draws Main Models
 	glUseProgram(defaultShader.ID);
 	ThirdPerson.updateShader(defaultShader);
@@ -254,7 +266,7 @@ void display(void)
     glUniform1f(defaultShader.SpecularPowerUniformLocation, specularPower);
 
 	//! Probaly Needs to be Changed
-	plane.Draw(defaultShader);
+	//plane.Draw(defaultShader);
 	//ringX.Draw(defaultShader);	
 	ringY.Draw(defaultShader);	
 
@@ -264,8 +276,19 @@ void display(void)
 	//Unuse Shader
 	glUseProgram(0);
 
+
+	//! Seconds per frame counter;
+	frames++;
+	if(t_new - t_sinceSecond >= 1000.0)
+	{
+		fps_count = "ms/frame: " + std::to_string(1000/frames);
+		frames = 0;
+		t_sinceSecond += 1000.0;
+	}
+	
+	
 	//! HUD Elements
-	ThirdPersonHUD.render2dText("Top?",1.0f,1.0f,1.0f,0.5f,-0.5f);
+	ThirdPersonHUD.render2dText(fps_count,0,0,0,-1,0.95f);
 	ThirdPersonHUD.render2dText("Bottom?",1.0f,0.7f,1.0f,0.0f,0.0f);
 
     //Swap Buffers and post redisplay

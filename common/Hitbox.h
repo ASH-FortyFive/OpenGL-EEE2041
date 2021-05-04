@@ -23,12 +23,8 @@
 class Hitbox{
 //! Member Variables
 private:
-    Matrix4x4 Offset;
-
     GLuint vertexPositionBuffer;
     GLuint elementbuffer;
-
-    Vector3f centre;
 
     float width, height, debth; 
 
@@ -56,7 +52,9 @@ private:
         7,5,1
 	};
 public:
-    std::vector<Vector3f> corners; 
+    Vector3f corner[8];
+    Vector3f centre;
+    Matrix4x4 modelMatrix;
 
 //! Functions
 private:
@@ -70,6 +68,7 @@ public:
 
     void changeHitbox(Vector3f, float, float, float);
     
+    Vector3f trueCentre();
 
     Hitbox();
     Hitbox(Vector3f, float,float,float);

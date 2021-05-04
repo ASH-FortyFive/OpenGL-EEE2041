@@ -39,48 +39,52 @@ void Hitbox::loadHitbox()
 	Vector3f up(0,height,0);
 	Vector3f right(0,0,debth);
 	
+	corner[0] = (FBL);
+	corner[1] = (FBL + right);
+	corner[2] = (FBL + up);
+	corner[3] = (FBL + up + right);
 
-	corners.push_back(FBL);
-	corners.push_back(FBL + right);
-	corners.push_back(FBL + up);
-	corners.push_back(FBL + up + right);
-
-	corners.push_back(FBL + forward);
-	corners.push_back(FBL + forward + right);
-	corners.push_back(FBL + forward + up);
-	corners.push_back(FBL + forward + up + right);
+	corner[4] = (FBL + forward);
+	corner[5] = (FBL + forward + right);
+	corner[6] = (FBL + forward + up);
+	corner[7] = (FBL + forward + up + right);
 }
-
 
 void Hitbox::Test()
 {
-	int j(0);
-	for (std::vector<Vector3f>::const_iterator i = corners.begin(); i != corners.end(); ++i)
+
+}
+
+Vector3f Hitbox::trueCentre()
+{
+	Vector3f trueCentre;
+	for (int i(0); i < 8; i++)
 	{
-		std::cout << *i;
+		Vector3f point = corner[i] * modelMatrix;
+		trueCentre.x = trueCentre.x + point.x;
+		trueCentre.y = trueCentre.y + point.y;
+		trueCentre.z = trueCentre.z + point.z;
 	}
 
-	std::cout << std::endl;
+	trueCentre = trueCentre / 8;
 
-	std::cout << "============================================="<< std::endl;
+	return trueCentre;
 }
 
 void Hitbox::Draw(MasterShader shader, Matrix4x4 ModelMatrix)
 {
+	modelMatrix = ModelMatrix; 
 
-	int j(0);
-	for (std::vector<Vector3f>::iterator i = corners.begin(); i != corners.end(); ++i)
+	for (int i(0); i < 8; i++)
 	{
-		Vector3f point;
-
-		point = *i * ModelMatrix;
+		Vector3f point = corner[i] * ModelMatrix;
 		
-		transformedVertexPositionData[j*3] 		= point.x;
-		transformedVertexPositionData[j*3+1]	= point.y;
-		transformedVertexPositionData[j*3+2]	= point.z;
-
-		j++;
+		transformedVertexPositionData[i*3] 		= point.x;
+		transformedVertexPositionData[i*3+1]	= point.y;
+		transformedVertexPositionData[i*3+2]	= point.z;
 	}
+
+	
 
     //Create Vertex Buffer and upload data
 	glGenBuffers(1, &vertexPositionBuffer);  
@@ -126,6 +130,7 @@ void Hitbox::Draw(MasterShader shader, Matrix4x4 ModelMatrix)
 		GL_UNSIGNED_INT,   // type
 		(void*)0           // element array buffer offset
 	);
+
 	
 	//step 5: disable the OpenGL vertex attribute array ‘VertexPositionAttribute’
 	glDisableVertexAttribArray(shader.vertexPositionAttribute);
@@ -136,5 +141,21 @@ void Hitbox::Draw(MasterShader shader, Matrix4x4 ModelMatrix)
 
 bool Hitbox::doCollsions(Hitbox& hg)
 {
+	Vector3f otherCentre = hg.trueCentre();
+	for(int i(0); i < 8; i++)
+	{
+		Vector3f line;
+		Vector3f point = corner[i] * modelMatrix; 
+		Vector3f points = hg.corner[i] * hg.modelMatrix; 
+		line = point - points;
+		glBegin(GL_LINES);
+  		glVertex3f(points.x, points.y, points.z);
+  		glVertex3f(point.x, point.y, point.z);
+		glEnd();
+
+		//std::cout << i << " = " << line.length() << std::endl;
+	}
+	//std::cout <<" ========================= " << std::endl;
+
 	return false;
 }
