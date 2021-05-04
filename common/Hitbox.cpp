@@ -6,8 +6,13 @@ Hitbox::Hitbox()
 {
 }
 
-Hitbox::Hitbox(Vector3f newCentre, float w, float h, float d): centre(newCentre), height(h), width(w), debth(d)
+Hitbox::Hitbox(Vector3f newCentre, float d, float h, float w)
 {
+	obb.centrePoint = newCentre;
+	obb.extents.x = d/2;
+	obb.extents.y = h/2;
+	obb.extents.z = w/2;
+
 	loadHitbox();
 }
 
@@ -18,10 +23,8 @@ Hitbox::~Hitbox()
 }
 
 
-void Hitbox::changeHitbox(Vector3f newCentre, float h, float w, float d)
+void Hitbox::changeHitbox(Vector3f newCentre, float d, float h, float w)
 {
-	centre = newCentre;
-	height = h; width = w; debth = d;
 
 	loadHitbox();
 }
@@ -30,17 +33,17 @@ void Hitbox::loadHitbox()
 {
 	//! Calculates the 'first point', in the (F)ront (B)ottom and (L)eft of the rectangle.
 	Vector3f FBL = Vector3f(
-		centre.x - width/2,
-		centre.y - height/2,
-		centre.z - debth/2
+		obb.centrePoint.x - obb.extents.x,
+		obb.centrePoint.y - obb.extents.y,
+		obb.centrePoint.z - obb.extents.z
 	);
 
-	Vector3f forward(width,0,0);
-	Vector3f up(0,height,0);
-	Vector3f right(0,0,debth);
+	Vector3f forward 	= obb.localAxis[0] * -2*obb.extents.x;
+	Vector3f up 		= obb.localAxis[1] * -2*obb.extents.y;
+	Vector3f right 		= obb.localAxis[2] * -2*obb.extents.z;
 	
 	corner[0] = (FBL);
-	corner[1] = (FBL + right);
+	corner[1] = (FBL + right);	
 	corner[2] = (FBL + up);
 	corner[3] = (FBL + up + right);
 
@@ -130,7 +133,6 @@ void Hitbox::Draw(MasterShader shader, Matrix4x4 ModelMatrix)
 		GL_UNSIGNED_INT,   // type
 		(void*)0           // element array buffer offset
 	);
-
 	
 	//step 5: disable the OpenGL vertex attribute array ‘VertexPositionAttribute’
 	glDisableVertexAttribArray(shader.vertexPositionAttribute);
@@ -139,23 +141,98 @@ void Hitbox::Draw(MasterShader shader, Matrix4x4 ModelMatrix)
 	//=============================================================//
 }
 
-bool Hitbox::doCollsions(Hitbox& hg)
+bool Hitbox::doCollsions(Hitbox& hb)
 {
-	Vector3f otherCentre = hg.trueCentre();
-	for(int i(0); i < 8; i++)
-	{
-		Vector3f line;
-		Vector3f point = corner[i] * modelMatrix; 
-		Vector3f points = hg.corner[i] * hg.modelMatrix; 
-		line = point - points;
-		glBegin(GL_LINES);
-  		glVertex3f(points.x, points.y, points.z);
-  		glVertex3f(point.x, point.y, point.z);
-		glEnd();
+	Vector3f v; //Ussed because the Vector class is terrible
 
-		//std::cout << i << " = " << line.length() << std::endl;
+
+	Vector3f aU[3], bU[3];
+	for (int i(0); i < 3; i++){
+		aU[i] = obb.localAxis[i] * modelMatrix;
+		bU[i] = hb.obb.localAxis[i] * hb.modelMatrix;
 	}
-	//std::cout <<" ========================= " << std::endl;
 
-	return false;
+	float aE[3], bE[3];
+	aE[0] = obb.extents.x; 		aE[1] = obb.extents.y; 		aE[2] = obb.extents.z;
+	bE[0] = hb.obb.extents.x; 	bE[1] = hb.obb.extents.y; 	bE[2] = hb.obb.extents.z;
+
+	float rA, rB;
+	float R[3][3], absR[3][3]; //Rotation matrix to bring hb into this objects coordinate space
+
+	for (int i(0); i < 3; i++){
+		for (int j(0); j < 3; j++){
+			R[i][j] = v.dot(aU[i], bU[j]);
+			absR[i][j] = abs(R[i][j]) + 0.0001f;
+		}
+	}
+		
+	Vector3f T = (hb.obb.centrePoint * hb.modelMatrix) - (obb.centrePoint * modelMatrix);
+	float t[3];
+	t[0] = v.dot(T,aU[0]);
+	t[0] = v.dot(T,aU[1]);
+	t[0] = v.dot(T,aU[2]);
+
+	//To test Collsions we check 15 axis
+
+	//This objects axis - 3
+	for(int i(0); i < 3; i++)
+	{
+		rA = aE[i];
+		rB = bE[0] * absR[i][0] + bE[1] * absR[i][1] + bE[2] * absR[i][2];
+		if(abs(t[i]) > rA + rB) return false;
+	}
+
+	for(int i(0); i < 3; i++)
+	{
+		rA = aE[0] * absR[0][i] + aE[1] * absR[1][i] + aE[2] * absR[2][i];
+		rB = bE[i];
+		if(abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]) > rA + rB) return false;
+	}
+
+	// Test axis L=A0xB0
+	rA = aE[1] * absR[2][0] + aE[2] * absR[1][0];
+	rB = bE[1] * absR[0][2] + bE[2] * absR[0][1];
+	if (abs(t[2] * R[1][0] - t[1] * R[2][0]) > rA + rB) return false;
+
+	// Test axis L=A0xB1
+	rA = aE[1] * absR[2][1] + aE[2] * absR[1][1];
+	rB = bE[0] * absR[0][2] + bE[2] * absR[0][0];
+	if (abs(t[2] * R[1][1] - t[1] * R[2][1]) > rA + rB) return false;
+
+	// Test axis L=A0xB2
+	rA = aE[1] * absR[2][2] + aE[2] * absR[2][1];
+	rB = bE[0] * absR[0][1] + bE[1] * absR[0][0];
+	if (abs(t[2] * R[1][2] - t[1] * R[2][2]) > rA + rB) return false;
+
+	// Test axis L=A1xB0
+	rA = aE[0] * absR[2][0] + aE[2] * absR[0][0];
+	rB = bE[1] * absR[1][2] + bE[2] * absR[1][1];
+	if (abs(t[0] * R[2][0] - t[2] * R[0][0]) > rA + rB) return false;
+
+	// Test axis L=A1xB1
+	rA = aE[0] * absR[2][1] + aE[2] * absR[0][1];
+	rB = bE[0] * absR[1][2] + bE[2] * absR[1][0];
+	if (abs(t[0] * R[2][1] - t[2] * R[0][1]) > rA + rB) return false;
+
+	// Test axis L=A1xB2
+	rA = aE[0] * absR[2][2] + aE[2] * absR[0][2];
+	rB = bE[0] * absR[1][1] + bE[1] * absR[1][0];
+	if (abs(t[0] * R[2][2] - t[2] * R[0][2]) > rA + rB) return false;
+
+	// Test axis L=A2xB0
+	rA = aE[0] * absR[1][0] + aE[1] * absR[0][0];
+	rB = bE[1] * absR[2][2] + bE[2] * absR[2][1];
+	if (abs(t[1] * R[0][0] - t[0] * R[1][0]) > rA + rB) return false;
+
+	// Test axis L=A2xB1
+	rA = aE[0] * absR[1][1] + aE[1] * absR[0][1];
+	rB = bE[0] * absR[2][2] + bE[2] * absR[2][0];
+	if (abs(t[1] * R[0][1] - t[0] * R[1][1]) > rA + rB) return false;
+
+	// Test axis L=A2xB2
+	rA = aE[0] * absR[1][2] + aE[1] * absR[0][2];
+	rB = bE[0] * absR[2][1] + bE[1] * absR[2][0];
+	if (abs(t[1] * R[0][2] - t[0] * R[1][2]) > rA + rB) return false;
+
+	return true;
 }

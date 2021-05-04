@@ -26,16 +26,18 @@ private:
     struct OBB
     {
         Vector3f centrePoint;
-        Vector3f localAxis[3];
+        Vector3f localAxis[3] = {
+            Vector3f(-1,0,0),
+            Vector3f(0,-1,0),
+            Vector3f(0,0,-1)
+        };
         Vector3f extents;
-    }
+    };
     
-
+    
 
     GLuint vertexPositionBuffer;
     GLuint elementbuffer;
-
-    float width, height, debth; 
 
     GLfloat transformedVertexPositionData[24];
 
@@ -62,8 +64,9 @@ private:
 	};
 public:
     Vector3f corner[8];
-    Vector3f centre;
+
     Matrix4x4 modelMatrix;
+    OBB obb; 
 
 //! Functions
 private:

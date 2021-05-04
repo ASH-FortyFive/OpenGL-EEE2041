@@ -101,8 +101,9 @@ std::string fps_count;
 
 GLuint vertexPositionBuffer;
 
-Hitbox hitbox(Vector3f(-1,0.0,0)	,2,0.5f,0.5f);
-Hitbox boxhit(Vector3f(0,0.0,0)		,2,0.1f,2);
+Hitbox hitbox(Vector3f(0,0.0,0)	,2,0.5f,0.5f);
+
+Hitbox boxhit(Vector3f(0,0.0,0)	,2,0.1f,2);
 
 //! Main Program Entry
 int main(int argc, char** argv)
@@ -248,7 +249,8 @@ void display(void)
 	boxhit.Draw(hitboxShader, ringY.getMatrix());
 	hitbox.Draw(hitboxShader, plane.getMatrix());
 
-	hitbox.doCollsions(boxhit);
+	std::cout << hitbox.doCollsions(boxhit) << std::endl;
+	//boxhit.doCollsions(boxhit);
 
 	//std::cout << hitbox.centre << " to " << boxhit.centre << std::endl;
 
@@ -266,8 +268,9 @@ void display(void)
     glUniform1f(defaultShader.SpecularPowerUniformLocation, specularPower);
 
 	//! Probaly Needs to be Changed
-	//plane.Draw(defaultShader);
-	//ringX.Draw(defaultShader);	
+	plane.Draw(defaultShader);
+	//ringX.Draw(defaultShader);
+	//ringY.rotate(Vector3f(0.0f,1.0f,0.0f));	
 	ringY.Draw(defaultShader);	
 
 	ground.Draw(defaultShader);
