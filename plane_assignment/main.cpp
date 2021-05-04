@@ -35,7 +35,6 @@ void initTexture(std::string filename, GLuint & textureID);
 
 //! Temp Functions
 void initTemp();	
-void VectorPrinter(Vector3f vec);
 
 //Lights
 
@@ -97,7 +96,8 @@ float t_delta = 0.0;
 
 GLuint vertexPositionBuffer;
 
-Hitbox hitbox(Vector3f(1,1,1),1,2,1);
+Hitbox hitbox(Vector3f(-1,0.0,0)	,2,0.5f,0.5f);
+Hitbox boxhit(Vector3f(0,0.0,0)		,2,0.1f,2);
 
 //! Main Program Entry
 int main(int argc, char** argv)
@@ -235,16 +235,16 @@ void display(void)
 	glDepthMask(GL_TRUE);
 	
 	//! Hitboxes
+	Matrix4x4 mod = plane.getMatrix();
+
 	glUseProgram(hitboxShader.ID);
 	ThirdPerson.updateShader(hitboxShader);
-	hitbox.Draw(hitboxShader);
+	boxhit.Draw(hitboxShader, ringY.getMatrix());
+	hitbox.Draw(hitboxShader, plane.getMatrix());
 
 	//! Draws Main Models
 	glUseProgram(defaultShader.ID);
 	ThirdPerson.updateShader(defaultShader);
-
-	
-	
 
 
 	//! Lighting
@@ -293,24 +293,16 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	else if (key == 'p')
 	{
-		std::cout << "Plane is Facing" << std::endl;
-		VectorPrinter(plane.facing());
+		std::cout << "Plane is Facing" << std::endl << plane.facing() << std::endl;
 		
-		std::cout << "Plane is at" << std::endl;
-		VectorPrinter(plane.getMeshCentroid());
-
-		std::cout << "Plane is rotated" << std::endl ;
-		VectorPrinter(plane.getRotiation());
-
-		std::cout << std::endl << "Cam is Facing" << std::endl;
-		VectorPrinter(ThirdPerson.getDirection());
-		std::cout << "Cam is at" << std::endl;
-		VectorPrinter(ThirdPerson.getPosition());
-		std::cout << "==========================" << std::endl;
+		std::cout << "Plane is at" << std::endl << plane.getMeshCentroid() << std::endl;
+		std::cout << "Plane is rotated" << std::endl << plane.getRotiation() << std::endl;
+		std::cout << std::endl << "Cam is Facing" << std::endl << ThirdPerson.getDirection() << std::endl;
+		std::cout << "Cam is at" << std::endl << ThirdPerson.getPosition() << std::endl;
+		std::cout << "==========================" << std::endl ;
 	}
 	else if (key == 'c')
 	{
-		std::cout << "Oh no" <<std::endl;
 		hitbox.Test();
 	}
 	else if (key == 'g')
@@ -429,11 +421,4 @@ void Timer(int value)
     
     //Call function again after 10 milli seconds
 	glutTimerFunc(10,Timer, 0);
-}
-
-//! Debug Print Function
-void VectorPrinter(Vector3f vec)
-{
-	std::cout << std::fixed << "X:" << vec.x << " Y:" << vec.y << " Z:" << vec.z <<"\n";
-	//std::cout << std::fixed << "Mag:" << sqrt(vec.x*vec.x + vec.y*vec.y +vec.z*vec.z) << "\n";
 }

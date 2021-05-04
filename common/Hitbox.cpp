@@ -6,10 +6,11 @@ Hitbox::Hitbox()
 {
 }
 
-Hitbox::Hitbox(Vector3f newCentre, float h, float w, float d): centre(newCentre), height(h), width(w), debth(d)
+Hitbox::Hitbox(Vector3f newCentre, float w, float h, float d): centre(newCentre), height(h), width(w), debth(d)
 {
 	loadHitbox();
 }
+
 
 
 Hitbox::~Hitbox()
@@ -34,46 +35,57 @@ void Hitbox::loadHitbox()
 		centre.z - debth/2
 	);
 
-	vertexPositionData[0] = FBL.x;
-	vertexPositionData[3] = FBL.x;
-	vertexPositionData[6] = FBL.x;
-	vertexPositionData[9] = FBL.x;
-	vertexPositionData[12] = FBL.x + width;
-	vertexPositionData[15] = FBL.x + width;
-	vertexPositionData[18] = FBL.x + width;
-	vertexPositionData[21] = FBL.x + width;
+	Vector3f forward(width,0,0);
+	Vector3f up(0,height,0);
+	Vector3f right(0,0,debth);
+	
 
-	vertexPositionData[1] 	= FBL.y;
-	vertexPositionData[4] 	= FBL.y;
-	vertexPositionData[7] 	= FBL.y + height;
-	vertexPositionData[10] 	= FBL.y + height;
-	vertexPositionData[13] 	= FBL.y;
-	vertexPositionData[16] 	= FBL.y;
-	vertexPositionData[19] 	= FBL.y + height;
-	vertexPositionData[22] 	= FBL.y + height;
+	corners.push_back(FBL);
+	corners.push_back(FBL + right);
+	corners.push_back(FBL + up);
+	corners.push_back(FBL + up + right);
 
-	vertexPositionData[2] 	= FBL.z;
-	vertexPositionData[5] 	= FBL.z + debth;
-	vertexPositionData[8] 	= FBL.z;
-	vertexPositionData[11] 	= FBL.z + debth;
-	vertexPositionData[14] 	= FBL.z;
-	vertexPositionData[17] 	= FBL.z + debth;
-	vertexPositionData[20] 	= FBL.z;
-	vertexPositionData[23] 	= FBL.z + debth;
+	corners.push_back(FBL + forward);
+	corners.push_back(FBL + forward + right);
+	corners.push_back(FBL + forward + up);
+	corners.push_back(FBL + forward + up + right);
 }
 
 
 void Hitbox::Test()
 {
-    
+	int j(0);
+	for (std::vector<Vector3f>::const_iterator i = corners.begin(); i != corners.end(); ++i)
+	{
+		std::cout << *i;
+	}
+
+	std::cout << std::endl;
+
+	std::cout << "============================================="<< std::endl;
 }
 
-void Hitbox::Draw(MasterShader shader)
+void Hitbox::Draw(MasterShader shader, Matrix4x4 ModelMatrix)
 {
+
+	int j(0);
+	for (std::vector<Vector3f>::iterator i = corners.begin(); i != corners.end(); ++i)
+	{
+		Vector3f point;
+
+		point = *i * ModelMatrix;
+		
+		transformedVertexPositionData[j*3] 		= point.x;
+		transformedVertexPositionData[j*3+1]	= point.y;
+		transformedVertexPositionData[j*3+2]	= point.z;
+
+		j++;
+	}
+
     //Create Vertex Buffer and upload data
 	glGenBuffers(1, &vertexPositionBuffer);  
 	glBindBuffer(GL_ARRAY_BUFFER, vertexPositionBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositionData), vertexPositionData, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(transformedVertexPositionData), transformedVertexPositionData, GL_STATIC_DRAW);
 
     //Create Vertex Index Buffer
 	glGenBuffers(1, &elementbuffer);
@@ -84,13 +96,13 @@ void Hitbox::Draw(MasterShader shader)
 
 	glUseProgram(shader.ID);
 
-	Matrix4x4 mod;
+	ModelMatrix.toIdentity();
 
 	glUniformMatrix4fv(
         shader.ModelMatrixUniformLocation,
         1,
         false,
-        mod.getPtr());
+        ModelMatrix.getPtr());
 
 	// Enable and bind vertex position buffer to vertex position attributes 
     // step 1: enable the OpenGL vertex attribute array ‘VertexPositionAttribute’
@@ -120,5 +132,9 @@ void Hitbox::Draw(MasterShader shader)
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//=============================================================//
+}
 
+bool Hitbox::doCollsions(Hitbox& hg)
+{
+	return false;
 }

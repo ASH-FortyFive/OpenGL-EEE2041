@@ -44,8 +44,7 @@ private:
 //! Functions
 public:
     //! Overloads functions from Mesh to Allow for Transforms, Textures, and Colours (BROKEN)
-	void Draw(
-		MasterShader shader);
+	void Draw(MasterShader shader);
 
     
     //Load and OBJ mesh from File, uses parent function
@@ -76,7 +75,7 @@ public:
 	
 	//! Accessors 
 	Vector3f facing();
-	Matrix4x4 getRotiationMatrix();
+	Matrix4x4 getMatrix();
 	Vector3f getRotiation();
 	//! Overrides Mesh Function to get Centre of Translated Model
 	Vector3f getMeshCentroid();

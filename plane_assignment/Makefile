@@ -58,7 +58,6 @@ SOURCES       = main.cpp \
 		../common/Matrix.cpp \
 		../common/Mesh.cpp \
 		../common/Texture.cpp \
-		../common/Object.cpp \
 		../common/Camera.cpp \
 		../common/Model.cpp \
 		../common/Player.cpp \
@@ -73,7 +72,6 @@ OBJECTS       = build/main.o \
 		build/Matrix.o \
 		build/Mesh.o \
 		build/Texture.o \
-		build/Object.o \
 		build/Camera.o \
 		build/Model.o \
 		build/Player.o \
@@ -293,7 +291,6 @@ DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		../common/Matrix.h \
 		../common/Mesh.h \
 		../common/Texture.h \
-		../common/Object.h \
 		../common/Camera.h \
 		../common/Model.h \
 		../common/Player.h \
@@ -307,7 +304,6 @@ DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		../common/Matrix.cpp \
 		../common/Mesh.cpp \
 		../common/Texture.cpp \
-		../common/Object.cpp \
 		../common/Camera.cpp \
 		../common/Model.cpp \
 		../common/Player.cpp \
@@ -792,9 +788,6 @@ build/Mesh.o: ../common/Mesh.cpp ../common/Mesh.h
 
 build/Texture.o: ../common/Texture.cpp ../common/Texture.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Texture.o ../common/Texture.cpp
-
-build/Object.o: ../common/Object.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Object.o ../common/Object.cpp
 
 build/Camera.o: ../common/Camera.cpp ../common/Vector.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Camera.o ../common/Camera.cpp

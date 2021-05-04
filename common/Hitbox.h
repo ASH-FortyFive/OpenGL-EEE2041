@@ -23,7 +23,7 @@
 class Hitbox{
 //! Member Variables
 private:
-    Matrix4x4 ModelView;
+    Matrix4x4 Offset;
 
     GLuint vertexPositionBuffer;
     GLuint elementbuffer;
@@ -32,17 +32,7 @@ private:
 
     float width, height, debth; 
 
-    GLfloat vertexPositionData[24] = 
-	{ 
-         0.0f,  0.0f,  0.0f, //0 Bottom,front, left
-		 0.0f,  0.0f,  1.0f, //1 Bottom,front, right
-         0.0f,  1.0f,  0.0f, //2 Top,   front, left
-         0.0f,  1.0f,  1.0f, //3 Top,   front, right
-		 1.0f,  0.0f,  0.0f, //4 Bottom,back,  left
-         1.0f,  0.0f,  1.0f, //5 Bottom,back,  right
-         1.0f,  1.0f,  0.0f, //6 Top,   back,  left
-         1.0f,  1.0f,  1.0f  //7 Top,   back,  right
-	}; // 3D vertex position ‘f’ indicates floating point
+    GLfloat transformedVertexPositionData[24];
 
     GLuint vertexIndexData[36] = 
 	{
@@ -65,7 +55,8 @@ private:
         1,3,7,
         7,5,1
 	};
-
+public:
+    std::vector<Vector3f> corners; 
 
 //! Functions
 private:
@@ -73,7 +64,7 @@ void loadHitbox();
 public:
     bool doCollsions(Hitbox&);
 
-    void Draw(MasterShader shader);
+    void Draw(MasterShader, Matrix4x4);
 
     void Test();
 

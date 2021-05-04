@@ -47,13 +47,8 @@ void Model::Draw(MasterShader shader)
 {
 
     //! Applies All Transforms, may be possible to reduce the number of operations
-    ModelMatrix = ModelMatrix;                                  // Starts by getting
-    ModelMatrix.translate(position.x, position.y, position.z);  // Translates
-    ModelMatrix.rotate(rotationAngles.y, 0.0f, 1.0f, 0.0f);     // Rotate around y
-    ModelMatrix.rotate(rotationAngles.z, 0.0f, 0.0f, 1.0f);     // Rotate around z
-    ModelMatrix.rotate(rotationAngles.x, 1.0f, 0.0f, 0.0f);     // Rotate around x               
-    ModelMatrix.scale(scaleFactor, scaleFactor, scaleFactor);   // Scales
-
+    ModelMatrix = getMatrix();                                  // Starts by getting
+    
     glUniformMatrix4fv(
         shader.ModelMatrixUniformLocation,
         1,
@@ -148,14 +143,15 @@ Vector3f Model::facing()
     return rotationRadians.normalise(Vector3f(x,y,z));
 }
 
-Matrix4x4 Model::getRotiationMatrix()
+Matrix4x4 Model::getMatrix()
 {
-    Matrix4x4 RotMatrix;
-    RotMatrix.toIdentity();
-    RotMatrix.rotate(rotationAngles.y, 0.0f, 1.0f, 0.0f);     // Rotate around y
-    RotMatrix.rotate(rotationAngles.z, 0.0f, 0.0f, 1.0f);     // Rotate around z
-    RotMatrix.rotate(rotationAngles.x, 1.0f, 0.0f, 0.0f);     // Rotate around x
-    return RotMatrix;
+    Matrix4x4 matrix;
+    matrix.translate(position.x, position.y, position.z);  // Translates
+    matrix.rotate(rotationAngles.y, 0.0f, 1.0f, 0.0f);     // Rotate around y
+    matrix.rotate(rotationAngles.z, 0.0f, 0.0f, 1.0f);     // Rotate around z
+    matrix.rotate(rotationAngles.x, 1.0f, 0.0f, 0.0f);     // Rotate around x               
+    matrix.scale(scaleFactor, scaleFactor, scaleFactor);   // Scales
+    return matrix;
 }
 
 Vector3f Model::getRotiation()

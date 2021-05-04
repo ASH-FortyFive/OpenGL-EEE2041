@@ -13,7 +13,6 @@ HEADERS	+= 	../common/Shader.h	    		\
 		../common/Matrix.h		        \
 		../common/Mesh.h		        \
         	../common/Texture.h             	\		
-		../common/Object.h			\
         	../common/Camera.h  			\
         	../common/Model.h  			\
 		../common/Player.h  			\
@@ -31,7 +30,6 @@ SOURCES += 	main.cpp			        \
 		../common/Matrix.cpp		    	\
 		../common/Mesh.cpp		        \
         	../common/Texture.cpp           	\
-		../common/Object.cpp			\
         	../common/Camera.cpp 			\
         	../common/Model.cpp			\  
 		../common/Player.cpp			\  
