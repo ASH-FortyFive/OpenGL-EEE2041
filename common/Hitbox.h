@@ -76,15 +76,8 @@ bool againstAxis(Vector3f axis, Vector3f distance, Vector3f pE[2][3]);
 
 public:
     bool doCollsions(Hitbox&);
-
     void Draw(MasterShader, Matrix4x4);
-
-    void Test();
-
-    void changeHitbox(Vector3f, float, float, float);
     
-    Vector3f trueCentre();
-
     Hitbox();
     Hitbox(Vector3f, float,float,float);
     ~Hitbox();

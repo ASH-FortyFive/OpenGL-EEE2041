@@ -17,16 +17,8 @@ Hitbox::Hitbox(Vector3f newCentre, float d, float h, float w)
 }
 
 
-
 Hitbox::~Hitbox()
 {
-}
-
-
-void Hitbox::changeHitbox(Vector3f newCentre, float d, float h, float w)
-{
-
-	loadHitbox();
 }
 
 void Hitbox::loadHitbox()
@@ -51,27 +43,6 @@ void Hitbox::loadHitbox()
 	corner[5] = (FBL + forward + right);
 	corner[6] = (FBL + forward + up);
 	corner[7] = (FBL + forward + up + right);
-}
-
-void Hitbox::Test()
-{
-
-}
-
-Vector3f Hitbox::trueCentre()
-{
-	Vector3f trueCentre;
-	for (int i(0); i < 8; i++)
-	{
-		Vector3f point = corner[i] * modelMatrix;
-		trueCentre.x = trueCentre.x + point.x;
-		trueCentre.y = trueCentre.y + point.y;
-		trueCentre.z = trueCentre.z + point.z;
-	}
-
-	trueCentre = trueCentre / 8;
-
-	return trueCentre;
 }
 
 void Hitbox::Draw(MasterShader shader, Matrix4x4 ModelMatrix)
@@ -144,10 +115,9 @@ void Hitbox::Draw(MasterShader shader, Matrix4x4 ModelMatrix)
 
 bool Hitbox::doCollsions(Hitbox& hb)
 {
-	Vector3f axis[15];
+	Vector3f v; // Used for .dot, .cross, and .normalise
 
-	Vector3f v;
-
+	//! Removes the translation element from the modelMatrixes
 	Matrix4x4 rotationMatrix = modelMatrix;
 	float * rotationMatrixValues = rotationMatrix.getPtr();
 	rotationMatrixValues[14] = 0; rotationMatrixValues[13] = 0; rotationMatrixValues[12] = 0;
@@ -157,6 +127,8 @@ bool Hitbox::doCollsions(Hitbox& hb)
 	rotationMatrixValuesB[14] = 0; rotationMatrixValuesB[13] = 0; rotationMatrixValuesB[12] = 0;
 
 
+	//! Creates the first 6th Axis to check (directions of both hitboxes)
+	Vector3f axis[6];
 
 	axis[0] = v.normalise(obb.localAxis[0] * rotationMatrix);
 	axis[1] = v.normalise(obb.localAxis[1] * rotationMatrix);
@@ -167,58 +139,53 @@ bool Hitbox::doCollsions(Hitbox& hb)
 	axis[4] = v.normalise(hb.obb.localAxis[1] * rotationMatrixB);
 	axis[5] = v.normalise(hb.obb.localAxis[2] * rotationMatrixB);
 
-	for(int i(0); i < 3; i++)
-	{
-		for(int j(0); j < 3; j++)
-		{	
-			
-			axis[6 + (i * 3) + j] = v.normalise(v.cross(axis[i], axis[3+j]));
-			/*
-			std::cout << "Cross product of Axis " << (i) << " (" << axis[i] <<
-			") and Axis " << 3+j << " (" << axis[3+j] << ") is Axis " << 6 + (i * 3) << " ("
-			<< axis[6 + (i * 3) + j] << ")"<<std::endl; */
- 		}
-	}
-
-
+	//! Creates the project extensions
 	Vector3f projectedExtends[2][3];
 
 	for(int i(0); i < 3; i++)
 	{
 		projectedExtends[0][i] = axis[i] * obb.extents[i];
-	}
-
-	for(int i(0); i < 3; i++)
-	{
 		projectedExtends[1][i] = axis[i + 3] * hb.obb.extents[i];
 	}
 
+	//! Distance between the box centres
 	Vector3f T = hb.obb.centrePoint * hb.modelMatrix - obb.centrePoint * modelMatrix;
 	
-	for(int i(0); i < 15; i++)
+	//! Checks if first 6 axis pass the test
+	for(int i(0); i < 6; i++)
 	{
 		if(againstAxis(axis[i], T , projectedExtends))
 		{
 			return false;
 		}
 	}
+
+	//! Creates the next 9 axis and test after creation (doing so optmizes code slightly)
+	for(int i(0); i < 3; i++)
+	{
+		for(int j(0); j < 3; j++)
+		{	
+			if(againstAxis(v.normalise(v.cross(axis[i], axis[3+j])), T , projectedExtends))
+			{
+				return false;
+			}
+ 		}
+	}
+
 	return true;
 
 }
 
 bool Hitbox::againstAxis(Vector3f axis, Vector3f distance, Vector3f pE[2][3])
 {
-	Vector3f v;
-	
-	
 	return 
-		abs(v.dot(distance, axis)) > 
-		abs(v.dot(pE[0][0], axis)) + 
-		abs(v.dot(pE[0][1], axis)) +
-		abs(v.dot(pE[0][2], axis)) +
-		abs(v.dot(pE[1][0], axis)) + 
-		abs(v.dot(pE[1][1], axis)) +
-		abs(v.dot(pE[1][2], axis))
+		abs(axis.dot(distance, axis)) > 
+		abs(axis.dot(pE[0][0], axis)) + 
+		abs(axis.dot(pE[0][1], axis)) +
+		abs(axis.dot(pE[0][2], axis)) +
+		abs(axis.dot(pE[1][0], axis)) + 
+		abs(axis.dot(pE[1][1], axis)) +
+		abs(axis.dot(pE[1][2], axis))
 	;
 }
 

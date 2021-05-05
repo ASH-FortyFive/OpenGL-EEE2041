@@ -330,7 +330,7 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	else if (key == 'c')
 	{
-		hitbox.Test();
+		
 	}
 	else if (key == 'g')
 	{
