@@ -249,8 +249,8 @@ void display(void)
 	boxhit.Draw(hitboxShader, ringY.getMatrix());
 	hitbox.Draw(hitboxShader, plane.getMatrix());
 
-	hitbox.doCollsions(boxhit);
-	//std::cout << hitbox.doCollsions(boxhit) << std::endl;
+	//boxhit.doCollsions(hitbox);
+	std::cout << hitbox.doCollsions(boxhit) << std::endl;
 	//boxhit.doCollsions(boxhit);
 
 	//std::cout << hitbox.centre << " to " << boxhit.centre << std::endl;
@@ -272,7 +272,7 @@ void display(void)
 	//plane.Draw(defaultShader);
 	//ringX.Draw(defaultShader);
 	//ringY.rotate(Vector3f(0.0f,1.0f,0.0f));	
-	ringY.Draw(defaultShader);	
+	//ringY.Draw(defaultShader);	
 
 	ground.Draw(defaultShader);
 	

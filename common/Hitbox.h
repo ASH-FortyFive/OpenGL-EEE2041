@@ -31,7 +31,7 @@ private:
             Vector3f(0,-1,0),
             Vector3f(0,0,-1)
         };
-        Vector3f extents;
+        float extents[3];
     };
     
     
@@ -72,7 +72,7 @@ public:
 private:
 void loadHitbox();
 bool drawLine(Vector3f, Vector3f);
-bool againstAxis(Vector3f, Hitbox&, Hitbox&);
+bool againstAxis(Vector3f axis, Vector3f distance, Vector3f pE[2][3]);
 
 public:
     bool doCollsions(Hitbox&);

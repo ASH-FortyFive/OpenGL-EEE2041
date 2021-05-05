@@ -9,9 +9,9 @@ Hitbox::Hitbox()
 Hitbox::Hitbox(Vector3f newCentre, float d, float h, float w)
 {
 	obb.centrePoint = newCentre;
-	obb.extents.x = d/2;
-	obb.extents.y = h/2;
-	obb.extents.z = w/2;
+	obb.extents[0] = d/2;
+	obb.extents[1]= h/2;
+	obb.extents[2] = w/2;
 
 	loadHitbox();
 }
@@ -33,14 +33,14 @@ void Hitbox::loadHitbox()
 {
 	//! Calculates the 'first point', in the (F)ront (B)ottom and (L)eft of the rectangle.
 	Vector3f FBL = Vector3f(
-		obb.centrePoint.x - obb.extents.x,
-		obb.centrePoint.y - obb.extents.y,
-		obb.centrePoint.z - obb.extents.z
+		obb.centrePoint.x - obb.extents[0],
+		obb.centrePoint.y - obb.extents[1],
+		obb.centrePoint.z - obb.extents[2]
 	);
 
-	Vector3f forward 	= obb.localAxis[0] * -2*obb.extents.x;
-	Vector3f up 		= obb.localAxis[1] * -2*obb.extents.y;
-	Vector3f right 		= obb.localAxis[2] * -2*obb.extents.z;
+	Vector3f forward 	= obb.localAxis[0] * -2*obb.extents[0];
+	Vector3f up 		= obb.localAxis[1] * -2*obb.extents[1];
+	Vector3f right 		= obb.localAxis[2] * -2*obb.extents[2];
 	
 	corner[0] = (FBL);
 	corner[1] = (FBL + right);	
@@ -146,46 +146,80 @@ bool Hitbox::doCollsions(Hitbox& hb)
 {
 	Vector3f axis[15];
 
+	Vector3f v;
+
 	Matrix4x4 rotationMatrix = modelMatrix;
 	float * rotationMatrixValues = rotationMatrix.getPtr();
 	rotationMatrixValues[14] = 0; rotationMatrixValues[13] = 0; rotationMatrixValues[12] = 0;
 
 	Matrix4x4 rotationMatrixB = hb.modelMatrix;
-	float * rotationMatrixValuesB = hb.modelMatrix.getPtr();
+	float * rotationMatrixValuesB = rotationMatrixB.getPtr();
 	rotationMatrixValuesB[14] = 0; rotationMatrixValuesB[13] = 0; rotationMatrixValuesB[12] = 0;
 
-	axis[0] = obb.localAxis[0] * rotationMatrix;
-	axis[1] = obb.localAxis[1] * rotationMatrix;
-	axis[2] = obb.localAxis[2] * rotationMatrix;
 
 
-	axis[3] = hb.obb.localAxis[0] * rotationMatrixValuesB;
-	axis[4] = hb.obb.localAxis[1] * rotationMatrixValuesB;
-	axis[5] = hb.obb.localAxis[2] * rotationMatrixValuesB;
+	axis[0] = v.normalise(obb.localAxis[0] * rotationMatrix);
+	axis[1] = v.normalise(obb.localAxis[1] * rotationMatrix);
+	axis[2] = v.normalise(obb.localAxis[2] * rotationMatrix);
 
 
-	for(int i(0); i < 6; i++)
+	axis[3] = v.normalise(hb.obb.localAxis[0] * rotationMatrixB);
+	axis[4] = v.normalise(hb.obb.localAxis[1] * rotationMatrixB);
+	axis[5] = v.normalise(hb.obb.localAxis[2] * rotationMatrixB);
+
+	for(int i(0); i < 3; i++)
 	{
-		std::cout << "Axis " << i << ": " << axis[i] << "("<< axis[i].length() << ")"<<std::endl;
-		drawLine(obb.centrePoint * modelMatrix, obb.centrePoint * modelMatrix + axis[i]);
+		for(int j(0); j < 3; j++)
+		{	
+			
+			axis[6 + (i * 3) + j] = v.normalise(v.cross(axis[i], axis[3+j]));
+			/*
+			std::cout << "Cross product of Axis " << (i) << " (" << axis[i] <<
+			") and Axis " << 3+j << " (" << axis[3+j] << ") is Axis " << 6 + (i * 3) << " ("
+			<< axis[6 + (i * 3) + j] << ")"<<std::endl; */
+ 		}
 	}
 
-	std::cout << "===========================================" <<std::endl;
 
-	return true;
-	/*
+	Vector3f projectedExtends[2][3];
+
+	for(int i(0); i < 3; i++)
+	{
+		projectedExtends[0][i] = axis[i] * obb.extents[i];
+	}
+
+	for(int i(0); i < 3; i++)
+	{
+		projectedExtends[1][i] = axis[i + 3] * hb.obb.extents[i];
+	}
+
+	Vector3f T = hb.obb.centrePoint * hb.modelMatrix - obb.centrePoint * modelMatrix;
+	
 	for(int i(0); i < 15; i++)
 	{
-		std::cout << "Axis " << i << ": " << axis[i] <<std::endl;
-		drawLine(obb.centrePoint * modelMatrix, axis[i]);
-	}	*/
-	std::cout << "===========================================" <<std::endl;
+		if(againstAxis(axis[i], T , projectedExtends))
+		{
+			return false;
+		}
+	}
+	return true;
 
 }
 
-bool Hitbox::againstAxis(Vector3f axis, Hitbox& a, Hitbox& b)
+bool Hitbox::againstAxis(Vector3f axis, Vector3f distance, Vector3f pE[2][3])
 {
+	Vector3f v;
 	
+	
+	return 
+		abs(v.dot(distance, axis)) > 
+		abs(v.dot(pE[0][0], axis)) + 
+		abs(v.dot(pE[0][1], axis)) +
+		abs(v.dot(pE[0][2], axis)) +
+		abs(v.dot(pE[1][0], axis)) + 
+		abs(v.dot(pE[1][1], axis)) +
+		abs(v.dot(pE[1][2], axis))
+	;
 }
 
 bool Hitbox::drawLine(Vector3f v1, Vector3f v2)
