@@ -12,12 +12,11 @@ Model::Model() :
 }
 
 
-
+/*
 Model::Model(const Model &model)
 {
 
 }
-
 
 Model& Model::operator=(const Model &model)
 {
@@ -26,7 +25,7 @@ Model& Model::operator=(const Model &model)
 
     }
     return *this;
-}
+}*/
 
 Model::~Model()
 {}

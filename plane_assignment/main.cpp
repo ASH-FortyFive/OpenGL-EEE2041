@@ -222,7 +222,7 @@ void display(void)
 
 	//! Calculates Third Person Camera Follow
 	ThirdPerson.followUpdate(plane);
-	
+	//std::cout << "Out of Cam: " << plane.getMeshCentroid() << std::endl;
 
 	//! Renders the Skybox
 	glUseProgram(skyboxShader.ID);

@@ -80,6 +80,9 @@ void Camera::follow(Player player, Vector3f posOffset, Vector3f targetOffset)
 //! Main Function that Updates the Camera Position
 void Camera::followUpdate(Player player)
 {
+
+	//std::cout << "In of Cam: " <<player.getMeshCentroid() << std::endl;
+
 	follow(player, positionOffset, targetOffset);
 
 	ViewMatrix.lookAt(

@@ -78,9 +78,9 @@ public:
 		Vector3f initalAngles = Vector3f(0.0f,0.0f,0.0f), 
 		Vector3f initalColour = Vector3f(0.5f, 0.5f, 0.5f));
 		
-	*/
+	
 	Model(const Model &model);
-	Model& operator=(const Model &model);
+	Model& operator=(const Model &model);*/
   	~Model();
 };
 
