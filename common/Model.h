@@ -31,14 +31,9 @@ private:
 	//! Transform Varibles (used to create ModelMatrix each Draw)
 	float scaleFactor;
 	Vector3f position;
-	Vector3f rotationAxis;
-	float rotationAngle;
-
-	//! New Rotations
-	Vector3f rotationAngles;
+	Vector3f rotationAngles;	
 	
 	//! Visuals
-    Vector3f colour;
 	GLuint textureID;
 
 //! Functions
@@ -52,14 +47,6 @@ public:
 		std::string filename, 
 		GLuint TextureMapUniformLocation = -1,
 		GLuint texture = -1);
-    /*
-	    //Creates geometry for a cube 
-	void initCube(GLunit MVMatrixUniformLocation);
-	    //Create geometry for triangle
-	void initTriangle(GLunit MVMatrixUniformLocation);
-	    //Create geometry for triangle
-	void initQuad(GLunit MVMatrixUniformLocation);
-    */
 
 	//! Mutators
 	void scale(float); //Increases Scale by Input
@@ -71,7 +58,6 @@ public:
 		//! Incomplete Rotation Functions
 	void rotate(Vector3f); //Increments Rotation by Input (and sets Axis)
 	void setRotation(Vector3f); //Sets Rotation and Axis to Input
-	void setColour(float, float, float); //Sets Colour to Input (RGB)
 	
 	//! Accessors 
 	Vector3f facing();
@@ -81,16 +67,20 @@ public:
 	Vector3f getMeshCentroid();
 
 	//! Debug Functions
-	void printMatrix(); //Shows Models Matrix
 
 	//! Constructors and Destructors 
   	Model();
+	  /*
 	Model( 												//Used to set inital Values (CURRENTLY BROKEN)
 		Vector3f initalPos, 
 		float initalSize = 1.0f,
 		Vector3f initalRot = Vector3f(0.0f,0.0f,0.0f),
 		Vector3f initalAngles = Vector3f(0.0f,0.0f,0.0f), 
 		Vector3f initalColour = Vector3f(0.5f, 0.5f, 0.5f));
+		
+	*/
+	Model(const Model &model);
+	Model& operator=(const Model &model);
   	~Model();
 };
 

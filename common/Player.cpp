@@ -16,6 +16,7 @@ void Player::update(float frac)
     //! Decays Forces
     velocity = velocity * (0.95f);
     spin = spin * (0.95f);
+    
 }
 
 void Player::addForce(Vector3f newForce)

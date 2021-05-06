@@ -5,11 +5,19 @@
 #ifndef Map_H_
 #define Map_H_
 
-#include "Vector.h"
 #include <GL/glew.h>
 #include <GL/glut.h>
-#include <Model.h>
+
+#include <iostream>
 #include <string>
+#include <fstream>
+#include <vector>
+
+#include <Vector.h>
+#include <Model.h>
+#include <ShaderClass.h>
+
+
 
 class Map
 {
@@ -23,21 +31,26 @@ private:
 
 
 public:
-
+    std::vector<Model> rings;
 //! Member Functions
 private:
-
+    //! For taking in the Map file
+    friend std::istream& operator>>(std::istream& in, Map& map);
 public:
     //! Constructors and Destructors 
     Map();
     ~Map();
 
-    //! Drawing Functions
-    void Draw();
+    
+
+    //! Sets up Map based on file
+    bool Init(std::string);//, Model);
+
+    //! Drawing Function
+    void Draw(MasterShader);
 
 
-    //! For Initlaizng 
-    void Init(std::string);
+    
 };
 
 #endif

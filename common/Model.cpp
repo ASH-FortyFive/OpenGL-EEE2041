@@ -6,20 +6,26 @@
 Model::Model() : 
     scaleFactor(1.0f), 
     position(0.0f,0.0f,0.0f),  
-    rotationAngles(0.0f, 0.0f, 0.0f), 
-    colour(0.5f, 0.5f, 0.5f)
+    rotationAngles(0.0f, 0.0f, 0.0f)
 {
     ModelMatrix.toIdentity();
 }
 
-Model::Model(Vector3f initalPos, float initalSize, Vector3f initalRot, Vector3f initalAngles, Vector3f initalColour) : 
-    scaleFactor(initalSize), 
-    position(initalPos),  
-    rotationAxis(initalRot), 
-    rotationAngles(initalAngles), 
-    colour(initalColour)
+
+
+Model::Model(const Model &model)
 {
-    ModelMatrix.toIdentity();
+
+}
+
+
+Model& Model::operator=(const Model &model)
+{
+    if(this != &model)
+    {
+
+    }
+    return *this;
 }
 
 Model::~Model()
@@ -36,8 +42,6 @@ bool Model::loadOBJ(std::string filename, GLuint _TextureMapUniformLocation, GLu
     //! Adds the ID for the Texture
     textureID = texture;
 
-    std::cout << "TextureID: " << textureID << std::endl;
-
     //! Returns true for correctly loaded texture
     return true;
 }
@@ -46,9 +50,10 @@ bool Model::loadOBJ(std::string filename, GLuint _TextureMapUniformLocation, GLu
 void Model::Draw(MasterShader shader)
 {
 
-    //! Applies All Transforms, may be possible to reduce the number of operations
-    ModelMatrix = getMatrix();                                  // Starts by getting
+    //! Applies All Transforms
+    ModelMatrix = getMatrix();                                 
     
+    //! Sends Model Matrix to Shader
     glUniformMatrix4fv(
         shader.ModelMatrixUniformLocation,
         1,
@@ -116,20 +121,6 @@ void Model::setRotation(Vector3f newAngle)
     rotationAngles.y =fmod(newAngle.y + 360.0f, 360.0f);
     rotationAngles.z =fmod(newAngle.z + 360.0f, 360.0f);
 }
-    // Changes Colour (Currently Broken)
-void Model::setColour(float R, float G, float B)
-{
-   
-     if(R >= 0.0f || R <= 1.0f ||   // Red
-        G >= 0.0f || G <= 1.0f ||   // Green
-        B >= 0.0f || B <= 1.0f)      // Blue
-    {
-        colour = Vector3f(R,G,B);
-    }else
-    {
-        std::cerr << "Invalid Colour Set" << std::endl;
-    }
-}
 
 //! Accessors
 Vector3f Model::facing()
@@ -167,19 +158,6 @@ Vector3f Model::getMeshCentroid()
     //Vector3f centroid(Mesh::getMeshCentroid());
     //return centroid + position;
     return position;
-}
-
-//! DEBUGS FUNCTIONS (DISABLE IN FINAL BUILD)
-//! Debug Function for Checking Rotation
-void Model::printMatrix()
-{
-    ModelMatrix.toIdentity();
-    ModelMatrix.translate(position.x, position.y, position.z);
-    ModelMatrix.rotate(rotationAngle, rotationAxis.x, rotationAxis.y, rotationAxis.z);
-    ModelMatrix.scale(scaleFactor, scaleFactor, scaleFactor);
-    ModelMatrix.print("MV");
-    ModelMatrix.toIdentity();
-    std::cout << "scaleFactor: "<< scaleFactor << std::endl;
 }
 
 //! Helper Function

@@ -48,4 +48,6 @@ void Skybox::Draw(Vector3f camPos,Matrix4x4 ModelViewMatrix, MasterShader shader
 
     for(int i(0); i < 6; i++)
         cube[i].Draw(shader);
+
+ 
 }

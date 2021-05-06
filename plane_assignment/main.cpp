@@ -105,6 +105,8 @@ Hitbox hitbox(Vector3f(0,0.0,0)	,2,0.5f,0.5f);
 
 Hitbox boxhit(Vector3f(0,0.0,0)	,2,0.1f,2);
 
+Map map;
+
 //! Main Program Entry
 int main(int argc, char** argv)
 {	
@@ -178,7 +180,6 @@ void initTemp()
 
 	//! Init Light
 	//Set colour variable and light position
-	//colour = Vector3f(1.0,0.0,0.0);
 	lightPosition= Vector3f(1000.0,1000.0,-1414.0f);
 
 	ModelHelper::initTexture("../models/plane1.bmp", texture);
@@ -186,26 +187,16 @@ void initTemp()
 	ModelHelper::initTexture("../models/Crate.bmp", texture2);
 
 	plane.loadOBJ("../models/plane2.obj", defaultShader.TextureMapUniformLocation, texture);
-
-	ground.loadOBJ("../models/ground.obj", defaultShader.TextureMapUniformLocation, texture1);
-
-	ringX.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture);
-	ringY.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture2);
-	ringZ.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture2);
-
-	ringX.rotate(Vector3f(0.0f,0.0f,90.0f));
-	ringY.rotate(Vector3f(0.0f,0.0f,90.0f));
-	ringZ.rotate(Vector3f(0.0f,0.0f,90.0f));
-
-	ringX.translate(Vector3f(0.0f,2.0f,0.0f));
-	ringY.translate(Vector3f(10.0f,1.0f,0.0f));
-	ringY.setScale(2.0f);
-	ringZ.translate(Vector3f(2.0f,2.0f,0.0f));
-
 	plane.translate(Vector3f(0.0f,0.75f,0.0f));
 
-	ground.translate(Vector3f(0.0f,0.0f,0.0f));
+	ringY.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture2);
+
+	ground.loadOBJ("../models/ground.obj", defaultShader.TextureMapUniformLocation, texture1);
 	ground.setScale(10.0f);
+
+
+
+	map.Init("../maps/default.map");
 }	
 
 //! Display Loop
@@ -250,7 +241,7 @@ void display(void)
 	hitbox.Draw(hitboxShader, plane.getMatrix());
 
 	//boxhit.doCollsions(hitbox);
-	std::cout << hitbox.doCollsions(boxhit) << std::endl;
+	//std::cout << hitbox.doCollsions(boxhit) << std::endl;
 	//boxhit.doCollsions(boxhit);
 
 	//std::cout << hitbox.centre << " to " << boxhit.centre << std::endl;
@@ -269,10 +260,10 @@ void display(void)
     glUniform1f(defaultShader.SpecularPowerUniformLocation, specularPower);
 
 	//! Probaly Needs to be Changed
-	//plane.Draw(defaultShader);
+	plane.Draw(defaultShader);
 	//ringX.Draw(defaultShader);
 	//ringY.rotate(Vector3f(0.0f,1.0f,0.0f));	
-	//ringY.Draw(defaultShader);	
+	ringY.Draw(defaultShader);	
 
 	ground.Draw(defaultShader);
 	
@@ -311,11 +302,9 @@ void keyboard(unsigned char key, int x, int y)
 	else if(key == 'x')
     {
 		plane.scale(-0.1);
-		std::cout << "shrink" << std::endl;
     }
 	else if (key == 'X')
 	{
-		std::cout << "grow" << std::endl;
 		plane.scale(0.1);
 	}
 	else if (key == 'p')
