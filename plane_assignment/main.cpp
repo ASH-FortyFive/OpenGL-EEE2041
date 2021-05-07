@@ -165,11 +165,10 @@ void initTemp()
 	lightPosition= Vector3f(1000.0,1000.0,-1414.0f);
 
 	ModelHelper::initTexture("../models/plane1.bmp", texture);
-	ModelHelper::initTexture("../models/grass.bmp", texture1);
 	ModelHelper::initTexture("../models/Crate.bmp", texture2);
 
 	plane.loadOBJ("../models/plane2.obj", defaultShader.TextureMapUniformLocation, texture);
-	//plane.translate(Vector3f(0.0f,0.75f,0.0f));
+	plane.translate(Vector3f(10.0f,10.0f,25.0f));
 
 	ring.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture2);
 
@@ -201,15 +200,15 @@ void display(void)
 	t_delta = (t_new - t_old) / 1000;
 
 
+	//! Calculates Third Person Camera Follow
+	ThirdPerson.followUpdate(plane);
+
 
 	//! Updates all Physics Items
 	//=============================================================//
 	plane.update(t_delta);
 	//=============================================================//
 
-	//! Calculates Third Person Camera Follow
-	ThirdPerson.followUpdate(plane);
-	//std::cout << "Out of Cam: " << plane.getMeshCentroid() << std::endl;
 
 	//! Renders the Skybox
 	ThirdPerson.updateShader(skyboxShader);
@@ -221,21 +220,10 @@ void display(void)
 
 	glUseProgram(hitboxShader.ID);
 	ThirdPerson.updateShader(hitboxShader);
-	boxhit.Draw(hitboxShader, ring.getMatrix());
-	hitbox.Draw(hitboxShader, plane.getMatrix());
 
-	//boxhit.doCollsions(hitbox);
-	//std::cout << hitbox.doCollsions(boxhit) << std::endl;
-	//boxhit.doCollsions(boxhit);
-
-	//std::cout << hitbox.centre << " to " << boxhit.centre << std::endl;
-
-	
 
 	//! Draws Main Models
-	
 	ThirdPerson.updateShader(defaultShader);
-
 
 	//! Lighting
 	glUseProgram(defaultShader.ID);
@@ -395,11 +383,11 @@ void handleKeys()
 	}
 	if (keyStates[' '])
 	{
-		plane.addForce(plane.facing() * 0.2f);
+		plane.addForce(plane.facing() * 1.0f);
 	}
 	if (keyStates['b'])
 	{
-		plane.addForce(plane.facing() * -0.2f);
+		plane.addForce(plane.facing() * -1.0f);
 	}
 }
 

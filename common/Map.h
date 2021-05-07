@@ -27,11 +27,11 @@ private:
     Skybox sky;
     Vector3f mapDimensions;
     std::vector<Model*> grounds;
+    Model ground;
     std::vector<Model*> rings;  
 //! Member Functions
 private:
-    //! For taking in the Map file
-    friend std::istream& operator>>(std::istream& in, Map& map);
+
 public:
     //! Constructors and Destructors 
     Map();
@@ -51,8 +51,11 @@ public:
     void DrawSkybox(Vector3f,Matrix4x4, MasterShader);
     void DrawHitbox(MasterShader);
 
-
+    //! Created new .OBJ for the ground
+    void createGround(Vector3f);
     
+    //! For checking bounds
+    bool inBounds(Vector3f);
 };
 
 #endif

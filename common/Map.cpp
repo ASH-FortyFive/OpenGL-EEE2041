@@ -12,10 +12,8 @@ void Map::Draw(MasterShader shader)
     {
         ring->Draw(shader);
     }
-    for(auto ground : grounds)
-    {
-        ground->Draw(shader);
-    }
+
+    ground.Draw(shader);
     
 }
 
@@ -40,12 +38,13 @@ bool Map::Init(std::string mapFile, MasterShader skyboxShader, MasterShader defa
 
     //================================================//
     //! Skybox Loading
-    std::cout << "Loading Skybox" << std::endl;
+    std::cout << std::endl << " //========== Loading Skybox ==========\\\\ " << std::endl;
     std::string paths[6];
     for(int i(0); i < 6; i++)
     {
         if(newFile.eof())
         {
+            newFile.close();
             return false;
         }
         newFile >> paths[i];
@@ -58,25 +57,24 @@ bool Map::Init(std::string mapFile, MasterShader skyboxShader, MasterShader defa
 
     //================================================//
     //! Ground Loading
-    std::cout << "Loading ground" << std::endl;
+    std::cout << std::endl << " //========== Loading Ground ==========\\\\ " << std::endl;
     std::string texturePath;
     if(newFile.eof())
-        {
-            return false;
-        }
-        newFile >> texturePath;
+    {
+        newFile.close();
+        return false;
+    }
+
+    newFile >> texturePath;
+    createGround(mapDimensions);
 
     GLuint texture;
-    Model groundTile;
-
     ModelHelper::initTexture(texturePath, texture);
-    groundTile.loadOBJ("../models/ground.obj", defaultShader.TextureMapUniformLocation, texture); 
-    groundTile.setScale(10);   
-    grounds.push_back(new Model(groundTile));
+    ground.loadOBJ("../models/newGen.obj", defaultShader.TextureMapUniformLocation, texture); 
 
     //================================================//
     //! Ring Loading
-    std::cout << "Loading Rings" << std::endl;
+    std::cout << std::endl << "//========== Loading Rings ==========\\\\" << std::endl;
     int num;
     newFile >> num;
 
@@ -87,6 +85,7 @@ bool Map::Init(std::string mapFile, MasterShader skyboxShader, MasterShader defa
     {
         if(newFile.eof())
         {
+            newFile.close();
             return false;
         }
             
@@ -94,7 +93,11 @@ bool Map::Init(std::string mapFile, MasterShader skyboxShader, MasterShader defa
                 >> rotation.x   >> rotation.y   >> rotation.z 
                 >> scale;
 
-        std::cout << "Created Ring" << std::endl;
+        if(!inBounds(location))
+        {
+            std::cout << "Ring " << i << " is Out of Bounds"<< std::endl;
+        }
+        
         rings.push_back(new Model(ring));
 
         //rings.back()->loadOBJ("../models/torus.obj");
@@ -106,15 +109,60 @@ bool Map::Init(std::string mapFile, MasterShader skyboxShader, MasterShader defa
     //! Ensures file was read succsefully
     if(newFile.eof())
     {
+        newFile.close();
         return true;    
     }
+    newFile.close();
     return false;
 }
 
-
-std::istream& operator>>(std::istream& in, Map& map)
+//! Create
+void Map::createGround(Vector3f dimensions)
 {
-    int num;
-    Vector3f location, rotation, scale;
+    std::ofstream newObj("../models/newGen.obj");
+    std::ifstream baseObj("../models/ground.obj");
 
+    std::string nextLine;
+
+    //! Loops through baseline file and changes the objs dimensions to match the given ones
+    //! Almost certainly a poor way of doing this, but the code is only run once
+    std::getline(baseObj, nextLine);
+    newObj << nextLine << std::endl;
+    for(int i(0); i < 6; i++)
+    {
+        std::getline(baseObj, nextLine); //! Skips the six lines we write manually
+    }
+    
+    newObj << "v 0.0 0.0 " << dimensions.z << std::endl;
+    newObj << "v 0.0 0.0 " << dimensions.z << std::endl;
+    newObj << "v " << dimensions.x <<  " 0.0 " << dimensions.z << std::endl;
+    newObj << "v " << dimensions.x <<  " 0.0 " << dimensions.z << std::endl;
+    newObj << "v 0.0 0.0 0.0" << std::endl;
+    newObj << "v " << dimensions.x <<  " 0.0 0.0 " << std::endl;
+
+    while(std::getline(baseObj, nextLine)) //! Copies the rest of the document
+    {
+        newObj << nextLine << std::endl;
+    }
+
+    newObj.close();
+    baseObj.close();
+}
+
+bool Map::inBounds(Vector3f pos)
+{
+    if(pos.x >= 0 || pos.x <= mapDimensions.x)
+    {
+        if(pos.z >= 0 || pos.z <= mapDimensions.z)
+        {
+            if(pos.y >= 0 || pos.y <= mapDimensions.y)
+            {
+                return true;
+            }
+        }
+    }
+    
+    
+
+    return false;
 }
