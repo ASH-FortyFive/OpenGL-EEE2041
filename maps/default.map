@@ -1,3 +1,11 @@
+../models/skybox/right.bmp
+../models/skybox/left.bmp
+../models/skybox/top.bmp
+../models/skybox/bottom.bmp
+../models/skybox/front.bmp
+../models/skybox/back.bmp
+50 50 50
+../models/grass.bmp
 3
 1 1 1 1 1 1 1
 1 2 3 4 5 6 2

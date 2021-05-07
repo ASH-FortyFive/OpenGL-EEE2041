@@ -16,6 +16,7 @@
 #include <Vector.h>
 #include <Model.h>
 #include <ShaderClass.h>
+#include <Skybox.h>
 
 
 
@@ -23,15 +24,10 @@ class Map
 {
 //! Member Variables
 private:
-    Model ring;
-
-    //! "Skybox"
-    Model right,left,top,bottom,front,back;
-
-
-
-public:
-    std::vector<Model> rings;
+    Skybox sky;
+    Vector3f mapDimensions;
+    std::vector<Model*> grounds;
+    std::vector<Model*> rings;  
 //! Member Functions
 private:
     //! For taking in the Map file
@@ -44,10 +40,16 @@ public:
     
 
     //! Sets up Map based on file
-    bool Init(std::string);//, Model);
+    bool Init(
+        std::string mapFile, 
+        MasterShader skyboxShader,
+        MasterShader defaultShader, 
+        Model ring);
 
     //! Drawing Function
     void Draw(MasterShader);
+    void DrawSkybox(Vector3f,Matrix4x4, MasterShader);
+    void DrawHitbox(MasterShader);
 
 
     

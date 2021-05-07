@@ -14,8 +14,9 @@ void Skybox::Init(GLuint TextureMapUniformLocation, std::string * texture_faces)
     for(int i(0); i < 6; i++)
     {
         ModelHelper::initTexture(texture_faces[i], cubeTextureID[i]);
-        cube[i].loadOBJ("../models/ground.obj", TextureMapUniformLocation, cubeTextureID[i]);
+        cube[i].loadOBJ("../models/skyface.obj", TextureMapUniformLocation, cubeTextureID[i]);
     } 
+
 
     //! Rotates Cubes Correctly
     cube[0].setRotation (Vector3f(90.0f,0.0f,90.0f));
@@ -40,6 +41,11 @@ void Skybox::makeBox()
 //! Main Function of the Class, draws the skybox and adds textures
 void Skybox::Draw(Vector3f camPos,Matrix4x4 ModelViewMatrix, MasterShader shader)
 {
+
+    glUseProgram(shader.ID);
+
+    glDepthMask(GL_FALSE); //! Ensure Skybox is behind all other objects
+
     //! Better Solution May be used later    
     for(int i(0); i < 6; i++)
         cube[i].setPosition(camPos);
@@ -49,5 +55,5 @@ void Skybox::Draw(Vector3f camPos,Matrix4x4 ModelViewMatrix, MasterShader shader
     for(int i(0); i < 6; i++)
         cube[i].Draw(shader);
 
- 
+    glDepthMask(GL_TRUE);
 }

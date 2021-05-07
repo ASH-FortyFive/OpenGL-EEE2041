@@ -17,6 +17,8 @@ Camera::~Camera()
 //! Perspective
 void Camera::updateShader(MasterShader shader)
 {
+	glUseProgram(shader.ID);
+
     glUniformMatrix4fv(
 		shader.ProjectionUniformLocation,	//Uniform location
 		1,							//Number of Uniforms

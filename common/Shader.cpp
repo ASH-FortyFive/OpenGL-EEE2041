@@ -62,8 +62,8 @@ GLuint Shader::LoadFromSrc(std::string vertexSrc, std::string fragmentSrc)
 {
 	// Create the shaders
 
-	std::cout << vertexSrc << std::endl;
-	std::cout << fragmentSrc << std::endl;
+	//std::cout << vertexSrc << std::endl;
+	//std::cout << fragmentSrc << std::endl;
 
     //Variables used to check and debug shaders
 	GLint Result = GL_FALSE;
@@ -124,7 +124,7 @@ GLuint Shader::LoadFromSrc(std::string vertexSrc, std::string fragmentSrc)
 	glDeleteShader(VertexShaderID);
 	glDeleteShader(FragmentShaderID);
 
-	printf("Shader Program Compiled\n");
+	printf("Shader Program Compiled\n\n");
 
     //Return Program ID
 	return ProgramID;

@@ -21,6 +21,7 @@
 #include <Hitbox.h>
 
 
+
 //!Function Prototypes
 void initShader();
 void initGLUTFunctions();
@@ -57,23 +58,10 @@ float specularPower = 100.0f;
 
 MasterShader defaultShader,skyboxShader, hitboxShader;
 
-//! Skybox 
-std::string skyboxPaths[6] = {
-"../models/skybox/right.bmp",
-"../models/skybox/left.bmp",
-"../models/skybox/top.bmp",
-"../models/skybox/bottom.bmp",
-"../models/skybox/front.bmp",
-"../models/skybox/back.bmp"};
-
-Skybox skybox;
-
 //! Loaded Models
 Model ground;
 
-Model ringX;
-Model ringY;
-Model ringZ;
+Model ring;
 
 Player plane;
 
@@ -97,9 +85,6 @@ float t_delta = 0.0;
 float t_sinceSecond = 0.0;
 int frames;
 std::string fps_count;
-
-
-GLuint vertexPositionBuffer;
 
 Hitbox hitbox(Vector3f(0,0.0,0)	,2,0.5f,0.5f);
 
@@ -175,9 +160,6 @@ void initShader()
 
 void initTemp()
 {
-
-	skybox.Init(skyboxShader.TextureMapUniformLocation, skyboxPaths);
-
 	//! Init Light
 	//Set colour variable and light position
 	lightPosition= Vector3f(1000.0,1000.0,-1414.0f);
@@ -187,16 +169,21 @@ void initTemp()
 	ModelHelper::initTexture("../models/Crate.bmp", texture2);
 
 	plane.loadOBJ("../models/plane2.obj", defaultShader.TextureMapUniformLocation, texture);
-	plane.translate(Vector3f(0.0f,0.75f,0.0f));
+	//plane.translate(Vector3f(0.0f,0.75f,0.0f));
 
-	ringY.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture2);
-
-	ground.loadOBJ("../models/ground.obj", defaultShader.TextureMapUniformLocation, texture1);
-	ground.setScale(10.0f);
+	ring.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture2);
 
 
 
-	map.Init("../maps/default.map");
+	if(map.Init("../maps/default.map", skyboxShader, defaultShader,ring))
+	{
+		std::cout << "Map file loaded" << std::endl;
+	}
+	else
+	{
+		std::cout << "Could not load Map file" << std::endl;
+		exit(0);
+	}
 }	
 
 //! Display Loop
@@ -225,19 +212,16 @@ void display(void)
 	//std::cout << "Out of Cam: " << plane.getMeshCentroid() << std::endl;
 
 	//! Renders the Skybox
-	glUseProgram(skyboxShader.ID);
-
-	glDepthMask(GL_FALSE);
 	ThirdPerson.updateShader(skyboxShader);
-	skybox.Draw(ThirdPerson.getPosition(),ViewMatrix, skyboxShader);
-	glDepthMask(GL_TRUE);
+	map.DrawSkybox(ThirdPerson.getPosition(),ViewMatrix, skyboxShader);
+	
 	
 	//! Hitboxes
 	Matrix4x4 mod = plane.getMatrix();
 
 	glUseProgram(hitboxShader.ID);
 	ThirdPerson.updateShader(hitboxShader);
-	boxhit.Draw(hitboxShader, ringY.getMatrix());
+	boxhit.Draw(hitboxShader, ring.getMatrix());
 	hitbox.Draw(hitboxShader, plane.getMatrix());
 
 	//boxhit.doCollsions(hitbox);
@@ -249,11 +233,12 @@ void display(void)
 	
 
 	//! Draws Main Models
-	glUseProgram(defaultShader.ID);
+	
 	ThirdPerson.updateShader(defaultShader);
 
 
 	//! Lighting
+	glUseProgram(defaultShader.ID);
 	glUniform3f(defaultShader.LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
     glUniform4f(defaultShader.AmbientUniformLocation, ambient.x, ambient.y, ambient.z, 1.0);
     glUniform4f(defaultShader.SpecularUniformLocation, specular.x, specular.y, specular.z, 1.0);
@@ -261,10 +246,7 @@ void display(void)
 
 	//! Probaly Needs to be Changed
 	plane.Draw(defaultShader);
-	//ringX.Draw(defaultShader);
-	//ringY.rotate(Vector3f(0.0f,1.0f,0.0f));	
-	ringY.Draw(defaultShader);	
-
+	map.Draw(defaultShader);
 	ground.Draw(defaultShader);
 	
 
@@ -276,7 +258,7 @@ void display(void)
 	frames++;
 	if(t_new - t_sinceSecond >= 1000.0)
 	{
-		fps_count = "ms/frame: " + std::to_string(1000/frames);
+		fps_count = "ms/frame: " + std::to_string(1000/frames) + " | FPS: " + std::to_string(frames);
 		frames = 0;
 		t_sinceSecond += 1000.0;
 	}
@@ -301,11 +283,13 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	else if(key == 'x')
     {
-		plane.scale(-0.1);
+		plane.translate(1,0,0);
+		std::cout << "Forward" <<std::endl;
     }
 	else if (key == 'X')
 	{
-		plane.scale(0.1);
+		plane.translate(-1,0,0);
+		std::cout << "backward" <<std::endl;
 	}
 	else if (key == 'p')
 	{
@@ -363,6 +347,7 @@ void handleKeys()
     {
 		//Moving Forward
 		plane.addSpin(Vector3f(0.0f,0.0f,3.0f));
+
     }
 	if (keyStates['s'])
 	{

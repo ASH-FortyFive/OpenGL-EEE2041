@@ -43,8 +43,4 @@ void MasterShader::loadShader(std::string vert, std::string frag)
 
 	//! For Colour
 	ColourUniformLocation = glGetUniformLocation(ID,"Colour_uniform");
-
-    std::cout <<    vertexPositionAttribute << " : " <<  vertexNormalAttribute << " : " << ModelMatrixUniformLocation << " : " << ViewMatrixUniformLocation << " : " << ProjectionUniformLocation << " : " << 
-                    vertexTexcoordAttribute << " : " << TextureMapUniformLocation << " : " << 
-                    LightPositionUniformLocation << " : " << AmbientUniformLocation << " : " << SpecularUniformLocation << " : " << SpecularPowerUniformLocation << std::endl << "Colour: " << ColourUniformLocation << std::endl;
 }

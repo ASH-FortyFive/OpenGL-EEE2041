@@ -61,11 +61,11 @@ bool Mesh::loadOBJ(std::string filename)
 	filestream.close();
 
 	//Report Input
-	std::cout 	<< "Loaded " 			<< filename 		<< "\n" 
-				<< "\t Positions: " 	<< positions.size() << "\n" 
-				<< "\t Normals: " 		<< normals.size() 	<< "\n" 
-				<< "\t Tex Coords: " 	<< texcoords.size() << "\n" 
-				<< "\t Faces: " 		<< faces.size() 	<< "\n" << std::endl;
+	std::cout 	<< "Loaded " 			<< filename 		<< ": " 
+				<< "Positions: " 	<< positions.size() << ", " 
+				<< "Normals: " 		<< normals.size() 	<< ", " 
+				<< "Tex Coords: " 	<< texcoords.size() << ", " 
+				<< "Faces: " 		<< faces.size() 	<< "\n" << std::endl;
 				
 				
 	initBuffers();

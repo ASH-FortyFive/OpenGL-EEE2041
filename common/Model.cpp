@@ -45,10 +45,16 @@ bool Model::loadOBJ(std::string filename, GLuint _TextureMapUniformLocation, GLu
     return true;
 }
 
+void Model::changeTexture(GLuint texture)
+{
+    textureID = texture;
+}
+
 //! Main Function of the Class, draws the model (using parent function) and adds transforms and textures
 void Model::Draw(MasterShader shader)
 {
-
+    
+    glUseProgram(shader.ID);
     //! Applies All Transforms
     ModelMatrix = getMatrix();                                 
     
@@ -168,8 +174,8 @@ void ModelHelper::initTexture(std::string filename, GLuint & textureID, GLuint T
 	glBindTexture(TEXTURE_TYPE, textureID);
     
 	//Set texture parameters
-    glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_WRAP_T, GL_REPEAT);	
+    glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+	glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);	
 	glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(TEXTURE_TYPE, GL_TEXTURE_MIN_FILTER, GL_LINEAR); 
 

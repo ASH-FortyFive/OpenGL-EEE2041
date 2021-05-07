@@ -58,6 +58,8 @@ public:
 		//! Incomplete Rotation Functions
 	void rotate(Vector3f); //Increments Rotation by Input (and sets Axis)
 	void setRotation(Vector3f); //Sets Rotation and Axis to Input
+
+	void changeTexture(GLuint);
 	
 	//! Accessors 
 	Vector3f facing();
