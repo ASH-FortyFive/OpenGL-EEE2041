@@ -204,31 +204,19 @@ void display(void)
 	t_new = glutGet(GLUT_ELAPSED_TIME);
 	t_delta = (t_new - t_old) / 1000;
 
-
-	
 	//! Calculates Third Person Camera Follow
 	ThirdPerson.followUpdate(plane);
-
 
 	//! Updates all Physics Items
 	//=============================================================//
 	plane.update(t_delta);
-	//map.checkCollisions(ring);
+	map.checkCollisions(plane);
 	//=============================================================//
-
 
 	//! Renders the Skybox
 	ThirdPerson.updateShader(skyboxShader);
 	map.DrawSkybox(ThirdPerson.getPosition(),ViewMatrix, skyboxShader);
 	
-	
-	//! Hitboxes
-
-	glUseProgram(hitboxShader.ID);
-	ThirdPerson.updateShader(hitboxShader);
-	plane.DrawHitboxes(hitboxShader);
-	map.DrawHitboxes(hitboxShader);
-
 	//! Draws Main Models
 	ThirdPerson.updateShader(defaultShader);
 
@@ -243,6 +231,12 @@ void display(void)
 	plane.Draw(defaultShader);
 	map.Draw(defaultShader);
 	
+	//! Hitboxes
+	glUseProgram(hitboxShader.ID);
+	ThirdPerson.updateShader(hitboxShader);
+	plane.DrawHitboxes(hitboxShader);
+	map.DrawHitboxes(hitboxShader);
+
 	
 	//Unuse Shader
 	glUseProgram(0);

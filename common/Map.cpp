@@ -178,14 +178,24 @@ bool Map::inBounds(Vector3f pos)
             }
         }
     }
-    
-    
-
     return false;
 }
 
-//! This is where the main collision math gets done
-void Map::checkCollisions(Model other)
+//! This is where the main collision math gets donea
+bool Map::checkCollisions(Model other)
 {
     
+    for(auto ring : rings)
+    {
+        if((ring->getMeshCentroid() - other.getMeshCentroid()).length() < 10.0f)
+        {
+            for(auto ringHB : ring->hitboxes)
+            {
+                for(auto otherHB : other.hitboxes)
+                {
+                    if(otherHB->doCollsions(*ringHB) << std::endl;
+                }
+            }
+        }
+    }
 }
