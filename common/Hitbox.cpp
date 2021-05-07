@@ -84,13 +84,14 @@ void Hitbox::Draw(MasterShader shader)
 
 	glUniform3f(shader.ColourUniformLocation, 0,0,0);
 
-	ModelMatrix.toIdentity();
+	//ModelMatrix.toIdentity();
+	Matrix4x4 temp;
 
 	glUniformMatrix4fv(
         shader.ModelMatrixUniformLocation,
         1,
         false,
-        ModelMatrix.getPtr());
+        temp.getPtr());
 
 	// Enable and bind vertex position buffer to vertex position attributes 
     // step 1: enable the OpenGL vertex attribute array ‘VertexPositionAttribute’
@@ -158,7 +159,12 @@ bool Hitbox::doCollsions(Hitbox& hb)
 	}
 
 	//! Distance between the box centres
-	Vector3f T = hb.obb.centrePoint * hb.ModelMatrix - obb.centrePoint * ModelMatrix;
+	Vector3f myPos 		= obb.centrePoint * ModelMatrix;
+	Vector3f otherPos 	= hb.obb.centrePoint * hb.ModelMatrix;
+
+	//std::cout << "My pos: " << myPos << std::endl << "Other Pos " << otherPos << std::endl;
+
+	Vector3f T = otherPos - myPos;
 	
 	//! Checks if first 6 axis pass the test
 	for(int i(0); i < 6; i++)

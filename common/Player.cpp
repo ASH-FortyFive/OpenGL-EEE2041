@@ -24,6 +24,11 @@ void Player::addForce(Vector3f newForce)
     velocity = velocity + newForce;
 }
 
+void Player::stop()
+{
+    velocity = Vector3f();
+}
+
 void Player::addSpin(Vector3f newSpin)
 {
     spin = spin + newSpin;

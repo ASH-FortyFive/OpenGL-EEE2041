@@ -47,7 +47,8 @@ public:
     //! Overloads functions from Mesh to Allow for Transforms, Textures, and Colours (BROKEN)
 	void Draw(MasterShader shader);
 	void DrawHitboxes(MasterShader shader);
-
+ 
+	void test();
     
     //Load an OBJ mesh from File, uses parent function
     bool loadOBJ(

@@ -36,8 +36,6 @@ public:
     Map();
     ~Map();
 
-    
-
     //! Sets up Map based on file
     bool Init(
         std::string mapFile, 
@@ -55,7 +53,7 @@ public:
     
     //! For checking bounds
     bool inBounds(Vector3f);
-    void checkCollisions(Model);
+    bool checkCollisions(Model, Hitbox::hbType = Hitbox::Obstacle);
 };
 
 #endif

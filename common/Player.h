@@ -29,6 +29,8 @@ public:
     void addSpin(Vector3f);
     void update(float);
 
+    void stop();
+
 	//! Constructors and Destructors     
     Player();
     ~Player();

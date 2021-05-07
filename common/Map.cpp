@@ -182,20 +182,37 @@ bool Map::inBounds(Vector3f pos)
 }
 
 //! This is where the main collision math gets donea
-bool Map::checkCollisions(Model other)
+bool Map::checkCollisions(Model other, Hitbox::hbType type)
 {
     
     for(auto ring : rings)
     {
+        
         if((ring->getMeshCentroid() - other.getMeshCentroid()).length() < 10.0f)
         {
+            auto badCounter = ring->hitboxes.begin();
             for(auto ringHB : ring->hitboxes)
             {
-                for(auto otherHB : other.hitboxes)
+                if(ringHB->Type == type)
                 {
-                    if(otherHB->doCollsions(*ringHB) << std::endl;
+                    for(auto otherHB : other.hitboxes)
+                    {
+                        if(otherHB->doCollsions(*ringHB))
+                        {
+                            if(ringHB->Type == Hitbox::Target)
+                            {
+                                ring->hitboxes.erase(badCounter);
+                                std::cout <<"Git good" << std::endl;
+                            }
+                            return true;
+                        }
+                    }
                 }
+                badCounter++;
             }
         }
+        
     }
+
+    return false;
 }

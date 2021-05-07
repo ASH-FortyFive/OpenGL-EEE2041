@@ -69,7 +69,7 @@ GLuint texture;
 GLuint texture1;
 GLuint texture2;
 
-Camera ThirdPerson(Vector3f(-4.0f,0.65f,0.0f));
+Camera ThirdPerson(Vector3f(-4.0f,0.25,0.0f));
 
 HUD ThirdPersonHUD;
 
@@ -83,14 +83,19 @@ float t_old = 0.0;
 float t_delta = 0.0;
 
 float t_sinceSecond = 0.0;
-int frames;
-std::string fps_count;
+
 
 Hitbox hitbox(Vector3f(0,0.0,0)	,2,0.5f,0.5f);
 
 Hitbox boxhit(Vector3f(0,0.0,0)	,2,0.1f,2);
 
 Map map;
+
+//! HUD Details
+int frames;
+std::string fps_count;
+
+int score(0);
 
 //! Main Program Entry
 int main(int argc, char** argv)
@@ -175,7 +180,6 @@ void initTemp()
 	ring.loadHitbox("../models/hitboxes/torus.hitbox");
 
 
-
 	if(map.Init("../maps/default.map", skyboxShader, defaultShader,ring))
 	{
 		std::cout << "Map file loaded" << std::endl;
@@ -183,7 +187,7 @@ void initTemp()
 	else
 	{
 		std::cout << "Could not load Map file" << std::endl;
-		exit(0);
+		//exit(0);
 	}
 
 	ThirdPerson.followUpdate(plane);
@@ -209,8 +213,17 @@ void display(void)
 
 	//! Updates all Physics Items
 	//=============================================================//
+	
+	if(map.checkCollisions(plane, Hitbox::Target))
+	{
+		score++;
+	}
+	if(map.checkCollisions(plane, Hitbox::Obstacle))
+	{
+		plane.stop();
+	}
+
 	plane.update(t_delta);
-	map.checkCollisions(plane);
 	//=============================================================//
 
 	//! Renders the Skybox
@@ -254,7 +267,7 @@ void display(void)
 	
 	//! HUD Elements
 	ThirdPersonHUD.render2dText(fps_count,0,0,0,-1,0.95f);
-	ThirdPersonHUD.render2dText("Bottom?",1.0f,0.7f,1.0f,0.0f,0.0f);
+	ThirdPersonHUD.render2dText(std::to_string(score),0,0,0,-1.0f,0.85f);
 
     //Swap Buffers and post redisplay
 	glutSwapBuffers();
@@ -291,7 +304,7 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	else if (key == 'c')
 	{
-		
+		plane.test();
 	}
 	else if (key == 'g')
 	{
@@ -335,7 +348,6 @@ void handleKeys()
     {
 		//Moving Forward
 		plane.addSpin(Vector3f(0.0f,0.0f,3.0f));
-
     }
 	if (keyStates['s'])
 	{

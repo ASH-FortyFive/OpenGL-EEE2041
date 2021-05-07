@@ -2,6 +2,11 @@
 #include <Model.h>
 #define toRads 0.0174532925199f
 
+void Model::test()
+{
+   
+}
+
 //! Constructors and Destructors 
 Model::Model() : 
     scaleFactor(1.0f), 
