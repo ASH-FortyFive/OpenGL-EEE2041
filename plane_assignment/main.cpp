@@ -183,6 +183,9 @@ void initTemp()
 		std::cout << "Could not load Map file" << std::endl;
 		exit(0);
 	}
+
+	ThirdPerson.followUpdate(plane);
+
 }	
 
 //! Display Loop
@@ -200,6 +203,7 @@ void display(void)
 	t_delta = (t_new - t_old) / 1000;
 
 
+	
 	//! Calculates Third Person Camera Follow
 	ThirdPerson.followUpdate(plane);
 
@@ -216,7 +220,6 @@ void display(void)
 	
 	
 	//! Hitboxes
-	Matrix4x4 mod = plane.getMatrix();
 
 	glUseProgram(hitboxShader.ID);
 	ThirdPerson.updateShader(hitboxShader);
@@ -235,9 +238,8 @@ void display(void)
 	//! Probaly Needs to be Changed
 	plane.Draw(defaultShader);
 	map.Draw(defaultShader);
-	ground.Draw(defaultShader);
 	
-
+	
 	//Unuse Shader
 	glUseProgram(0);
 

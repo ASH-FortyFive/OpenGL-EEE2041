@@ -12,6 +12,7 @@
 
 #include <math.h>
 #include <iostream>
+#include <vector>
 
 #include <Vector.h>
 #include <Matrix.h>
