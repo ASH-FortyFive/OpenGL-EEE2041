@@ -213,6 +213,7 @@ void display(void)
 	//! Updates all Physics Items
 	//=============================================================//
 	plane.update(t_delta);
+	//map.checkCollisions(ring);
 	//=============================================================//
 
 

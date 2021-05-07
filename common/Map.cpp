@@ -183,3 +183,9 @@ bool Map::inBounds(Vector3f pos)
 
     return false;
 }
+
+//! This is where the main collision math gets done
+void Map::checkCollisions(Model other)
+{
+    
+}

@@ -58,6 +58,7 @@ bool Model::reloadHitbox()
             newFile.close();
             return false;
         }
+        
         newFile >> newOBB.centrePoint.x >> newOBB.centrePoint.y >> newOBB.centrePoint.z;
         newFile >> newOBB.extents[0]    >> newOBB.extents[1]    >> newOBB.extents[2];
         newFile >> typeID;
@@ -81,11 +82,8 @@ bool Model::reloadHitbox()
             } 
         }
 
-
         //new Hitbox(newOBB);
         hitboxes.push_back(new Hitbox(newOBB, type));
-
-        std::cout << "Hitbox type: " << hitboxes.back()->Type << std::endl;
     }
 
 }

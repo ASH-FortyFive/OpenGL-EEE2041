@@ -39,9 +39,9 @@ private:
 	GLuint textureID;
 
 	//! Hitboxes
-	std::vector<Hitbox*> hitboxes;
 	std::string hitboxPath; //! For a very lazy way of having copies keep the hitboxes
-
+public:
+	std::vector<Hitbox*> hitboxes;
 //! Functions
 public:
     //! Overloads functions from Mesh to Allow for Transforms, Textures, and Colours (BROKEN)

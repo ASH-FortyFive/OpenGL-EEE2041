@@ -55,6 +55,7 @@ public:
     
     //! For checking bounds
     bool inBounds(Vector3f);
+    void checkCollisions(Model);
 };
 
 #endif
