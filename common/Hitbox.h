@@ -30,7 +30,8 @@ public:
     enum hbType
     {
         Obstacle,
-        Target
+        Target,
+        Main
     };
 
     hbType Type;

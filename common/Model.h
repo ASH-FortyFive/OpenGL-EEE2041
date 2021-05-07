@@ -38,8 +38,9 @@ private:
 	//! Visuals
 	GLuint textureID;
 
-	//!
+	//! Hitboxes
 	std::vector<Hitbox*> hitboxes;
+	std::string hitboxPath; //! For a very lazy way of having copies keep the hitboxes
 
 //! Functions
 public:
@@ -57,6 +58,8 @@ public:
 	//Load an set of hitboxes from File
     bool loadHitbox(
 		std::string filename);
+	//Load an set of hitboxes, used for something bad and should be redone
+    bool reloadHitbox();
 
 	//! Mutators
 	void scale(float); //Increases Scale by Input

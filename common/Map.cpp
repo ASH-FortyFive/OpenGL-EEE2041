@@ -27,7 +27,17 @@ void Map::DrawSkybox(Vector3f camPos,Matrix4x4 ModelViewMatrix, MasterShader sha
     sky.Draw(camPos, ModelViewMatrix, shader);
 }
 
-void DrawHitbox(MasterShader shader);
+void Map::DrawHitboxes(MasterShader shader)
+{
+    //std::cout << "=============================" <<std::endl;
+    for(auto ring : rings)
+    {   
+        //std::cout << "Ring" <<std::endl;
+        ring->DrawHitboxes(shader);
+    }
+
+    ground.DrawHitboxes(shader);
+}
 
 
 bool Map::Init(std::string mapFile, MasterShader skyboxShader, MasterShader defaultShader, Model ring)
@@ -109,6 +119,8 @@ bool Map::Init(std::string mapFile, MasterShader skyboxShader, MasterShader defa
         rings.back()->setPosition(location);
         rings.back()->setRotation(rotation);
         rings.back()->setScale(scale);
+
+        rings.back()->reloadHitbox();
     }
 
     //! Ensures file was read succsefully

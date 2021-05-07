@@ -172,6 +172,7 @@ void initTemp()
 	plane.translate(Vector3f(10.0f,10.0f,25.0f));
 
 	ring.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture2);
+	ring.loadHitbox("../models/hitboxes/torus.hitbox");
 
 
 
@@ -225,6 +226,7 @@ void display(void)
 	glUseProgram(hitboxShader.ID);
 	ThirdPerson.updateShader(hitboxShader);
 	plane.DrawHitboxes(hitboxShader);
+	map.DrawHitboxes(hitboxShader);
 
 	//! Draws Main Models
 	ThirdPerson.updateShader(defaultShader);

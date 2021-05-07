@@ -11,22 +11,6 @@ Model::Model() :
     ModelMatrix.toIdentity();
 }
 
-
-/*
-Model::Model(const Model &model)
-{
-
-}
-
-Model& Model::operator=(const Model &model)
-{
-    if(this != &model)
-    {
-
-    }
-    return *this;
-}*/
-
 Model::~Model()
 {
 }
@@ -48,11 +32,17 @@ bool Model::loadOBJ(std::string filename, GLuint _TextureMapUniformLocation, GLu
 
 bool Model::loadHitbox(std::string filename)
 {
+    hitboxPath = filename;
+    return reloadHitbox();
+}
+
+bool Model::reloadHitbox()
+{
     std::fstream newFile;
-    newFile.open(filename, std::ios::in);
+    newFile.open(hitboxPath, std::ios::in);
     if(!newFile.good())
 	{
-		std::cerr<<"Failed to open file at "<<filename<<std::endl;
+		std::cerr<<"Failed to open file at "<<hitboxPath<<std::endl;
 		return false;
 	}
 
@@ -86,6 +76,7 @@ bool Model::loadHitbox(std::string filename)
             }
             case 2:
             {
+                type = Hitbox::Main;
                 break;
             } 
         }
