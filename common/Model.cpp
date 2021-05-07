@@ -29,10 +29,6 @@ Model& Model::operator=(const Model &model)
 
 Model::~Model()
 {
-    for(auto hitbox : hitboxes)
-    {
-        delete hitbox;
-    }
 }
 
 //! Load the .OBJ File, mostly using parents function, but adds the matrix uniform used for the translations and the camera
@@ -52,7 +48,55 @@ bool Model::loadOBJ(std::string filename, GLuint _TextureMapUniformLocation, GLu
 
 bool Model::loadHitbox(std::string filename)
 {
-    
+    std::fstream newFile;
+    newFile.open(filename, std::ios::in);
+    if(!newFile.good())
+	{
+		std::cerr<<"Failed to open file at "<<filename<<std::endl;
+		return false;
+	}
+
+    int numOfBoxes, typeID;
+    newFile >> numOfBoxes;
+    Hitbox::OBB newOBB;
+    Hitbox::hbType type;
+
+    for(int i(0); i < numOfBoxes; i++)
+    {
+        if(newFile.eof())
+        {
+            newFile.close();
+            return false;
+        }
+        newFile >> newOBB.centrePoint.x >> newOBB.centrePoint.y >> newOBB.centrePoint.z;
+        newFile >> newOBB.extents[0]    >> newOBB.extents[1]    >> newOBB.extents[2];
+        newFile >> typeID;
+
+        switch(typeID)
+        {
+            case 0:
+            {
+                type = Hitbox::Obstacle;
+                break;
+            }
+            case 1:
+            {
+                type = Hitbox::Target;
+                break;
+            }
+            case 2:
+            {
+                break;
+            } 
+        }
+
+
+        //new Hitbox(newOBB);
+        hitboxes.push_back(new Hitbox(newOBB, type));
+
+        std::cout << "Hitbox type: " << hitboxes.back()->Type << std::endl;
+    }
+
 }
 
 void Model::changeTexture(GLuint texture)

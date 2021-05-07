@@ -6,7 +6,7 @@ Hitbox::Hitbox()
 {
 }
 
-Hitbox::Hitbox(Vector3f newCentre, float d, float h, float w)
+Hitbox::Hitbox(Vector3f newCentre, float d, float h, float w, hbType type): Type(type)
 {
 	obb.centrePoint = newCentre;
 	obb.extents[0] = d/2;
@@ -16,11 +16,21 @@ Hitbox::Hitbox(Vector3f newCentre, float d, float h, float w)
 	loadHitbox();
 }
 
+Hitbox::Hitbox(OBB newOBB, hbType type): Type(type)
+{
+	obb.centrePoint = newOBB.centrePoint;
+	obb.extents[0] = newOBB.extents[0];
+	obb.extents[1]= newOBB.extents[1];
+	obb.extents[2] = newOBB.extents[2];
+
+	loadHitbox();
+}
 
 Hitbox::~Hitbox()
 {
 	
 }
+
 
 void Hitbox::loadHitbox()
 {

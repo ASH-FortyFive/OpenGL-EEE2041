@@ -20,9 +20,21 @@
 #include <iterator>
 #include <ShaderClass.h>
 
+
 class Hitbox{
 //! Member Variables
-private:
+public:
+     Matrix4x4 ModelMatrix;
+
+
+    enum hbType
+    {
+        Obstacle,
+        Target
+    };
+
+    hbType Type;
+
     struct OBB
     {
         Vector3f centrePoint;
@@ -33,9 +45,7 @@ private:
         };
         float extents[3];
     };
-    
-    
-
+private:
     GLuint vertexPositionBuffer;
     GLuint elementbuffer;
 
@@ -65,8 +75,6 @@ private:
 
     Vector3f corner[8];
     OBB obb; 
-public:
-    Matrix4x4 ModelMatrix;
 //! Functions
 private:
     void loadHitbox();
@@ -76,8 +84,13 @@ public:
     bool doCollsions(Hitbox&);
     void Draw(MasterShader);    
     Hitbox();
-    Hitbox(Vector3f, float,float,float);
+    Hitbox(Vector3f, float,float,float, hbType type = Obstacle);
+    Hitbox(OBB newOBB, hbType type = Obstacle);
     ~Hitbox();
+
+    Hitbox(Hitbox const&); // copy constructor
+    Hitbox& operator=(Hitbox const&); // copy assignment
+
 };
 
 

@@ -168,6 +168,7 @@ void initTemp()
 	ModelHelper::initTexture("../models/Crate.bmp", texture2);
 
 	plane.loadOBJ("../models/plane2.obj", defaultShader.TextureMapUniformLocation, texture);
+	plane.loadHitbox("../models/hitboxes/plane2.hitbox");
 	plane.translate(Vector3f(10.0f,10.0f,25.0f));
 
 	ring.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture2);
