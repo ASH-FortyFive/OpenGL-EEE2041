@@ -19,6 +19,7 @@
 #include <Mesh.h>
 #include <Texture.h>
 #include <ShaderClass.h>
+#include <Hitbox.h>
 
 class Model : public Mesh {
 //! Member Variables
@@ -37,17 +38,25 @@ private:
 	//! Visuals
 	GLuint textureID;
 
+	//!
+	std::vector<Hitbox*> hitboxes;
+
 //! Functions
 public:
     //! Overloads functions from Mesh to Allow for Transforms, Textures, and Colours (BROKEN)
 	void Draw(MasterShader shader);
+	void DrawHitboxes(MasterShader shader);
 
     
-    //Load and OBJ mesh from File, uses parent function
+    //Load an OBJ mesh from File, uses parent function
     bool loadOBJ(
 		std::string filename, 
 		GLuint TextureMapUniformLocation = -1,
 		GLuint texture = -1);
+
+	//Load an set of hitboxes from File
+    bool loadHitbox(
+		std::string filename);
 
 	//! Mutators
 	void scale(float); //Increases Scale by Input

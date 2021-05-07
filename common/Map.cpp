@@ -4,7 +4,12 @@
 Map::Map()
 {}
 Map::~Map()
-{}
+{
+    for(auto ring : rings)
+    {
+        delete ring;
+    }
+}
 
 void Map::Draw(MasterShader shader)
 {

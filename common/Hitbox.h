@@ -62,22 +62,19 @@ private:
         1,3,7,
         7,5,1
 	};
-public:
+
     Vector3f corner[8];
-
-    Matrix4x4 modelMatrix;
     OBB obb; 
-
+public:
+    Matrix4x4 ModelMatrix;
 //! Functions
 private:
-void loadHitbox();
-bool drawLine(Vector3f, Vector3f);
-bool againstAxis(Vector3f axis, Vector3f distance, Vector3f pE[2][3]);
-
+    void loadHitbox();
+    void drawLine(Vector3f, Vector3f);
+    bool againstAxis(Vector3f axis, Vector3f distance, Vector3f pE[2][3]);
 public:
     bool doCollsions(Hitbox&);
-    void Draw(MasterShader, Matrix4x4);
-    
+    void Draw(MasterShader);    
     Hitbox();
     Hitbox(Vector3f, float,float,float);
     ~Hitbox();

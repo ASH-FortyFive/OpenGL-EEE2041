@@ -223,7 +223,7 @@ void display(void)
 
 	glUseProgram(hitboxShader.ID);
 	ThirdPerson.updateShader(hitboxShader);
-
+	plane.DrawHitboxes(hitboxShader);
 
 	//! Draws Main Models
 	ThirdPerson.updateShader(defaultShader);

@@ -19,6 +19,7 @@ Hitbox::Hitbox(Vector3f newCentre, float d, float h, float w)
 
 Hitbox::~Hitbox()
 {
+	
 }
 
 void Hitbox::loadHitbox()
@@ -45,10 +46,8 @@ void Hitbox::loadHitbox()
 	corner[7] = (FBL + forward + up + right);
 }
 
-void Hitbox::Draw(MasterShader shader, Matrix4x4 ModelMatrix)
+void Hitbox::Draw(MasterShader shader)
 {
-	modelMatrix = ModelMatrix; 
-
 	for (int i(0); i < 8; i++)
 	{
 		Vector3f point = corner[i] * ModelMatrix;
@@ -118,11 +117,11 @@ bool Hitbox::doCollsions(Hitbox& hb)
 	Vector3f v; // Used for .dot, .cross, and .normalise
 
 	//! Removes the translation element from the modelMatrixes
-	Matrix4x4 rotationMatrix = modelMatrix;
+	Matrix4x4 rotationMatrix = ModelMatrix;
 	float * rotationMatrixValues = rotationMatrix.getPtr();
 	rotationMatrixValues[14] = 0; rotationMatrixValues[13] = 0; rotationMatrixValues[12] = 0;
 
-	Matrix4x4 rotationMatrixB = hb.modelMatrix;
+	Matrix4x4 rotationMatrixB = hb.ModelMatrix;
 	float * rotationMatrixValuesB = rotationMatrixB.getPtr();
 	rotationMatrixValuesB[14] = 0; rotationMatrixValuesB[13] = 0; rotationMatrixValuesB[12] = 0;
 
@@ -149,7 +148,7 @@ bool Hitbox::doCollsions(Hitbox& hb)
 	}
 
 	//! Distance between the box centres
-	Vector3f T = hb.obb.centrePoint * hb.modelMatrix - obb.centrePoint * modelMatrix;
+	Vector3f T = hb.obb.centrePoint * hb.ModelMatrix - obb.centrePoint * ModelMatrix;
 	
 	//! Checks if first 6 axis pass the test
 	for(int i(0); i < 6; i++)
@@ -189,7 +188,7 @@ bool Hitbox::againstAxis(Vector3f axis, Vector3f distance, Vector3f pE[2][3])
 	;
 }
 
-bool Hitbox::drawLine(Vector3f v1, Vector3f v2)
+void Hitbox::drawLine(Vector3f v1, Vector3f v2)
 {
 	glBegin(GL_LINES);
   	glVertex3f(v1.x, v1.y, v1.z);

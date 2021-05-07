@@ -28,7 +28,12 @@ Model& Model::operator=(const Model &model)
 }*/
 
 Model::~Model()
-{}
+{
+    for(auto hitbox : hitboxes)
+    {
+        delete hitbox;
+    }
+}
 
 //! Load the .OBJ File, mostly using parents function, but adds the matrix uniform used for the translations and the camera
 bool Model::loadOBJ(std::string filename, GLuint _TextureMapUniformLocation, GLuint texture)
@@ -45,6 +50,11 @@ bool Model::loadOBJ(std::string filename, GLuint _TextureMapUniformLocation, GLu
     return true;
 }
 
+bool Model::loadHitbox(std::string filename)
+{
+    
+}
+
 void Model::changeTexture(GLuint texture)
 {
     textureID = texture;
@@ -53,11 +63,15 @@ void Model::changeTexture(GLuint texture)
 //! Main Function of the Class, draws the model (using parent function) and adds transforms and textures
 void Model::Draw(MasterShader shader)
 {
-    
     glUseProgram(shader.ID);
     //! Applies All Transforms
     ModelMatrix = getMatrix();                                 
     
+    for(auto hitbox : hitboxes)
+    {
+        hitbox->ModelMatrix = ModelMatrix;
+    }
+
     //! Sends Model Matrix to Shader
     glUniformMatrix4fv(
         shader.ModelMatrixUniformLocation,
@@ -81,6 +95,16 @@ void Model::Draw(MasterShader shader)
         false,
         ModelMatrix.getPtr());
 }
+
+//! Main Function of the Class, draws the model (using parent function) and adds transforms and textures
+void Model::DrawHitboxes(MasterShader shader)
+{   
+    for(auto hitbox : hitboxes)
+    {
+        hitbox->Draw(shader);
+    }
+}
+
 
 //! All the Mutator Functions, both incrementing and setting (Currently Lacks Error Checking & Rotation may be changed to Quaternions)
     // Changes Scale of Model in Wold

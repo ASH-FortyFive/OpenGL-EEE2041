@@ -26,7 +26,6 @@ class Map
 private:
     Skybox sky;
     Vector3f mapDimensions;
-    std::vector<Model*> grounds;
     Model ground;
     std::vector<Model*> rings;  
 //! Member Functions
