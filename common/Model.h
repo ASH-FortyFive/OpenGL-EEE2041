@@ -100,7 +100,11 @@ public:
 	//! Debug Functions
 
 	//! Constructors and Destructors 
-  	Model();
+	Model();
+	Model(
+		float scale, 
+		Vector3f pos, 
+		Vector3f rot);
   	~Model();
 
 private:

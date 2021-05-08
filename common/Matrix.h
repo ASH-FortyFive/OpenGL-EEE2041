@@ -74,6 +74,11 @@ public:
 	//! LookAt function
 	void lookAt(Vector3f eye, Vector3f center, Vector3f up);	
 
+	//=====================
+	//! Added by ASH
+	friend std::ostream& operator<<(std::ostream& out, const Matrix4x4& mat);
+	//====================
+
 private:
 
 	//! 2D Array containing values: accessed val[COLUMN][ROW]

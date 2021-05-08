@@ -63,13 +63,14 @@ Model ground;
 
 Model ring;
 
-Player plane;
+Player plane(0.1f, Vector3f(10.0f,10.0f,25.0f), Vector3f(0,0,0));
 
 GLuint texture;
 GLuint texture1;
 GLuint texture2;
 
-Camera ThirdPerson(Vector3f(-7.5f,2,0.0f), Vector3f(5.0f,0,0));
+//Camera ThirdPerson(Vector3f(-5.0f,2,0.0f), Vector3f(10.0f,0,0));
+Camera ThirdPerson(Vector3f(1.0f,0.25f,0.0f), Vector3f(10.0f,0,0));
 
 HUD ThirdPersonHUD;
 
@@ -177,7 +178,8 @@ void initTemp()
 
 	plane.loadOBJ("../models/plane2.obj", defaultShader.TextureMapUniformLocation, texture);
 	plane.loadHitbox("../models/hitboxes/plane2.hitbox");
-	plane.translate(Vector3f(10.0f,10.0f,25.0f));
+	//plane.translate(Vector3f(10.0f,10.0f,25.0f));
+	plane.setScale(0.75f);
 
 	ring.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture2);
 	ring.loadHitbox("../models/hitboxes/torus.hitbox");
@@ -241,7 +243,7 @@ void display(void)
 
 	//! Calculates Third Person Camera Follow
 	
-	ThirdPerson.followUpdate(plane.ModelMatrix, plane.getMeshCentroid());	
+	ThirdPerson.followUpdate(plane.ModelMatrix, plane.relativeAxis, plane.getMeshCentroid());	
 	action_time = glutGet(GLUT_ELAPSED_TIME) - action_time;
 
 	//! Renders the Skybox
@@ -358,59 +360,35 @@ void handleKeys()
 	if(keyStates['w'])
     {
 		//Moving Forward
-		plane.rotateAround( 1, Vector3f(0,0,1));// plane.relativeAxis[2]);
+		//plane.addForce(plane.relativeAxis[0] * 1.0f); // plane.relativeAxis[2]);
     }
 	if (keyStates['s'])
 	{
-		plane.rotateAround(-1, Vector3f(0,0,1));// plane.relativeAxis[2]);
+		//plane.addForce(plane.relativeAxis[0] * -1.0f); // plane.relativeAxis[2]);
 	}
 	if(keyStates['a'])
     {
-		plane.rotateAround(-1, Vector3f(0,1,0));//plane.relativeAxis[0]);
+		plane.rotateAround( 1, Vector3f(0,1,0));//plane.relativeAxis[0]);
     }
 	if (keyStates['d'])
 	{
-		plane.rotateAround( 1, Vector3f(0,-1,0));//plane.relativeAxis[0]);
-	}
-	if(keyStates['q'])
-    {
-		//plane.addSpin(Vector3f(0.0f,3.0f,0.0f));
-    }
-	if (keyStates['e'])
-	{
-		//plane.addSpin(Vector3f(-0.0f,-3.0f,0.0f));
+		plane.rotateAround(-1, Vector3f(0,1,0));//plane.relativeAxis[0]);
 	}
 	if (keyStates['i'])
 	{
-		lightPosition = lightPosition + Vector3f(1.0,0.0,0.0);
+		plane.rotateAround( 1, Vector3f(0,0,1));
 	}
 	if (keyStates['k'])
 	{
-		lightPosition = lightPosition + Vector3f(-1.0,0.0,0.0);
+		plane.rotateAround(-1, Vector3f(0,0,1));
 	}
 	if (keyStates['j'])
 	{
-		lightPosition = lightPosition + Vector3f(0.0,0.0,1.0);
+		plane.rotateAround(-1, Vector3f(1,0,0));//plane.relativeAxis[0]);
 	}
 	if (keyStates['l'])
 	{
-		lightPosition = lightPosition + Vector3f(0.0,0.0,-1.0);
-	}
-	if (keyStates['o'])
-	{
-		lightPosition = lightPosition + Vector3f(0.0,1.0,0.0);
-	}
-	if (keyStates['u'])
-	{
-		lightPosition = lightPosition + Vector3f(0.0,-1.0,0.0);
-	}
-	if (keyStates[' '])
-	{
-		plane.addForce(plane.relativeAxis[0] * 1.0f);
-	}
-	if (keyStates['b'])
-	{
-		plane.addForce(plane.relativeAxis[0] * -1.0f);
+		plane.rotateAround( 1, Vector3f(1,0,0));//plane.relativeAxis[0]);
 	}
 }
 

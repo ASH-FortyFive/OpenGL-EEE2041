@@ -321,6 +321,16 @@ Matrix4x4 Matrix4x4::inverse()
 
 
 
+std::ostream& operator<<(std::ostream& out, const Matrix4x4& mat)
+{
+	out << std::endl << 
+	mat.val[0][0] << " " << mat.val[1][0] << " " << mat.val[2][0] << " " << mat.val[3][0] << std::endl <<
+	mat.val[0][1] << " " << mat.val[1][1] << " " << mat.val[2][1] << " " << mat.val[3][1] << std::endl <<
+	mat.val[0][2] << " " << mat.val[1][2] << " " << mat.val[2][2] << " " << mat.val[3][2] << std::endl <<
+	mat.val[0][3] << " " << mat.val[1][3] << " " << mat.val[2][3] << " " << mat.val[3][3] << std::endl;
+	return out;
+}
+
 
 
 

@@ -20,7 +20,7 @@ private:
     //Vector3f gravity = Vector3f(0.0f, 0.0f, 0.0f);
     Matrix4x4 relativeRotations;
 
-    float speed = 30.0f;
+    float speed = 10.0f;
 public:
 
 //! Member Functions
@@ -39,9 +39,15 @@ public:
 
     void Reset();
 
+    //! Accessor
+    Matrix4x4 getMatrix();
 
 	//! Constructors and Destructors     
     Player();
+    Player(
+		float scale, 
+		Vector3f pos, 
+		Vector3f rot);
     ~Player();
 };
 

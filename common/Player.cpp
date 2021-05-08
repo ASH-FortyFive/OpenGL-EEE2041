@@ -5,7 +5,13 @@
 
 //! Constructors and Destructors 
 Player::Player()
-{}
+{
+    
+}
+Player::Player(float scale, Vector3f pos, Vector3f rot)
+{
+   Model(scale, pos, rot);
+}
 Player::~Player()
 {}
 
@@ -19,7 +25,7 @@ void Player::update(float frac)
     {
         speed = minSpeed;
     }
-    std::cout << speed << std::endl; 
+    //std::cout << speed << std::endl; 
 
     //! Decays Forces
     velocity = Model::relativeAxis[0] * speed;
@@ -63,6 +69,7 @@ void Player::Draw(MasterShader shader)
     up = Model::position + Model::relativeAxis[1] * 10;
     right = Model::position + Model::relativeAxis[2] * 10;
 
+    /*
     glBegin(GL_LINES);
   	glVertex3f(forward.x, forward.y, forward.z);
   	glVertex3f(Model::position.x, Model::position.y, Model::position.z);
@@ -77,13 +84,23 @@ void Player::Draw(MasterShader shader)
   	glVertex3f(right.x, right.y, right.z);
   	glVertex3f(Model::position.x, Model::position.y, Model::position.z);
 	glEnd();
+    */
 
     //relativeRotations.toIdentity();
-    Model::ModelMatrix = Model::getMatrix();
-
-    Model::ModelMatrix = Model::ModelMatrix * relativeRotations;
+    Model::ModelMatrix = getMatrix();
 
     Model::Draw(shader);
+}
+
+//! Accesor
+Matrix4x4 Player::getMatrix()
+{
+    Matrix4x4 model;
+    model = Model::getMatrix();
+    model = model * relativeRotations;
+
+    return model;
+
 }
 
 //! Debug

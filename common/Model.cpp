@@ -5,16 +5,24 @@
 void Model::Reset()
 {   
 rotationAngles = Vector3f();
-scaleFactor = 1;
 setPosition(Vector3f(10.0f,10.0f,25.0f));
 }
+
 
 //! Constructors and Destructors 
 Model::Model() : 
     scaleFactor(1.0f), 
-    position(0.0f,0.0f,0.0f),  
-    rotationAngles(0.0f, 0.0f, 0.0f)
+    position(Vector3f(0.0f,0.0f,0.0f)),  
+    rotationAngles(Vector3f(0.0f,0.0f,0.0f))
 {
+    ModelMatrix = getMatrix();
+}
+Model::Model(float scale, Vector3f pos, Vector3f rot) : 
+    scaleFactor(scale), 
+    position(pos),  
+    rotationAngles(rot)
+{
+    setScale(scale);
     ModelMatrix = getMatrix();
 }
 
@@ -139,14 +147,7 @@ void Model::Draw(MasterShader shader)
 
     //! Uses Parents Draw Function after applying Transforms and Texture
     Mesh::Draw(shader.vertexPositionAttribute, shader.vertexNormalAttribute, shader.vertexTexcoordAttribute);
-    
-    //! Resets for Next Model (MIGHT EVENTUALLY BE OBSOLETE) 
-    Matrix4x4 cleanUp;
-    glUniformMatrix4fv(
-        shader.ModelMatrixUniformLocation,
-        1,
-        false,
-        cleanUp.getPtr());
+
 }
 
 //! Main Function of the Class, draws the model (using parent function) and adds transforms and textures
