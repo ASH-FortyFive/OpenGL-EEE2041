@@ -139,15 +139,15 @@ bool Hitbox::doCollsions(Hitbox& hb)
 
 	//! Creates the first 6th Axis to check (directions of both hitboxes)
 	Vector3f axis[6];
+	
+	axis[0] = (obb.localAxis[0] * rotationMatrix);
+	axis[1] = (obb.localAxis[1] * rotationMatrix);
+	axis[2] = (obb.localAxis[2] * rotationMatrix);
 
-	axis[0] = v.normalise(obb.localAxis[0] * rotationMatrix);
-	axis[1] = v.normalise(obb.localAxis[1] * rotationMatrix);
-	axis[2] = v.normalise(obb.localAxis[2] * rotationMatrix);
 
-
-	axis[3] = v.normalise(hb.obb.localAxis[0] * rotationMatrixB);
-	axis[4] = v.normalise(hb.obb.localAxis[1] * rotationMatrixB);
-	axis[5] = v.normalise(hb.obb.localAxis[2] * rotationMatrixB);
+	axis[3] = (hb.obb.localAxis[0] * rotationMatrixB);
+	axis[4] = (hb.obb.localAxis[1] * rotationMatrixB);
+	axis[5] = (hb.obb.localAxis[2] * rotationMatrixB);
 
 	//! Creates the project extensions
 	Vector3f projectedExtends[2][3];

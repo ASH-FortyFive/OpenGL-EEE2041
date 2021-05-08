@@ -43,6 +43,8 @@ bool Model::loadHitbox(std::string filename)
 
 bool Model::reloadHitbox()
 {
+    hitboxes.clear();
+
     std::fstream newFile;
     newFile.open(hitboxPath, std::ios::in);
     if(!newFile.good())

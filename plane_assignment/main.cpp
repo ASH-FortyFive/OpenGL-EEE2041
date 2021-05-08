@@ -97,6 +97,8 @@ std::string fps_count;
 
 int score(0);
 
+//! Debug Performance Checking
+
 //! Main Program Entry
 int main(int argc, char** argv)
 {	
@@ -222,6 +224,7 @@ void display(void)
 	{
 		plane.stop();
 	}
+	
 
 	plane.update(t_delta);
 	//=============================================================//
@@ -245,7 +248,6 @@ void display(void)
 	map.Draw(defaultShader);
 	
 	//! Hitboxes
-	glUseProgram(hitboxShader.ID);
 	ThirdPerson.updateShader(hitboxShader);
 	plane.DrawHitboxes(hitboxShader);
 	map.DrawHitboxes(hitboxShader);
@@ -264,7 +266,9 @@ void display(void)
 		t_sinceSecond += 1000.0;
 	}
 	
-	
+	//!Performance check
+
+
 	//! HUD Elements
 	ThirdPersonHUD.render2dText(fps_count,0,0,0,-1,0.95f);
 	ThirdPersonHUD.render2dText(std::to_string(score),0,0,0,-1.0f,0.85f);
@@ -310,7 +314,7 @@ void keyboard(unsigned char key, int x, int y)
 	{
 		PentaToggle = !PentaToggle;
 		plane.setRotation(Vector3f());
-		plane.setPosition(Vector3f(0.0f,0.75f,0.0f));
+		plane.setPosition(Vector3f(10.0f,10.0f,25.0f));
 	}
 	else if(key == 'z' || key == 'Z')
 	{
