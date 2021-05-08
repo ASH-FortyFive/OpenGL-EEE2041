@@ -18,6 +18,14 @@ private:
     Vector3f spin;
     Vector3f gravity = Vector3f(0.0f, -9.8f, 0.0f);
     //Vector3f gravity = Vector3f(0.0f, 0.0f, 0.0f);
+
+
+    Vector3f Thrust;
+    Vector3f Drag;
+    Vector3f Lift;
+    Vector3f Weight;
+
+    
 public:
 
 //! Member Functions

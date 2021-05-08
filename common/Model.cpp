@@ -92,6 +92,7 @@ bool Model::reloadHitbox()
         //new Hitbox(newOBB);
         hitboxes.push_back(new Hitbox(newOBB, type));
     }
+    return true;
 
 }
 

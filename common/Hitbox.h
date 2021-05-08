@@ -31,7 +31,8 @@ public:
     {
         Obstacle,
         Target,
-        Main
+        Main,
+        NONE
     };
 
     hbType Type;

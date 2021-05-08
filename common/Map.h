@@ -28,6 +28,8 @@ private:
     Vector3f mapDimensions;
     Model ground;
     std::vector<Model*> rings;  
+
+    float mapDimensionBuffer = 10.0f; // extra space around the ground plane
 //! Member Functions
 private:
 
@@ -53,7 +55,7 @@ public:
     
     //! For checking bounds
     bool inBounds(Vector3f);
-    bool checkCollisions(Model, Hitbox::hbType = Hitbox::Obstacle);
+    Hitbox::hbType checkCollisions(Vector3f, std::vector<Hitbox*>);
 };
 
 #endif

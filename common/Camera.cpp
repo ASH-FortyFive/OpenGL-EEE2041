@@ -47,16 +47,13 @@ Vector3f Camera::getDirection()
 void Camera::move(Vector3f increment)
 {
 	position = position + increment;
-	//target = target + increment;
 }
 
 //! Follows Given Object
-void Camera::follow(Player player, Vector3f posOffset, Vector3f targetOffset)
+void Camera::follow(Vector3f playerForward, Vector3f playerRotation, Vector3f playerPosition, Vector3f posOffset, Vector3f targetOffset)
 {
-	Vector3f facing = player.facing();
-	Vector3f rot = player.getRotiation();
-
-//! Not quite right
+	//! Not quite right
+	/*
 	if(rot.z > 90.0f && rot.z < 270.0f)
 	{
 		GlobalUp = Vector3f(0,-1,0);
@@ -65,27 +62,27 @@ void Camera::follow(Player player, Vector3f posOffset, Vector3f targetOffset)
 	{
 		GlobalUp = Vector3f(0,1,0);
 	}
+	*/
+	
+	targetRight 			= targetRight.normalise(targetRight.cross(GlobalUp, playerForward));
+	targetUp 				= targetUp.cross(playerForward,targetRight);
+	relativePosOffset 		= playerForward * posOffset.x + targetUp * posOffset.y + targetRight * posOffset.z;
+	//Vector3f relativeTargetOffset 	= playerForward * targetOffset.x + targetUp * targetOffset.y + targetRight * targetOffset.z;
 
 
-	Vector3f targetRight 			= targetRight.normalise(targetRight.cross(GlobalUp, facing));
-	Vector3f targetUp 				= targetUp.cross(facing,targetRight);
-	Vector3f relativePosOffset 		= facing * posOffset.x + targetUp * posOffset.y + targetRight * posOffset.z;
-	Vector3f relativeTargetOffset 	= facing * targetOffset.x + targetUp * targetOffset.y + targetRight * targetOffset.z;
+	target 		= playerPosition;// + relativeTargetOffset;
+	position 	= playerPosition + relativePosOffset;
 
-
-	target 		= player.getMeshCentroid() + relativeTargetOffset;
-	position 	= player.getMeshCentroid() + relativePosOffset;
-
-	direction 	= direction.normalise(position-player.getMeshCentroid());
+	direction 	= (position-playerPosition);
 }
 
 //! Main Function that Updates the Camera Position
-void Camera::followUpdate(Player player)
+void Camera::followUpdate(Vector3f playerForward, Vector3f playerRotation, Vector3f playerPosition)
 {
 
 	//std::cout << "In of Cam: " <<player.getMeshCentroid() << std::endl;
 
-	follow(player, positionOffset, targetOffset);
+	follow(playerForward, playerPosition, playerPosition, positionOffset, targetOffset);
 
 	ViewMatrix.lookAt(
 		position,

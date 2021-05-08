@@ -98,6 +98,7 @@ std::string fps_count;
 int score(0);
 
 //! Debug Performance Checking
+float action_time;
 
 //! Main Program Entry
 int main(int argc, char** argv)
@@ -192,7 +193,13 @@ void initTemp()
 		//exit(0);
 	}
 
-	ThirdPerson.followUpdate(plane);
+	ThirdPerson.followUpdate(plane.facing(), plane.getRotiation(), plane.getMeshCentroid());		
+
+	glUseProgram(defaultShader.ID);
+	glUniform3f(defaultShader.LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
+    glUniform4f(defaultShader.AmbientUniformLocation, ambient.x, ambient.y, ambient.z, 1.0);
+    glUniform4f(defaultShader.SpecularUniformLocation, specular.x, specular.y, specular.z, 1.0);
+    glUniform1f(defaultShader.SpecularPowerUniformLocation, specularPower);
 
 }	
 
@@ -210,24 +217,31 @@ void display(void)
 	t_new = glutGet(GLUT_ELAPSED_TIME);
 	t_delta = (t_new - t_old) / 1000;
 
-	//! Calculates Third Person Camera Follow
-	ThirdPerson.followUpdate(plane);
-
+	action_time = glutGet(GLUT_ELAPSED_TIME);
 	//! Updates all Physics Items
 	//=============================================================//
-	
-	if(map.checkCollisions(plane, Hitbox::Target))
+	Hitbox::hbType collison = map.checkCollisions(plane.getMeshCentroid(), plane.hitboxes);
+	if(collison == Hitbox::Obstacle)
+	{
+		plane.stop();
+	} 
+	else if (collison == Hitbox::Target)
 	{
 		score++;
 	}
-	if(map.checkCollisions(plane, Hitbox::Obstacle))
+
+	if(!map.inBounds(plane.getMeshCentroid()))
 	{
-		plane.stop();
+		std::cout << "Outside" << std::endl;
 	}
-	
 
 	plane.update(t_delta);
 	//=============================================================//
+
+	//! Calculates Third Person Camera Follow
+	
+	ThirdPerson.followUpdate(plane.facing(), plane.getRotiation(), plane.getMeshCentroid());	
+	action_time = glutGet(GLUT_ELAPSED_TIME) - action_time;
 
 	//! Renders the Skybox
 	ThirdPerson.updateShader(skyboxShader);
@@ -238,20 +252,18 @@ void display(void)
 
 	//! Lighting
 	glUseProgram(defaultShader.ID);
-	glUniform3f(defaultShader.LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
-    glUniform4f(defaultShader.AmbientUniformLocation, ambient.x, ambient.y, ambient.z, 1.0);
-    glUniform4f(defaultShader.SpecularUniformLocation, specular.x, specular.y, specular.z, 1.0);
-    glUniform1f(defaultShader.SpecularPowerUniformLocation, specularPower);
-
+	
 	//! Probaly Needs to be Changed
 	plane.Draw(defaultShader);
 	map.Draw(defaultShader);
 	
 	//! Hitboxes
-	ThirdPerson.updateShader(hitboxShader);
-	plane.DrawHitboxes(hitboxShader);
-	map.DrawHitboxes(hitboxShader);
-
+	if(WireFrame)
+	{
+		ThirdPerson.updateShader(hitboxShader);
+		plane.DrawHitboxes(hitboxShader);
+		map.DrawHitboxes(hitboxShader);
+	}
 	
 	//Unuse Shader
 	glUseProgram(0);
@@ -267,7 +279,7 @@ void display(void)
 	}
 	
 	//!Performance check
-
+	//std::cout << "Time taken: "<< action_time << std::endl;
 
 	//! HUD Elements
 	ThirdPersonHUD.render2dText(fps_count,0,0,0,-1,0.95f);
@@ -318,13 +330,6 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	else if(key == 'z' || key == 'Z')
 	{
-		if(WireFrame){
-			//If On Toggle Off
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		} else{
-			//If Off Toggle On
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		}
 		WireFrame = !WireFrame;
 	}
 	/*

@@ -28,7 +28,6 @@ Hitbox::Hitbox(OBB newOBB, hbType type): Type(type)
 
 Hitbox::~Hitbox()
 {
-	
 }
 
 

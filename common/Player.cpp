@@ -1,6 +1,9 @@
 #include <Player.h>
 #include <type_traits>
 
+#define toRads 0.0174532925199f
+ 
+
 //! Constructors and Destructors 
 Player::Player()
 {}

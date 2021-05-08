@@ -85,7 +85,18 @@ bool Map::Init(std::string mapFile, MasterShader skyboxShader, MasterShader defa
 
     GLuint texture;
     ModelHelper::initTexture(texturePath, texture);
-    ground.loadOBJ("../models/newGen.obj", defaultShader.TextureMapUniformLocation, texture); 
+    ground.loadOBJ("../models/newGen.obj", defaultShader.TextureMapUniformLocation, texture);
+
+    //! Creates hitbox for ground
+    Hitbox::OBB newOBB;
+    newOBB.centrePoint = Vector3f(mapDimensions.x / 2, 0, mapDimensions.z / 2);
+    newOBB.extents[0] = (mapDimensions.x) / 2; 
+    newOBB.extents[1] = 0.1f;
+    newOBB.extents[2] = (mapDimensions.z) / 2;
+
+
+    ground.hitboxes.push_back(new Hitbox(newOBB, Hitbox::Obstacle)); 
+
 
     //================================================//
     //! Ring Loading
@@ -168,11 +179,12 @@ void Map::createGround(Vector3f dimensions)
 
 bool Map::inBounds(Vector3f pos)
 {
-    if(pos.x >= 0 || pos.x <= mapDimensions.x)
+    std::cout << pos << " in " << mapDimensions << std::endl;
+    if(pos.x >= 0 && pos.x <= mapDimensions.x)
     {
-        if(pos.z >= 0 || pos.z <= mapDimensions.z)
+        if(pos.z >= 0 && pos.z <= mapDimensions.z)
         {
-            if(pos.y >= 0 || pos.y <= mapDimensions.y)
+            if(pos.y >= 0 && pos.y <= mapDimensions.y)
             {
                 return true;
             }
@@ -182,37 +194,47 @@ bool Map::inBounds(Vector3f pos)
 }
 
 //! This is where the main collision math gets donea
-bool Map::checkCollisions(Model other, Hitbox::hbType type)
+Hitbox::hbType Map::checkCollisions(Vector3f pos, std::vector<Hitbox*> boxes)
 {
-    
+    //int i(0);   
     for(auto ring : rings)
     {
-        
-        if((ring->getMeshCentroid() - other.getMeshCentroid()).length() < 10.0f)
+        //i++;
+        if((ring->getMeshCentroid() - pos).length() < 10.0f)
         {
             auto badCounter = ring->hitboxes.begin();
             for(auto ringHB : ring->hitboxes)
             {
-                if(ringHB->Type == type)
+                for(auto otherHB : boxes)
                 {
-                    for(auto otherHB : other.hitboxes)
+                    if(otherHB->doCollsions(*ringHB))
                     {
-                        if(otherHB->doCollsions(*ringHB))
+                        if(ringHB->Type == Hitbox::Target)
                         {
-                            if(ringHB->Type == Hitbox::Target)
-                            {
-                                ring->hitboxes.erase(badCounter);
-                                std::cout <<"Git good" << std::endl;
-                            }
-                            return true;
+                            ring->hitboxes.erase(badCounter);
+                            std::cout <<"Git good" << std::endl;
                         }
+                        return ringHB->Type;
                     }
                 }
-                badCounter++;
+            badCounter++;
             }
         }
         
     }
-
-    return false;
+    if(pos.y < 5)
+    {
+        for(auto groundHB : ground.hitboxes)
+        {
+            for(auto otherHB : boxes)
+            {
+                if(otherHB->doCollsions(*groundHB))
+                {
+                    return groundHB->Type;
+                }
+            }
+        }
+    }
+    //
+    return Hitbox::NONE;
 }
