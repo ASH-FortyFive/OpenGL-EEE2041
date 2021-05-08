@@ -40,8 +40,23 @@ private:
 
 	//! Hitboxes
 	std::string hitboxPath; //! For a very lazy way of having copies keep the hitboxes
+
+	//! Axis
+	Vector3f abosluteAxis[3] = //! Always in order of x aixs, y axis then z axis
+	{
+		Vector3f(1,0,0),
+		Vector3f(0,1,0),
+		Vector3f(0,0,1)
+	};
 public:
 	std::vector<Hitbox*> hitboxes;
+
+	Vector3f relativeAxis[3] = //! Always in order of x aixs, y axis then z axis
+	{
+		Vector3f(1,0,0),
+		Vector3f(0,1,0),
+		Vector3f(0,0,1)
+	};
 //! Functions
 public:
     //! Overloads functions from Mesh to Allow for Transforms, Textures, and Colours (BROKEN)
@@ -76,9 +91,8 @@ public:
 	void changeTexture(GLuint);
 	
 	//! Accessors 
-	Vector3f facing();
 	Matrix4x4 getMatrix();
-	Vector3f getRotiation();
+	Vector3f getRotation();
 	//! Overrides Mesh Function to get Centre of Translated Model
 	Vector3f getMeshCentroid();
 

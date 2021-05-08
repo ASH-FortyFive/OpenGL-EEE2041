@@ -1,8 +1,16 @@
 #include <Player.h>
 #include <type_traits>
 
-#define toRads 0.0174532925199f
+#define wingArea 0.0174532925199f
+#define wingLength 0.0174532925199f
  
+#define liftSlope 6.2f
+#define skinFriction 0.02f
+#define zeroLiftAoA 0.0f
+#define stallAngle 15.0f
+#define chord 1.0f
+#define flapFraction 0.2f
+#define aspectRatio 2.0f
 
 //! Constructors and Destructors 
 Player::Player()
@@ -17,7 +25,7 @@ void Player::update(float frac)
     Model::rotate(spin * frac);
 
     //! Decays Forces
-    velocity = velocity * (0.95f);
+    velocity = Model::relativeAxis[0] * 10;
     spin = spin * (0.95f);
     
 }

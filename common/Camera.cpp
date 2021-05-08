@@ -1,5 +1,6 @@
 #include "Vector.h"
 #include <Camera.h>
+#define bias 0.5f //For Spring Function
 
 //! Constructors and Destructors 
 Camera::Camera(): position(1.0,1.0,0.0)
@@ -50,39 +51,34 @@ void Camera::move(Vector3f increment)
 }
 
 //! Follows Given Object
-void Camera::follow(Vector3f playerForward, Vector3f playerRotation, Vector3f playerPosition, Vector3f posOffset, Vector3f targetOffset)
+void Camera::follow(Vector3f playerAxis[3], Vector3f playerPosition, Vector3f posOffset, Vector3f targetOffset)
 {
-	//! Not quite right
-	/*
-	if(rot.z > 90.0f && rot.z < 270.0f)
-	{
-		GlobalUp = Vector3f(0,-1,0);
-	}
-	else
-	{
-		GlobalUp = Vector3f(0,1,0);
-	}
-	*/
-	
-	targetRight 			= targetRight.normalise(targetRight.cross(GlobalUp, playerForward));
-	targetUp 				= targetUp.cross(playerForward,targetRight);
-	relativePosOffset 		= playerForward * posOffset.x + targetUp * posOffset.y + targetRight * posOffset.z;
-	//Vector3f relativeTargetOffset 	= playerForward * targetOffset.x + targetUp * targetOffset.y + targetRight * targetOffset.z;
+
+	Vector3f targetRight 			= targetRight.normalise(targetRight.cross(GlobalUp, playerAxis[0]));
+	Vector3f targetUp 				= targetUp.cross(playerAxis[0],targetRight); 
+
+	 //targetRight 			= playerAxis[2];
+	// targetUp 				= playerAxis[1];
+
+	Vector3f relativePosOffset 		= playerAxis[0] * posOffset.x + targetUp * posOffset.y + targetRight * posOffset.z;
+	Vector3f relativeTargetOffset 	= playerAxis[0] * targetOffset.x + targetUp * targetOffset.y + targetRight * targetOffset.z; 
 
 
-	target 		= playerPosition;// + relativeTargetOffset;
-	position 	= playerPosition + relativePosOffset;
+	Vector3f updated_target 		= playerPosition + relativeTargetOffset;
+	target							= target * (1.0f-bias) +
+									  updated_target * (bias);
+	position						= playerPosition + relativePosOffset;
 
 	direction 	= (position-playerPosition);
 }
 
 //! Main Function that Updates the Camera Position
-void Camera::followUpdate(Vector3f playerForward, Vector3f playerRotation, Vector3f playerPosition)
+void Camera::followUpdate(Vector3f playerAxis[3], Vector3f playerRotation, Vector3f playerPosition)
 {
 
 	//std::cout << "In of Cam: " <<player.getMeshCentroid() << std::endl;
 
-	follow(playerForward, playerPosition, playerPosition, positionOffset, targetOffset);
+	follow(playerAxis, playerPosition, positionOffset, targetOffset);
 
 	ViewMatrix.lookAt(
 		position,

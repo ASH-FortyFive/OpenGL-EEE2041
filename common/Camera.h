@@ -27,11 +27,6 @@ private:
     Vector3f direction;
     Vector3f target;
 
-    //! For Following Player
-	Vector3f targetRight;
-	Vector3f targetUp;
-	Vector3f relativePosOffset;
-
     Vector3f GlobalUp = Vector3f(0.0f,1.0f,0.0f);
 
     Vector3f targetOffset,positionOffset;
@@ -53,7 +48,7 @@ public:
     
     void updateShader(MasterShader); //Sends projection to given address
 
-    void followUpdate(Vector3f, Vector3f, Vector3f);
+    void followUpdate(Vector3f*, Vector3f, Vector3f);
 
     //! Constructors and Destructors 
     Camera();
@@ -61,7 +56,7 @@ public:
     ~Camera();
 private:
     //! Transforms
-    void follow(Vector3f, Vector3f, Vector3f, Vector3f, Vector3f);
+    void follow(Vector3f*, Vector3f, Vector3f, Vector3f);
 
 };
 

@@ -69,7 +69,7 @@ GLuint texture;
 GLuint texture1;
 GLuint texture2;
 
-Camera ThirdPerson(Vector3f(-4.0f,0.25,0.0f));
+Camera ThirdPerson(Vector3f(-4.0f,1,0.0f), Vector3f(5.0f,0,0));
 
 HUD ThirdPersonHUD;
 
@@ -193,7 +193,7 @@ void initTemp()
 		//exit(0);
 	}
 
-	ThirdPerson.followUpdate(plane.facing(), plane.getRotiation(), plane.getMeshCentroid());		
+	ThirdPerson.followUpdate(plane.relativeAxis, plane.getRotation(), plane.getMeshCentroid());		
 
 	glUseProgram(defaultShader.ID);
 	glUniform3f(defaultShader.LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
@@ -240,7 +240,7 @@ void display(void)
 
 	//! Calculates Third Person Camera Follow
 	
-	ThirdPerson.followUpdate(plane.facing(), plane.getRotiation(), plane.getMeshCentroid());	
+	ThirdPerson.followUpdate(plane.relativeAxis, plane.getRotation(), plane.getMeshCentroid());	
 	action_time = glutGet(GLUT_ELAPSED_TIME) - action_time;
 
 	//! Renders the Skybox
@@ -310,10 +310,10 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	else if (key == 'p')
 	{
-		std::cout << "Plane is Facing" << std::endl << plane.facing() << std::endl;
+		std::cout << "Plane is Facing" << std::endl << plane.relativeAxis[0] << std::endl;
 		
 		std::cout << "Plane is at" << std::endl << plane.getMeshCentroid() << std::endl;
-		std::cout << "Plane is rotated" << std::endl << plane.getRotiation() << std::endl;
+		std::cout << "Plane is rotated" << std::endl << plane.getRotation() << std::endl;
 		std::cout << std::endl << "Cam is Facing" << std::endl << ThirdPerson.getDirection() << std::endl;
 		std::cout << "Cam is at" << std::endl << ThirdPerson.getPosition() << std::endl;
 		std::cout << "==========================" << std::endl ;
@@ -364,19 +364,19 @@ void handleKeys()
 	}
 	if(keyStates['a'])
     {
-		plane.addSpin(Vector3f(0.0f, 3.0f,0.0f));
+		plane.addSpin(Vector3f(3.0f, 0.0f,0.0f));
     }
 	if (keyStates['d'])
 	{
-		plane.addSpin(Vector3f(0.0f,-3.0f,0.0f));
+		plane.addSpin(Vector3f(-3.0f,0.0f,0.0f));
 	}
 	if(keyStates['q'])
     {
-		plane.addSpin(Vector3f(3.0f,0.0f,0.0f));
+		//plane.addSpin(Vector3f(3.0f,0.0f,0.0f));
     }
 	if (keyStates['e'])
 	{
-		plane.addSpin(Vector3f(-3.0f,0.0f,0.0f));
+		//plane.addSpin(Vector3f(-3.0f,0.0f,0.0f));
 	}
 	if (keyStates['i'])
 	{
@@ -404,11 +404,11 @@ void handleKeys()
 	}
 	if (keyStates[' '])
 	{
-		plane.addForce(plane.facing() * 1.0f);
+		plane.addForce(plane.relativeAxis[0] * 1.0f);
 	}
 	if (keyStates['b'])
 	{
-		plane.addForce(plane.facing() * -1.0f);
+		plane.addForce(plane.relativeAxis[0] * -1.0f);
 	}
 }
 

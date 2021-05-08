@@ -106,8 +106,19 @@ void Model::Draw(MasterShader shader)
 {
     glUseProgram(shader.ID);
     //! Applies All Transforms
-    ModelMatrix = getMatrix();                                 
+    ModelMatrix = getMatrix();                            
     
+     //! Updates Axis
+    Matrix4x4 rotationMatrix;
+    rotationMatrix.rotate(rotationAngles.y, 0.0f, 1.0f, 0.0f);     // Rotate around y
+    rotationMatrix.rotate(rotationAngles.z, 0.0f, 0.0f, 1.0f);     // Rotate around z
+    rotationMatrix.rotate(rotationAngles.x, 1.0f, 0.0f, 0.0f);     // Rotate around x 
+    for(int i(0); i < 3; i++)
+    {
+        relativeAxis[i] = relativeAxis[i].normalise(abosluteAxis[i] * rotationMatrix);
+    }     
+
+
     for(auto hitbox : hitboxes)
     {
         hitbox->ModelMatrix = ModelMatrix;
@@ -193,17 +204,6 @@ void Model::setRotation(Vector3f newAngle)
 }
 
 //! Accessors
-Vector3f Model::facing()
-{
-    Vector3f rotationRadians(rotationAngles.z * toRads, rotationAngles.y * toRads, rotationAngles.z * toRads);
-
-    float x =  cos(rotationRadians.z) * cos(rotationRadians.y);
-    float y =  sin(rotationRadians.z); 
-    float z = -cos(rotationRadians.z) * sin(rotationRadians.y);
-
-    return rotationRadians.normalise(Vector3f(x,y,z));
-}
-
 Matrix4x4 Model::getMatrix()
 {
     Matrix4x4 matrix;
@@ -215,7 +215,7 @@ Matrix4x4 Model::getMatrix()
     return matrix;
 }
 
-Vector3f Model::getRotiation()
+Vector3f Model::getRotation()
 {
     return rotationAngles;
 }

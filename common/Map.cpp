@@ -179,7 +179,6 @@ void Map::createGround(Vector3f dimensions)
 
 bool Map::inBounds(Vector3f pos)
 {
-    std::cout << pos << " in " << mapDimensions << std::endl;
     if(pos.x >= 0 && pos.x <= mapDimensions.x)
     {
         if(pos.z >= 0 && pos.z <= mapDimensions.z)
