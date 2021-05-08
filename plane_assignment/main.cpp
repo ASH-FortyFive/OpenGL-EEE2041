@@ -69,7 +69,7 @@ GLuint texture;
 GLuint texture1;
 GLuint texture2;
 
-Camera ThirdPerson(Vector3f(-4.0f,1,0.0f), Vector3f(5.0f,0,0));
+Camera ThirdPerson(Vector3f(-7.5f,2,0.0f), Vector3f(5.0f,0,0));
 
 HUD ThirdPersonHUD;
 
@@ -128,7 +128,7 @@ int main(int argc, char** argv)
 	// Creates Basics Shapes for Testing
 	initTemp();
 	
-	glClearColor(0.3,0.3,0.3,1.0);
+	glClearColor(1,1,1,1.0);
 
     //Enter main loop
     glutMainLoop();
@@ -193,7 +193,7 @@ void initTemp()
 		//exit(0);
 	}
 
-	ThirdPerson.followUpdate(plane.relativeAxis, plane.getRotation(), plane.getMeshCentroid());		
+	//ThirdPerson.followUpdate(plane.relativeAxis, plane.getRotation(), plane.getMeshCentroid());		
 
 	glUseProgram(defaultShader.ID);
 	glUniform3f(defaultShader.LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
@@ -223,11 +223,12 @@ void display(void)
 	Hitbox::hbType collison = map.checkCollisions(plane.getMeshCentroid(), plane.hitboxes);
 	if(collison == Hitbox::Obstacle)
 	{
-		plane.stop();
+		plane.Reset();
 	} 
 	else if (collison == Hitbox::Target)
 	{
 		score++;
+
 	}
 
 	if(!map.inBounds(plane.getMeshCentroid()))
@@ -240,7 +241,7 @@ void display(void)
 
 	//! Calculates Third Person Camera Follow
 	
-	ThirdPerson.followUpdate(plane.relativeAxis, plane.getRotation(), plane.getMeshCentroid());	
+	ThirdPerson.followUpdate(plane.ModelMatrix, plane.getMeshCentroid());	
 	action_time = glutGet(GLUT_ELAPSED_TIME) - action_time;
 
 	//! Renders the Skybox
@@ -260,6 +261,7 @@ void display(void)
 	//! Hitboxes
 	if(WireFrame)
 	{
+		//ThirdPerson.followUpdate(plane.relativeAxis, plane.getRotation(), plane.getMeshCentroid());
 		ThirdPerson.updateShader(hitboxShader);
 		plane.DrawHitboxes(hitboxShader);
 		map.DrawHitboxes(hitboxShader);
@@ -356,19 +358,19 @@ void handleKeys()
 	if(keyStates['w'])
     {
 		//Moving Forward
-		plane.rotateAround( 1, plane.relativeAxis[2]);
+		plane.rotateAround( 1, Vector3f(0,0,1));// plane.relativeAxis[2]);
     }
 	if (keyStates['s'])
 	{
-		plane.rotateAround(-1, plane.relativeAxis[2]);
+		plane.rotateAround(-1, Vector3f(0,0,1));// plane.relativeAxis[2]);
 	}
 	if(keyStates['a'])
     {
-		plane.rotateAround( 1, plane.relativeAxis[0]);
+		plane.rotateAround(-1, Vector3f(0,1,0));//plane.relativeAxis[0]);
     }
 	if (keyStates['d'])
 	{
-		plane.rotateAround(-1, plane.relativeAxis[0]);
+		plane.rotateAround( 1, Vector3f(0,-1,0));//plane.relativeAxis[0]);
 	}
 	if(keyStates['q'])
     {

@@ -51,9 +51,9 @@ void Camera::move(Vector3f increment)
 }
 
 //! Follows Given Object
-void Camera::follow(Vector3f playerAxis[3], Vector3f playerPosition, Vector3f posOffset, Vector3f targetOffset)
+void Camera::follow(Matrix4x4 &playerMatrix, Vector3f playerPosition, Vector3f posOffset, Vector3f targetOffset)
 {
-
+	/*
 	Vector3f targetRight 			= targetRight.normalise(targetRight.cross(GlobalUp, playerAxis[0]));
 	Vector3f targetUp 				= targetUp.cross(playerAxis[0],targetRight); 
 
@@ -69,16 +69,28 @@ void Camera::follow(Vector3f playerAxis[3], Vector3f playerPosition, Vector3f po
 									  updated_target * (bias);
 	position						= playerPosition + relativePosOffset;
 
-	direction 	= (position-playerPosition);
+	direction 	= (position-playerPosition); */
+
+	target = playerPosition;
+
+	Vector3f relativePosOffset = (posOffset * playerMatrix);
+
+	position = playerPosition + posOffset;
+
+	//std::cout << "Offset: " << posOffset << " Relative: " << relativePosOffset << std::endl;
+
+
 }
 
 //! Main Function that Updates the Camera Position
-void Camera::followUpdate(Vector3f playerAxis[3], Vector3f playerRotation, Vector3f playerPosition)
+void Camera::followUpdate(Matrix4x4 &playerMatrix, Vector3f playerPosition)
 {
+
+
 
 	//std::cout << "In of Cam: " <<player.getMeshCentroid() << std::endl;
 
-	follow(playerAxis, playerPosition, positionOffset, targetOffset);
+	follow(playerMatrix, playerPosition, positionOffset, targetOffset);
 
 	ViewMatrix.lookAt(
 		position,

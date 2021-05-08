@@ -19,6 +19,8 @@ private:
     Vector3f gravity = Vector3f(0.0f, -9.8f, 0.0f);
     //Vector3f gravity = Vector3f(0.0f, 0.0f, 0.0f);
     Matrix4x4 relativeRotations;
+
+    float speed = 30.0f;
 public:
 
 //! Member Functions

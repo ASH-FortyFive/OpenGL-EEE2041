@@ -23,7 +23,7 @@
 
 class Model : public Mesh {
 //! Member Variables
-private:
+protected:
 	//!Uniform Locations
 	GLuint TextureMapUniformLocation; 	// Matrix Uniform Location 
 
@@ -45,10 +45,11 @@ private:
 		Vector3f(0,1,0),
 		Vector3f(0,0,1)
 	};
-protected:
+	
+public:
 	//! Personal ModelViewMatrix	
 	Matrix4x4 ModelMatrix;
-public:
+
 	std::vector<Hitbox*> hitboxes;
 
 	Vector3f relativeAxis[3] = //! Always in order of x aixs, y axis then z axis
