@@ -20,6 +20,7 @@ Player::~Player()
 
 void Player::update(float frac)
 {
+
     //addForce( gravity * frac );
     Model::translate(velocity * frac);
     Model::rotate(spin * frac);
@@ -43,4 +44,29 @@ void Player::stop()
 void Player::addSpin(Vector3f newSpin)
 {
     spin = spin + newSpin;
+}
+
+void Player::rotateAround(float angle, Vector3f axis)
+{
+    relativeRotations.rotate(angle, axis.x, axis.y, axis.z);
+}
+ 
+void Player::Draw(MasterShader shader)
+{
+    //relativeRotations.toIdentity();
+    Model::ModelMatrix = Model::getMatrix();
+
+    Model::ModelMatrix = Model::ModelMatrix * relativeRotations;
+
+    Model::Draw(shader);
+}
+
+//! Debug
+void Player::Reset()
+{
+    velocity = Vector3f();
+    spin = Vector3f();
+    relativeRotations.toIdentity();
+
+    Model::Reset();
 }

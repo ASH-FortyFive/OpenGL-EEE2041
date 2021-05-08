@@ -18,11 +18,9 @@ private:
     Vector3f spin;
     Vector3f gravity = Vector3f(0.0f, -9.8f, 0.0f);
     //Vector3f gravity = Vector3f(0.0f, 0.0f, 0.0f);
-
+    Matrix4x4 relativeRotations;
 public:
-    Vector3f relativeUp;
-    Vector3f relativeFoward;
-    Vector3f relativeRight;
+
 //! Member Functions
 private:
 
@@ -30,9 +28,15 @@ private:
 public:
     void addForce(Vector3f); // Takes the input and turns it into motion
     void addSpin(Vector3f);
+    void rotateAround(float, Vector3f);
     void update(float);
 
+    void Draw(MasterShader shader); // Overloads the draw function to allow for relative rotations, this is immensly cursed
+
     void stop();
+
+    void Reset();
+
 
 	//! Constructors and Destructors     
     Player();

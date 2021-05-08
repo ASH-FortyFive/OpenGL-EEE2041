@@ -320,7 +320,7 @@ void keyboard(unsigned char key, int x, int y)
 	}
 	else if (key == 'c')
 	{
-		plane.test();
+		plane.Reset();
 	}
 	else if (key == 'g')
 	{
@@ -356,27 +356,27 @@ void handleKeys()
 	if(keyStates['w'])
     {
 		//Moving Forward
-		plane.addSpin(Vector3f(0.0f,0.0f,3.0f));
+		plane.rotateAround( 1, plane.relativeAxis[2]);
     }
 	if (keyStates['s'])
 	{
-		plane.addSpin(Vector3f(0.0f,0.0f,-3.0f));
+		plane.rotateAround(-1, plane.relativeAxis[2]);
 	}
 	if(keyStates['a'])
     {
-		plane.addSpin(Vector3f(3.0f, 0.0f,0.0f));
+		plane.rotateAround( 1, plane.relativeAxis[0]);
     }
 	if (keyStates['d'])
 	{
-		plane.addSpin(Vector3f(-3.0f,0.0f,0.0f));
+		plane.rotateAround(-1, plane.relativeAxis[0]);
 	}
 	if(keyStates['q'])
     {
-		//plane.addSpin(Vector3f(3.0f,0.0f,0.0f));
+		//plane.addSpin(Vector3f(0.0f,3.0f,0.0f));
     }
 	if (keyStates['e'])
 	{
-		//plane.addSpin(Vector3f(-3.0f,0.0f,0.0f));
+		//plane.addSpin(Vector3f(-0.0f,-3.0f,0.0f));
 	}
 	if (keyStates['i'])
 	{

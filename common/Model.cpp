@@ -2,9 +2,11 @@
 #include <Model.h>
 #define toRads 0.0174532925199f
 
-void Model::test()
-{
-   
+void Model::Reset()
+{   
+rotationAngles = Vector3f();
+scaleFactor = 1;
+setPosition(Vector3f(10.0f,10.0f,25.0f));
 }
 
 //! Constructors and Destructors 
@@ -13,7 +15,7 @@ Model::Model() :
     position(0.0f,0.0f,0.0f),  
     rotationAngles(0.0f, 0.0f, 0.0f)
 {
-    ModelMatrix.toIdentity();
+    ModelMatrix = getMatrix();
 }
 
 Model::~Model()
@@ -105,14 +107,13 @@ void Model::changeTexture(GLuint texture)
 void Model::Draw(MasterShader shader)
 {
     glUseProgram(shader.ID);
-    //! Applies All Transforms
-    ModelMatrix = getMatrix();                            
-    
+
      //! Updates Axis
-    Matrix4x4 rotationMatrix;
-    rotationMatrix.rotate(rotationAngles.y, 0.0f, 1.0f, 0.0f);     // Rotate around y
-    rotationMatrix.rotate(rotationAngles.z, 0.0f, 0.0f, 1.0f);     // Rotate around z
-    rotationMatrix.rotate(rotationAngles.x, 1.0f, 0.0f, 0.0f);     // Rotate around x 
+    Matrix4x4 rotationMatrix = ModelMatrix;
+    float * directAccess = rotationMatrix.getPtr();
+    directAccess[12] = 0;
+    directAccess[13] = 0;
+    directAccess[14] = 0;
     for(int i(0); i < 3; i++)
     {
         relativeAxis[i] = relativeAxis[i].normalise(abosluteAxis[i] * rotationMatrix);
@@ -140,12 +141,12 @@ void Model::Draw(MasterShader shader)
     Mesh::Draw(shader.vertexPositionAttribute, shader.vertexNormalAttribute, shader.vertexTexcoordAttribute);
     
     //! Resets for Next Model (MIGHT EVENTUALLY BE OBSOLETE) 
-    ModelMatrix.toIdentity();
+    Matrix4x4 cleanUp;
     glUniformMatrix4fv(
         shader.ModelMatrixUniformLocation,
         1,
         false,
-        ModelMatrix.getPtr());
+        cleanUp.getPtr());
 }
 
 //! Main Function of the Class, draws the model (using parent function) and adds transforms and textures
@@ -159,21 +160,37 @@ void Model::DrawHitboxes(MasterShader shader)
 
 
 //! All the Mutator Functions, both incrementing and setting (Currently Lacks Error Checking & Rotation may be changed to Quaternions)
-    // Changes Scale of Model in Wold
-void Model::scale(float increment)
-{
-    scaleFactor += increment; 
-}
+//! Real Changes
 void Model::setScale(float newScale)
 {
     scaleFactor = newScale; 
+
+    ModelMatrix = getMatrix();
 }
-    // Changes Position of Model in World
+void Model::setPosition(Vector3f pos)
+{
+    position = pos;
+
+    ModelMatrix = getMatrix();
+}
+void Model::setRotation(Vector3f newAngle)
+{  
+    rotationAngles.x =fmod(newAngle.x + 360.0f, 360.0f);
+    rotationAngles.y =fmod(newAngle.y + 360.0f, 360.0f);
+    rotationAngles.z =fmod(newAngle.z + 360.0f, 360.0f);
+
+    ModelMatrix = getMatrix();
+}
+
+//! Incrementers and Overloads
+void Model::scale(float increment)
+{
+    setScale( scaleFactor + increment); 
+}
 void Model::translate(Vector3f increment)
 {
     setPosition(position + increment);
 }
-    // Overload for floats
 void Model::translate(float x, float y, float z)
 {
     translate(Vector3f(x,y,z));
@@ -182,11 +199,6 @@ void Model::setPosition(float x, float y, float z)
 {
     setPosition(Vector3f(x,y,z));
 }
-void Model::setPosition(Vector3f pos)
-{
-    position = pos;
-}
-    // Changes Rotation Values 
 void Model::rotate(Vector3f increment)
 {
     setRotation(Vector3f(
@@ -195,22 +207,17 @@ void Model::rotate(Vector3f increment)
         rotationAngles.z + increment.z
     ));
 }
-void Model::setRotation(Vector3f newAngle)
-{
-    
-    rotationAngles.x =fmod(newAngle.x + 360.0f, 360.0f);
-    rotationAngles.y =fmod(newAngle.y + 360.0f, 360.0f);
-    rotationAngles.z =fmod(newAngle.z + 360.0f, 360.0f);
-}
 
 //! Accessors
 Matrix4x4 Model::getMatrix()
 {
     Matrix4x4 matrix;
     matrix.translate(position.x, position.y, position.z);  // Translates
+
     matrix.rotate(rotationAngles.y, 0.0f, 1.0f, 0.0f);     // Rotate around y
     matrix.rotate(rotationAngles.z, 0.0f, 0.0f, 1.0f);     // Rotate around z
-    matrix.rotate(rotationAngles.x, 1.0f, 0.0f, 0.0f);     // Rotate around x               
+    matrix.rotate(rotationAngles.x, 1.0f, 0.0f, 0.0f);     // Rotate around x
+
     matrix.scale(scaleFactor, scaleFactor, scaleFactor);   // Scales
     return matrix;
 }

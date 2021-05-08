@@ -27,9 +27,6 @@ private:
 	//!Uniform Locations
 	GLuint TextureMapUniformLocation; 	// Matrix Uniform Location 
 
-	//! Personal ModelViewMatrix	
-	Matrix4x4 ModelMatrix;
-
 	//! Transform Varibles (used to create ModelMatrix each Draw)
 	float scaleFactor;
 	Vector3f position;
@@ -48,6 +45,9 @@ private:
 		Vector3f(0,1,0),
 		Vector3f(0,0,1)
 	};
+protected:
+	//! Personal ModelViewMatrix	
+	Matrix4x4 ModelMatrix;
 public:
 	std::vector<Hitbox*> hitboxes;
 
@@ -63,7 +63,7 @@ public:
 	void Draw(MasterShader shader);
 	void DrawHitboxes(MasterShader shader);
  
-	void test();
+	void Reset();
     
     //Load an OBJ mesh from File, uses parent function
     bool loadOBJ(
@@ -100,18 +100,9 @@ public:
 
 	//! Constructors and Destructors 
   	Model();
-	  /*
-	Model( 												//Used to set inital Values (CURRENTLY BROKEN)
-		Vector3f initalPos, 
-		float initalSize = 1.0f,
-		Vector3f initalRot = Vector3f(0.0f,0.0f,0.0f),
-		Vector3f initalAngles = Vector3f(0.0f,0.0f,0.0f), 
-		Vector3f initalColour = Vector3f(0.5f, 0.5f, 0.5f));
-		
-	
-	Model(const Model &model);
-	Model& operator=(const Model &model);*/
   	~Model();
+
+private:
 };
 
 //! Helper Function
