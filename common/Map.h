@@ -37,6 +37,7 @@ private:
     float mapDimensionBuffer = 10.0f; // extra space around the ground plane
 public:
     Vector3f planePos;
+    int ringCount;
 //! Member Functions
 private:
     //! Created new .OBJ for the ground

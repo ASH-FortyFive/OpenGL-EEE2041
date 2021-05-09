@@ -55,7 +55,6 @@ bool Map::Init(std::string mapPath, MasterShader skyboxShader, MasterShader defa
 
     //! Reading Plan POS
     newFile >> planePos.x >> planePos.y >> planePos.z; 
-    std::cout << planePos << std::endl;
 
     //================================================//
     //! Skybox Loading
@@ -110,14 +109,14 @@ bool Map::Init(std::string mapPath, MasterShader skyboxShader, MasterShader defa
     //! Ring Loading
     std::cout << std::endl << "//========== Loading Rings ==========\\\\" << std::endl;
     int num;
-    newFile >> num;
+    newFile >> ringCount;
 
     Vector3f location, rotation;
     int scale;
 
     rings.clear();
 
-    for(int i(0); i < num; i++)
+    for(int i(0); i < ringCount; i++)
     {
         if(newFile.eof())
         {
@@ -232,7 +231,6 @@ Hitbox::hbType Map::checkCollisions(Vector3f pos, std::vector<Hitbox*> boxes)
                         {
                             ring->hitboxes.erase(badCounter);
                             ring->colour = Vector3f(0,0.25f,0);
-                            std::cout <<"Git good" << std::endl;
                         }
                         return ringHB->Type;
                     }
