@@ -20,7 +20,8 @@ HEADERS	+= 	../common/Shader.h	    		\
 		../common/HUD.h  			\
 		../common/Map.h  			\
 		../common/ShaderClass.h  		\
-		../common/Hitbox.h  			\			
+		../common/Hitbox.h  			\
+		../common/StateMachine.h  		\			
 			
 
 #Sources
@@ -38,6 +39,7 @@ SOURCES += 	main.cpp			        \
 		../common/Map.cpp  			\
 		../common/ShaderClass.cpp  		\
 		../common/Hitbox.cpp 			\
+		../common/StateMachine.cpp 		\			
 
 INCLUDEPATH += 	./ 				    	\
 		../common/ 				\

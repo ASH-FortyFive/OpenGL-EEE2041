@@ -19,7 +19,7 @@
 #include <Map.h>
 #include <ShaderClass.h>
 #include <Hitbox.h>
-
+#include <StateMachine.h>
 
 
 //!Function Prototypes
@@ -88,6 +88,7 @@ Map map;
 //! HUD Details
 int frames;
 std::string fps_count;
+int outOfBoundsTimer;
 
 int score(0);
 
@@ -218,6 +219,7 @@ void display(void)
 	{
 		fps_count = "ms/frame: " + std::to_string(1000/frames) + " | FPS: " + std::to_string(frames);
 		frames = 0;
+		outOfBoundsTimer++;
 		t_sinceSecond += 1000.0;
 	}
 
@@ -233,12 +235,19 @@ void display(void)
 	else if (collison == Hitbox::Target)
 	{
 		score++;
-
 	}
 
 	if(!map.inBounds(plane.getMeshCentroid()))
 	{
-		std::cout << "Outside" << std::endl;
+		ThirdPersonHUD.render2dText(("RETURN TO MAP BOUNDS IN " + std::to_string(5 - outOfBoundsTimer) + " SECONDS"),1,0,0,-0.22f,0);
+		if(outOfBoundsTimer >= 5)
+		{
+			plane.Reset();
+		}	
+	}
+	else
+	{
+		outOfBoundsTimer = 0;
 	}
 
 	plane.update(t_delta);
@@ -281,8 +290,9 @@ void display(void)
 
 	//! HUD Elements
 	ThirdPersonHUD.render2dText(fps_count,0,0,0,-1,0.95f);
-	ThirdPersonHUD.render2dText(std::to_string(score),0,0,0,-1.0f,0.90f);
-	ThirdPersonHUD.render2dText(( "Speed: " + std::to_string(plane.getSpeed())),0,0,0,-1.0f,0.85f);
+	ThirdPersonHUD.render2dText(( "Speed: " + std::to_string(plane.getSpeed())),0,0,0,-1.0f,0.90f);
+
+	ThirdPersonHUD.render2dText(("Score: " + std::to_string(score)),0,0,0,-0.05f,0.95f);
 
     //Swap Buffers and post redisplay
 	glutSwapBuffers();

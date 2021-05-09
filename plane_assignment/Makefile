@@ -65,7 +65,8 @@ SOURCES       = main.cpp \
 		../common/HUD.cpp \
 		../common/Map.cpp \
 		../common/ShaderClass.cpp \
-		../common/Hitbox.cpp 
+		../common/Hitbox.cpp \
+		../common/StateMachine.cpp 
 OBJECTS       = build/main.o \
 		build/Shader.o \
 		build/Vector.o \
@@ -79,7 +80,8 @@ OBJECTS       = build/main.o \
 		build/HUD.o \
 		build/Map.o \
 		build/ShaderClass.o \
-		build/Hitbox.o
+		build/Hitbox.o \
+		build/StateMachine.o
 DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/common/unix.conf \
 		/usr/lib/qt/mkspecs/common/linux.conf \
@@ -200,7 +202,8 @@ DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		../common/HUD.h \
 		../common/Map.h \
 		../common/ShaderClass.h \
-		../common/Hitbox.h main.cpp \
+		../common/Hitbox.h \
+		../common/StateMachine.h main.cpp \
 		../common/Shader.cpp \
 		../common/Vector.cpp \
 		../common/Matrix.cpp \
@@ -213,7 +216,8 @@ DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		../common/HUD.cpp \
 		../common/Map.cpp \
 		../common/ShaderClass.cpp \
-		../common/Hitbox.cpp
+		../common/Hitbox.cpp \
+		../common/StateMachine.cpp
 QMAKE_TARGET  = plane
 DESTDIR       = 
 TARGET        = plane
@@ -518,6 +522,9 @@ build/ShaderClass.o: ../common/ShaderClass.cpp ../common/ShaderClass.h
 
 build/Hitbox.o: ../common/Hitbox.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/Hitbox.o ../common/Hitbox.cpp
+
+build/StateMachine.o: ../common/StateMachine.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o build/StateMachine.o ../common/StateMachine.cpp
 
 ####### Install
 
