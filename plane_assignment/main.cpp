@@ -19,11 +19,9 @@
 #include <Map.h>
 #include <ShaderClass.h>
 #include <Hitbox.h>
-#include <StateMachine.h>
 
 
 //!Function Prototypes
-void initShader();
 void initGLUTFunctions();
 void display(void);
 void keyboard(unsigned char key, int x, int y);
@@ -31,13 +29,8 @@ void keyUp(unsigned char key, int x, int y);
 void handleKeys();
 void mouse(int button, int state, int x, int y);
 void motion(int x, int y);
-void Timer(int value);
-void initTexture(std::string filename, GLuint & textureID);
-
-//! Temp Functions
-void initTemp();	
-
-//Lights
+void Reset();
+void LoadMap(std::string mapPath);
 
 //! Screen size
 int screenWidth   	        = 1920;
@@ -48,21 +41,21 @@ bool keyStates[256];
 
 //! Global Variables
 //! Light Settings
-Vector3f lightPosition;				                // Light Position 
 //Material Properties
 Vector3f ambient    = Vector3f(0.1,0.1,0.1);
 Vector3f specular   = Vector3f(1.0,1.0,1.0);
 float specularPower = 100.0f;
 
+//! Shaders
 MasterShader defaultShader,skyboxShader, hitboxShader;
 
-//! Loaded Models
-Model ground;
+//! Player Model
+Player plane;
 
+//! Ring Template
 Model ring;
 
-Player plane(0.1f, Vector3f(25.0f,10.0f,10.0f), Vector3f(0,0,0));
-
+//! All Textures
 GLuint texture;
 GLuint texture1;
 GLuint texture2;
@@ -92,6 +85,16 @@ int outOfBoundsTimer;
 
 int score(0);
 
+//! States
+enum State{
+    paused,
+    menu,
+    playing,
+	died
+};
+State currentState = playing;
+
+
 //! Debug Performance Checking
 float action_time;
 
@@ -113,24 +116,53 @@ int main(int argc, char** argv)
 
 	initGLUTFunctions();
 
-    //Init Key States to false;    
+    // Init Key States to false;    
     for(int i = 0 ; i < 256; i++)
         keyStates[i] = false;
     
-    //Sets up shader program
-    initShader();
+    // Sets up shader program
+    defaultShader.loadShader("../shaders/shader.vert","../shaders/shader.frag");
+	skyboxShader.loadShader("../shaders/skybox_shader.vert","../shaders/skybox_shader.frag");
+	hitboxShader.loadShader("../shaders/hitbox_shader.vert","../shaders/hitbox_shader.frag");
 
-	// Creates Basics Shapes for Testing
-	initTemp();
-	
+	// Loads All Textures
+	GLuint texture, texture1, texture2;
+
+	ModelHelper::initTexture("../models/plane1.bmp", texture);
+	ModelHelper::initTexture("../models/Crate.bmp", texture1);
+
+	//Creates Ring template to be used in Map
+	ring.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture1);
+	ring.loadHitbox("../models/hitboxes/torus.hitbox");
+
+	LoadMap("../maps/default.map");
+
+	//! Main Player Plane
+	plane.loadOBJ("../models/plane2.obj", defaultShader.TextureMapUniformLocation, texture);
+	plane.loadHitbox("../models/hitboxes/plane2.hitbox");
+	plane.setScale(0.75f);
+
+	//! Possible Some Inital Camera Work
+	//ThirdPerson.followUpdate(plane.relativeAxis, plane.getRotation(), plane.getMeshCentroid());		
+
+	// Init Light
+	Vector3f lightPosition= Vector3f(1000.0,1000.0,-1414.0f);
+	glUseProgram(defaultShader.ID);
+	glUniform3f(defaultShader.LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
+    glUniform4f(defaultShader.AmbientUniformLocation, ambient.x, ambient.y, ambient.z, 1.0);
+    glUniform4f(defaultShader.SpecularUniformLocation, specular.x, specular.y, specular.z, 1.0);
+    glUniform1f(defaultShader.SpecularPowerUniformLocation, specularPower);
+
+	//! Sets background colour (which should never be seen)
 	glClearColor(1,1,1,1.0);
 
-    //Enter main loop
+    // Enter main loop
     glutMainLoop();
 
-	//Clean-Up
+	// Clean-Up
     glDeleteProgram(defaultShader.ID);
 	glDeleteProgram(skyboxShader.ID);
+	glDeleteProgram(hitboxShader.ID);
 
     return 0;
 }
@@ -147,57 +179,11 @@ void initGLUTFunctions()
 	glutPassiveMotionFunc(motion);
 	glutMotionFunc(motion);
 
-    glutTimerFunc(100,Timer, 0); //Start start timer function after 100 milliseconds
+    //glutTimerFunc(100,Timer, 0); //Start start timer function after 100 milliseconds
 
 	glEnable(GL_TEXTURE_2D); //Enables 2D textures in OpenGl
 	glEnable(GL_DEPTH_TEST); //Enables Depth Test to ensure things render in the correct order
 }
-
-//! Loads and Sets Up the Shaders
-void initShader()
-{
-	defaultShader.loadShader("../shaders/shader.vert","../shaders/shader.frag");
-	skyboxShader.loadShader("../shaders/skybox_shader.vert","../shaders/skybox_shader.frag");
-	hitboxShader.loadShader("../shaders/hitbox_shader.vert","../shaders/hitbox_shader.frag");
-}
-
-void initTemp()
-{
-	//! Init Light
-	//Set colour variable and light position
-	lightPosition= Vector3f(1000.0,1000.0,-1414.0f);
-
-	ModelHelper::initTexture("../models/plane1.bmp", texture);
-	ModelHelper::initTexture("../models/Crate.bmp", texture2);
-
-	plane.loadOBJ("../models/plane2.obj", defaultShader.TextureMapUniformLocation, texture);
-	plane.loadHitbox("../models/hitboxes/plane2.hitbox");
-	//plane.translate(Vector3f(10.0f,10.0f,25.0f));
-	plane.setScale(0.75f);
-
-	ring.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture2);
-	ring.loadHitbox("../models/hitboxes/torus.hitbox");
-
-
-	if(map.Init("../maps/default.map", skyboxShader, defaultShader,ring))
-	{
-		std::cout << "Map file loaded" << std::endl;
-	}
-	else
-	{
-		std::cout << "Could not load Map file" << std::endl;
-		//exit(0);
-	}
-
-	//ThirdPerson.followUpdate(plane.relativeAxis, plane.getRotation(), plane.getMeshCentroid());		
-
-	glUseProgram(defaultShader.ID);
-	glUniform3f(defaultShader.LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
-    glUniform4f(defaultShader.AmbientUniformLocation, ambient.x, ambient.y, ambient.z, 1.0);
-    glUniform4f(defaultShader.SpecularUniformLocation, specular.x, specular.y, specular.z, 1.0);
-    glUniform1f(defaultShader.SpecularPowerUniformLocation, specularPower);
-
-}	
 
 //! Display Loop
 void display(void)
@@ -213,6 +199,73 @@ void display(void)
 	t_new = glutGet(GLUT_ELAPSED_TIME);
 	t_delta = (t_new - t_old) / 1000;
 
+
+	//! Handels Consquences of Reset
+	if(currentState == died)
+	{
+		1 == 1;
+	}
+
+	if(currentState == playing)
+	{
+	//! Does Collisions
+	Hitbox::hbType collison = map.checkCollisions(plane.getMeshCentroid(), plane.hitboxes);
+	if(collison == Hitbox::Obstacle)
+	{
+		Reset();
+	} 
+	else if (collison == Hitbox::Target)
+	{
+		score++;
+	}
+
+	//! Stops Player From Leaving Map Bounds
+	if(!map.inBounds(plane.getMeshCentroid()))
+	{
+		ThirdPersonHUD.render2dText(("RETURN TO MAP BOUNDS IN " + std::to_string(5 - outOfBoundsTimer) + " SECONDS"),1,0,0,-0.22f,0);
+		if(outOfBoundsTimer >= 5)
+		{
+			Reset();
+		}	
+	}
+	else
+	{
+		outOfBoundsTimer = 0;
+	}
+
+	//! Does Plane Physics
+	plane.update(t_delta);
+
+	//! Calculates Third Person Camera Follow
+	ThirdPerson.followUpdate(plane.ModelMatrix, plane.relativeAxis, plane.getMeshCentroid());	
+	}
+	
+
+	//! Renders the Skybox
+	ThirdPerson.updateShader(skyboxShader);
+	map.DrawSkybox(ThirdPerson.getPosition(), skyboxShader);
+	
+	//! Draws Main Models
+	ThirdPerson.updateShader(defaultShader);
+	plane.Draw(defaultShader);
+	map.Draw(defaultShader); // Includes Rings and Ground
+	
+	//! Hitboxes
+	if(WireFrame)
+	{
+		ThirdPerson.updateShader(hitboxShader);
+		plane.DrawHitboxes(hitboxShader);
+		map.DrawHitboxes(hitboxShader);
+	}
+	
+	//Unuse Shader
+	glUseProgram(0);
+
+	//! HUD Elements
+	ThirdPersonHUD.render2dText(fps_count,0,0,0,-1,0.95f);
+	ThirdPersonHUD.render2dText(( "Speed: " + std::to_string(plane.getSpeed())),0,0,0,-1.0f,0.90f);
+	ThirdPersonHUD.render2dText(("Score: " + std::to_string(score)),0,0,0,-0.05f,0.95f);
+
 	//! Seconds per frame counter;
 	frames++;
 	if(t_new - t_sinceSecond >= 1000.0)
@@ -223,77 +276,6 @@ void display(void)
 		t_sinceSecond += 1000.0;
 	}
 
-
-	action_time = glutGet(GLUT_ELAPSED_TIME);
-	//! Updates all Physics Items
-	//=============================================================//
-	Hitbox::hbType collison = map.checkCollisions(plane.getMeshCentroid(), plane.hitboxes);
-	if(collison == Hitbox::Obstacle)
-	{
-		plane.Reset();
-	} 
-	else if (collison == Hitbox::Target)
-	{
-		score++;
-	}
-
-	if(!map.inBounds(plane.getMeshCentroid()))
-	{
-		ThirdPersonHUD.render2dText(("RETURN TO MAP BOUNDS IN " + std::to_string(5 - outOfBoundsTimer) + " SECONDS"),1,0,0,-0.22f,0);
-		if(outOfBoundsTimer >= 5)
-		{
-			plane.Reset();
-		}	
-	}
-	else
-	{
-		outOfBoundsTimer = 0;
-	}
-
-	plane.update(t_delta);
-	//=============================================================//
-
-	//! Calculates Third Person Camera Follow
-	ThirdPerson.followUpdate(plane.ModelMatrix, plane.relativeAxis, plane.getMeshCentroid());	
-	action_time = glutGet(GLUT_ELAPSED_TIME) - action_time;
-
-	//! Renders the Skybox
-	ThirdPerson.updateShader(skyboxShader);
-	map.DrawSkybox(ThirdPerson.getPosition(), skyboxShader);
-	
-	//! Draws Main Models
-	ThirdPerson.updateShader(defaultShader);
-
-	//! Lighting
-	glUseProgram(defaultShader.ID);
-	
-	//! Probaly Needs to be Changed
-	plane.Draw(defaultShader);
-	map.Draw(defaultShader);
-	
-	//! Hitboxes
-	if(WireFrame)
-	{
-		ThirdPerson.followUpdate(plane.ModelMatrix, plane.relativeAxis, plane.getMeshCentroid());
-
-		ThirdPerson.updateShader(hitboxShader);
-		plane.DrawHitboxes(hitboxShader);
-		map.DrawHitboxes(hitboxShader);
-	}
-	
-	//Unuse Shader
-	glUseProgram(0);
-
-	
-	//!Performance check
-	//std::cout << "Time taken: "<< action_time << std::endl;
-
-	//! HUD Elements
-	ThirdPersonHUD.render2dText(fps_count,0,0,0,-1,0.95f);
-	ThirdPersonHUD.render2dText(( "Speed: " + std::to_string(plane.getSpeed())),0,0,0,-1.0f,0.90f);
-
-	ThirdPersonHUD.render2dText(("Score: " + std::to_string(score)),0,0,0,-0.05f,0.95f);
-
     //Swap Buffers and post redisplay
 	glutSwapBuffers();
 	glutPostRedisplay();
@@ -302,59 +284,42 @@ void display(void)
 //! Keyboard Interaction
 void keyboard(unsigned char key, int x, int y)
 {
+	key = tolower(key);
 	//Quits program when esc is pressed
 	if (key == 27)	//esc key code
 	{
 		exit(0);
 	}
-	else if(key == 'x')
-    {
-		plane.translate(1,0,0);
-		std::cout << "Forward" <<std::endl;
-    }
-	else if (key == 'X')
-	{
-		plane.translate(-1,0,0);
-		std::cout << "backward" <<std::endl;
-	}
-	else if (key == 'p')
-	{
-		std::cout << "Plane is Facing" << std::endl << plane.relativeAxis[0] << std::endl;
-		
-		std::cout << "Plane is at" << std::endl << plane.getMeshCentroid() << std::endl;
-		std::cout << "Plane is rotated" << std::endl << plane.getRotation() << std::endl;
-		std::cout << std::endl << "Cam is Facing" << std::endl << ThirdPerson.getDirection() << std::endl;
-		std::cout << "Cam is at" << std::endl << ThirdPerson.getPosition() << std::endl;
-		std::cout << "==========================" << std::endl ;
-	}
 	else if (key == 'c')
 	{
-		plane.Reset();
+		Reset();
 	}
-	else if (key == 'g')
-	{
-		PentaToggle = !PentaToggle;
-		plane.setRotation(Vector3f());
-		plane.setPosition(Vector3f(10.0f,10.0f,25.0f));
-	}
-	else if(key == 'z' || key == 'Z')
+	else if(key == 'z')
 	{
 		WireFrame = !WireFrame;
 	}
-	/*
+	else if(key == 'p')
+	{
+		LoadMap("../maps/map2.map");
+	}
+	else if(key == 'r')
+	{
+	plane.colour = Vector3f(1,0,0);
+	}
 	else
 	{
-		std::cout << key << "" <<std::endl;
+		//std::cout << key <<std::endl;
 	}
-	*/
-
+	
     //Set key status
+
     keyStates[key] = true;
 }
 
 //! Handle key up situation
 void keyUp(unsigned char key, int x, int y)
 {
+	key = tolower(key);
     keyStates[key] = false;
 }
 
@@ -372,47 +337,64 @@ void handleKeys()
 	}
 	if(keyStates['a'])
     {
-		plane.addSpin(Vector3f(0, 1,0));//plane.relativeAxis[0]);
+		plane.addSpin(Vector3f( 0, 1, 0));//plane.relativeAxis[0]);
     }
 	if (keyStates['d'])
 	{
-		plane.addSpin(Vector3f(0,-1,0));//plane.relativeAxis[0]);
+		plane.addSpin(Vector3f( 0,-1, 0));//plane.relativeAxis[0]);
 	}
 	if (keyStates['i'])
 	{
-		plane.addSpin(Vector3f(0,0,1));
+		plane.addSpin(Vector3f( 0, 0, 1));
 	}
 	if (keyStates['k'])
 	{
-		plane.addSpin(Vector3f(0,0,-1));
+		plane.addSpin(Vector3f( 0, 0,-1));
 	}
 	if (keyStates['j'])
 	{
-		plane.addSpin(Vector3f(1,0,0));//plane.relativeAxis[0]);
+		plane.addSpin(Vector3f(-1, 0, 0));//plane.relativeAxis[0]);
 	}
 	if (keyStates['l'])
 	{
-		plane.addSpin(Vector3f(-1,0,0));//plane.relativeAxis[0]);
+		plane.addSpin(Vector3f( 1, 0, 0));//plane.relativeAxis[0]);
 	}
 }
 
 //! Mouse Interaction
 void mouse(int button, int state, int x, int y)
 {
-
+	//std::cout << "Button: " << button << " State: " << state << " X: " << x << " Y: " << y << std::endl;
 }
 
 //! Motion
 void motion(int x, int y)
 {
-    
+    //std::cout << " X: " << x << " Y: " << y << std::endl;
 }
 
-//! Timer Function
-void Timer(int value)
+//! Reset Function
+void Reset()
 {
-	// Do something
-    
-    //Call function again after 10 milli seconds
-	glutTimerFunc(10,Timer, 0);
+	score = 0;
+
+	plane.Reset();
+	map.Reset();
+
+	//plane.colour = Vector3f(0,0,0);
+}
+
+void LoadMap(std::string mapPath)
+{
+	if(map.Init(mapPath, skyboxShader, defaultShader,ring))
+	{
+		std::cout << "Map file loaded" << std::endl;
+	}
+	else
+	{
+		std::cout << "Could not load Map file" << std::endl;
+		exit(0);
+	}
+
+	plane.setPosition(map.planePos);
 }

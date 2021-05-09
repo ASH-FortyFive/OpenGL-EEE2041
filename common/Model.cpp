@@ -11,18 +11,17 @@ setPosition(Vector3f(10.0f,10.0f,25.0f));
 
 //! Constructors and Destructors 
 Model::Model() : 
-    scaleFactor(1.0f), 
+    scaleFactor(Vector3f(1,1,1)), 
     position(Vector3f(0.0f,0.0f,0.0f)),  
     rotationAngles(Vector3f(0.0f,0.0f,0.0f))
 {
     ModelMatrix = getMatrix();
 }
-Model::Model(float scale, Vector3f pos, Vector3f rot) : 
+Model::Model(Vector3f scale, Vector3f pos, Vector3f rot) : 
     scaleFactor(scale), 
     position(pos),  
     rotationAngles(rot)
 {
-    setScale(scale);
     ModelMatrix = getMatrix();
 }
 
@@ -164,7 +163,7 @@ void Model::DrawHitboxes(MasterShader shader)
 
 //! All the Mutator Functions, both incrementing and setting (Currently Lacks Error Checking & Rotation may be changed to Quaternions)
 //! Real Changes
-void Model::setScale(float newScale)
+void Model::setScale(Vector3f newScale)
 {
     scaleFactor = newScale; 
 
@@ -186,7 +185,11 @@ void Model::setRotation(Vector3f newAngle)
 }
 
 //! Incrementers and Overloads
-void Model::scale(float increment)
+void Model::setScale(float newScale)
+{
+    setScale(Vector3f(newScale, newScale, newScale)); 
+}
+void Model::scale(Vector3f increment)
 {
     setScale( scaleFactor + increment); 
 }
@@ -221,7 +224,7 @@ Matrix4x4 Model::getMatrix()
     matrix.rotate(rotationAngles.z, 0.0f, 0.0f, 1.0f);     // Rotate around z
     matrix.rotate(rotationAngles.x, 1.0f, 0.0f, 0.0f);     // Rotate around x
 
-    matrix.scale(scaleFactor, scaleFactor, scaleFactor);   // Scales
+    matrix.scale(scaleFactor.x, scaleFactor.y, scaleFactor.z);   // Scales
     return matrix;
 }
 

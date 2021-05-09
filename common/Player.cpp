@@ -9,7 +9,7 @@ Player::Player()
 {
     
 }
-Player::Player(float scale, Vector3f pos, Vector3f rot)
+Player::Player(Vector3f scale, Vector3f pos, Vector3f rot)
 {
    Model(scale, pos, rot);
 }

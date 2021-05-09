@@ -21,7 +21,7 @@ private:
     float boost;
 
     Vector3f velocity;
-    float speed = 1.0f;
+    float speed = 25.0f;
 
     Vector3f gravity = Vector3f(0.0f, -9.8f, 0.0f);
 public:
@@ -48,7 +48,7 @@ public:
 	//! Constructors and Destructors     
     Player();
     Player(
-		float scale, 
+		Vector3f scale, 
 		Vector3f pos, 
 		Vector3f rot);
     ~Player();

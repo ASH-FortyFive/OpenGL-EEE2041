@@ -18,13 +18,13 @@ void Map::Draw(MasterShader shader)
         ring->Draw(shader);
     }
 
-    ground.Draw(shader);
+    ground->Draw(shader);
     
 }
 
 void Map::DrawSkybox(Vector3f camPos , MasterShader shader)
 {
-    sky.Draw(camPos, shader);
+    sky->Draw(camPos, shader);
 }
 
 void Map::DrawHitboxes(MasterShader shader)
@@ -36,20 +36,26 @@ void Map::DrawHitboxes(MasterShader shader)
         ring->DrawHitboxes(shader);
     }
 
-    ground.DrawHitboxes(shader);
+    ground->DrawHitboxes(shader);
 }
 
 
-bool Map::Init(std::string mapFile, MasterShader skyboxShader, MasterShader defaultShader, Model ring)
+bool Map::Init(std::string mapPath, MasterShader skyboxShader, MasterShader defaultShader, Model ring)
 {
+    ringTemplate = ring;
+    
+
     std::fstream newFile;
-    newFile.open(mapFile, std::ios::in);
+    newFile.open(mapPath, std::ios::in);
     if(!newFile.good())
 	{
-		std::cerr<<"Failed to open file at "<<mapFile<<std::endl;
+		std::cerr<<"Failed to open file at "<<mapPath<<std::endl;
 		return false;
 	}
 
+    //! Reading Plan POS
+    newFile >> planePos.x >> planePos.y >> planePos.z; 
+    std::cout << planePos << std::endl;
 
     //================================================//
     //! Skybox Loading
@@ -64,7 +70,8 @@ bool Map::Init(std::string mapFile, MasterShader skyboxShader, MasterShader defa
         }
         newFile >> paths[i];
     }
-    sky.Init(skyboxShader.TextureMapUniformLocation, paths);
+    sky = new Skybox;
+    sky->Init(skyboxShader.TextureMapUniformLocation, paths);
 
     //================================================//
     //! Size of the Map
@@ -84,8 +91,9 @@ bool Map::Init(std::string mapFile, MasterShader skyboxShader, MasterShader defa
     createGround(mapDimensions);
 
     GLuint texture;
+    Model newGround;
     ModelHelper::initTexture(texturePath, texture);
-    ground.loadOBJ("../models/newGen.obj", defaultShader.TextureMapUniformLocation, texture);
+    newGround.loadOBJ("../models/newGen.obj", defaultShader.TextureMapUniformLocation, texture);
 
     //! Creates hitbox for ground
     Hitbox::OBB newOBB;
@@ -94,9 +102,9 @@ bool Map::Init(std::string mapFile, MasterShader skyboxShader, MasterShader defa
     newOBB.extents[1] = 0.1f;
     newOBB.extents[2] = (mapDimensions.z) / 2;
 
+    newGround.hitboxes.push_back(new Hitbox(newOBB, Hitbox::Obstacle)); 
 
-    ground.hitboxes.push_back(new Hitbox(newOBB, Hitbox::Obstacle)); 
-
+    ground = new Model(newGround);
 
     //================================================//
     //! Ring Loading
@@ -106,6 +114,8 @@ bool Map::Init(std::string mapFile, MasterShader skyboxShader, MasterShader defa
 
     Vector3f location, rotation;
     int scale;
+
+    rings.clear();
 
     for(int i(0); i < num; i++)
     {
@@ -142,6 +152,16 @@ bool Map::Init(std::string mapFile, MasterShader skyboxShader, MasterShader defa
     }
     newFile.close();
     return false;
+}
+
+//! Resets
+void Map::Reset()
+{
+   for(auto ring : rings)
+    {
+        ring->reloadHitbox();
+        ring->colour = Vector3f();
+    } 
 }
 
 //! Create
@@ -224,7 +244,7 @@ Hitbox::hbType Map::checkCollisions(Vector3f pos, std::vector<Hitbox*> boxes)
     }
     if(pos.y < 5)
     {
-        for(auto groundHB : ground.hitboxes)
+        for(auto groundHB : ground->hitboxes)
         {
             for(auto otherHB : boxes)
             {

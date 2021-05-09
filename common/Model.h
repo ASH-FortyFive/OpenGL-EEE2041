@@ -28,7 +28,7 @@ protected:
 	GLuint TextureMapUniformLocation; 	// Matrix Uniform Location 
 
 	//! Transform Varibles (used to create ModelMatrix each Draw)
-	float scaleFactor;
+	Vector3f scaleFactor;
 	Vector3f position;
 	Vector3f rotationAngles;	
 	
@@ -83,8 +83,9 @@ public:
     bool reloadHitbox();
 
 	//! Mutators
-	void scale(float); //Increases Scale by Input
+	void scale(Vector3f); //Increases Scale by Input
 	void setScale(float); //Sets Scale to Input
+	void setScale(Vector3f); //Sets Scale to Input
 	void translate(Vector3f); //Translates Position by Input
 	void translate(float, float, float); //Translates Position by Input
 	void setPosition(float, float, float); //Sets Position to Input
@@ -106,7 +107,7 @@ public:
 	//! Constructors and Destructors 
 	Model();
 	Model(
-		float scale, 
+		Vector3f scale, 
 		Vector3f pos, 
 		Vector3f rot);
   	~Model();

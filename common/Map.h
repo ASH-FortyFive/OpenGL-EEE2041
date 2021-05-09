@@ -24,15 +24,23 @@ class Map
 {
 //! Member Variables
 private:
-    Skybox sky;
+    Skybox * sky;
     Vector3f mapDimensions;
-    Model ground;
+    Model * ground;
     std::vector<Model*> rings;  
 
+    //! All the Previous Values
+    Model ringTemplate;
+
+
+
     float mapDimensionBuffer = 10.0f; // extra space around the ground plane
+public:
+    Vector3f planePos;
 //! Member Functions
 private:
-
+    //! Created new .OBJ for the ground
+    void createGround(Vector3f);
 public:
     //! Constructors and Destructors 
     Map();
@@ -40,18 +48,18 @@ public:
 
     //! Sets up Map based on file
     bool Init(
-        std::string mapFile, 
+        std::string mapPath, 
         MasterShader skyboxShader,
         MasterShader defaultShader, 
         Model ring);
+    //! Resets based on previous Map File
+    void Reset(); 
 
     //! Drawing Function
     void Draw(MasterShader);
     void DrawSkybox(Vector3f, MasterShader);
     void DrawHitboxes(MasterShader);
 
-    //! Created new .OBJ for the ground
-    void createGround(Vector3f);
     
     //! For checking bounds
     bool inBounds(Vector3f);
