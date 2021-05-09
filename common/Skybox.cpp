@@ -39,7 +39,7 @@ void Skybox::makeBox()
 }
 
 //! Main Function of the Class, draws the skybox and adds textures
-void Skybox::Draw(Vector3f camPos,Matrix4x4 ModelViewMatrix, MasterShader shader)
+void Skybox::Draw(Vector3f camPos, MasterShader shader)
 {
 
     glUseProgram(shader.ID);

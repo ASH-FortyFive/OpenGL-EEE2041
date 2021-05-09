@@ -22,9 +22,9 @@ void Map::Draw(MasterShader shader)
     
 }
 
-void Map::DrawSkybox(Vector3f camPos,Matrix4x4 ModelViewMatrix, MasterShader shader)
+void Map::DrawSkybox(Vector3f camPos , MasterShader shader)
 {
-    sky.Draw(camPos, ModelViewMatrix, shader);
+    sky.Draw(camPos, shader);
 }
 
 void Map::DrawHitboxes(MasterShader shader)

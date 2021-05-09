@@ -47,7 +47,7 @@ public:
 
     //! Drawing Function
     void Draw(MasterShader);
-    void DrawSkybox(Vector3f,Matrix4x4, MasterShader);
+    void DrawSkybox(Vector3f, MasterShader);
     void DrawHitboxes(MasterShader);
 
     //! Created new .OBJ for the ground

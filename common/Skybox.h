@@ -28,7 +28,7 @@ public:
 private:
     void makeBox();
 public:
-    void Draw(Vector3f, Matrix4x4, MasterShader);
+    void Draw(Vector3f, MasterShader);
     void Init(GLuint, std::string*);
 
     //! Constructors and Destructors 

@@ -6,11 +6,11 @@
 Camera::Camera(): position(1.0,1.0,0.0)
 {
 	std::cerr << "No Target to Follow" << std::endl;
-    ProjectionMatrix.perspective(110,1.0,0.01,100.0);
+    ProjectionMatrix.perspective(110,1.0,0.01,1000.0);
 }
 Camera::Camera(Vector3f posOffset, Vector3f tarOffset, Vector3f pos) : positionOffset(posOffset), targetOffset(tarOffset), position(pos)
 {
-    ProjectionMatrix.perspective(110,1.0,0.01,100.0);
+    ProjectionMatrix.perspective(110,1.0,0.01,1000.0);
 }
 Camera::~Camera()
 {}
@@ -54,13 +54,11 @@ void Camera::move(Vector3f increment)
 void Camera::follow(Matrix4x4 &playerMatrix, Vector3f playerAxis[3],  Vector3f playerPosition, Vector3f posOffset, Vector3f targetOffset)
 {
 	//! Calculates where the camera should be
-	Vector3f targetRight 			= targetRight.cross (Vector3f(0,1,0), playerAxis[0]);
-	Vector3f targetUp 				= targetUp.cross	(playerAxis[0],targetRight); 
+	//Vector3f targetAhead			= targetAhead.cross (Vector3f(0,1,0), targetRight) * 1.0f;
 
-	
+	Vector3f relativePosOffset 		= playerAxis[0] * posOffset.x 		+ GlobalUp * posOffset.y 	 + playerAxis[2] * posOffset.z;
+	Vector3f relativeTargetOffset 	= playerAxis[0] * targetOffset.x 	+ playerAxis[1] * targetOffset.y + playerAxis[2] * targetOffset.z; 
 
-	Vector3f relativePosOffset 		= playerAxis[0] * posOffset.x 		+ targetUp * posOffset.y 	+ targetRight * posOffset.z;
-	Vector3f relativeTargetOffset 	= playerAxis[0] * targetOffset.x 	+ targetUp * targetOffset.y + targetRight * targetOffset.z; 
 
 
 	Vector3f updated_target 		= playerPosition + relativeTargetOffset;
@@ -83,6 +81,22 @@ void Camera::follow(Matrix4x4 &playerMatrix, Vector3f playerAxis[3],  Vector3f p
 		GlobalUp = Vector3f(0, 1,0);
 	}
 	*/
+
+	glBegin(GL_LINES);
+  	glVertex3f(playerPosition.x, playerPosition.y, playerPosition.z);
+  	glVertex3f(playerPosition.x + playerAxis[1].x, playerPosition.y + playerAxis[1].y, playerPosition.z + playerAxis[1].z);
+	glEnd();
+
+	glBegin(GL_LINES);
+  	glVertex3f(playerPosition.x, playerPosition.y, playerPosition.z);
+  	glVertex3f(playerPosition.x + playerAxis[1].x, playerPosition.y + playerAxis[1].y, playerPosition.z + playerAxis[1].z);
+	glEnd();
+
+	glBegin(GL_LINES);
+  	glVertex3f(playerPosition.x, playerPosition.y, playerPosition.z);
+  	glVertex3f(playerPosition.x + playerAxis[1].x, playerPosition.y + playerAxis[1].y, playerPosition.z + playerAxis[1].z);
+	glEnd();
+
 }
 
 //! Main Function that Updates the Camera Position

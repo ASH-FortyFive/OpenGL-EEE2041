@@ -1,7 +1,7 @@
 #include <Player.h>
 #include <type_traits>
 
-#define minSpeed 5.0f
+#define minSpeed 2.5f
 
 //! Constructors and Destructors 
 Player::Player()
@@ -28,7 +28,7 @@ void Player::update(float frac)
     //std::cout << speed << std::endl; 
 
     //! Decays Forces
-    velocity = Model::relativeAxis[0] * speed;
+    velocity = Model::relativeAxis[0] * speed ;
     spin = spin * (0.95f);
 
 

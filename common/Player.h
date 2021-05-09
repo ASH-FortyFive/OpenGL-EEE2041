@@ -20,12 +20,11 @@ private:
     //Vector3f gravity = Vector3f(0.0f, 0.0f, 0.0f);
     Matrix4x4 relativeRotations;
 
-    float speed = 10.0f;
+    float speed = 5.0f;
 public:
 
 //! Member Functions
 private:
-
 
 public:
     void addForce(Vector3f); // Takes the input and turns it into motion

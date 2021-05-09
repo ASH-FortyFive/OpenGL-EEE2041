@@ -47,8 +47,6 @@ int screenHeight   	        = 1080;
 bool keyStates[256];
 
 //! Global Variables
-Matrix4x4 ViewMatrix;	
-
 //! Light Settings
 Vector3f lightPosition;				                // Light Position 
 //Material Properties
@@ -69,8 +67,8 @@ GLuint texture;
 GLuint texture1;
 GLuint texture2;
 
-//Camera ThirdPerson(Vector3f(-5.0f,2,0.0f), Vector3f(10.0f,0,0));
-Camera ThirdPerson(Vector3f(1.0f,0.25f,0.0f), Vector3f(10.0f,0,0));
+Camera ThirdPerson(Vector3f(-5.0f,2,0.0f), Vector3f(10.0f,0,0));
+//Camera ThirdPerson(Vector3f(1.0f,0.25f,0.0f), Vector3f(10.0f,0,0));
 
 HUD ThirdPersonHUD;
 
@@ -83,12 +81,7 @@ float t_new = 0.0;
 float t_old = 0.0;
 float t_delta = 0.0;
 
-float t_sinceSecond = 0.0;
-
-
-Hitbox hitbox(Vector3f(0,0.0,0)	,2,0.5f,0.5f);
-
-Hitbox boxhit(Vector3f(0,0.0,0)	,2,0.1f,2);
+double t_sinceSecond = 0.0;
 
 Map map;
 
@@ -219,6 +212,16 @@ void display(void)
 	t_new = glutGet(GLUT_ELAPSED_TIME);
 	t_delta = (t_new - t_old) / 1000;
 
+	//! Seconds per frame counter;
+	frames++;
+	if(t_new - t_sinceSecond >= 1000.0)
+	{
+		fps_count = "ms/frame: " + std::to_string(1000/frames) + " | FPS: " + std::to_string(frames);
+		frames = 0;
+		t_sinceSecond += 1000.0;
+	}
+
+
 	action_time = glutGet(GLUT_ELAPSED_TIME);
 	//! Updates all Physics Items
 	//=============================================================//
@@ -242,13 +245,12 @@ void display(void)
 	//=============================================================//
 
 	//! Calculates Third Person Camera Follow
-	
 	ThirdPerson.followUpdate(plane.ModelMatrix, plane.relativeAxis, plane.getMeshCentroid());	
 	action_time = glutGet(GLUT_ELAPSED_TIME) - action_time;
 
 	//! Renders the Skybox
 	ThirdPerson.updateShader(skyboxShader);
-	map.DrawSkybox(ThirdPerson.getPosition(),ViewMatrix, skyboxShader);
+	map.DrawSkybox(ThirdPerson.getPosition(), skyboxShader);
 	
 	//! Draws Main Models
 	ThirdPerson.updateShader(defaultShader);
@@ -263,7 +265,8 @@ void display(void)
 	//! Hitboxes
 	if(WireFrame)
 	{
-		//ThirdPerson.followUpdate(plane.relativeAxis, plane.getRotation(), plane.getMeshCentroid());
+		ThirdPerson.followUpdate(plane.ModelMatrix, plane.relativeAxis, plane.getMeshCentroid());
+
 		ThirdPerson.updateShader(hitboxShader);
 		plane.DrawHitboxes(hitboxShader);
 		map.DrawHitboxes(hitboxShader);
@@ -272,15 +275,6 @@ void display(void)
 	//Unuse Shader
 	glUseProgram(0);
 
-
-	//! Seconds per frame counter;
-	frames++;
-	if(t_new - t_sinceSecond >= 1000.0)
-	{
-		fps_count = "ms/frame: " + std::to_string(1000/frames) + " | FPS: " + std::to_string(frames);
-		frames = 0;
-		t_sinceSecond += 1000.0;
-	}
 	
 	//!Performance check
 	//std::cout << "Time taken: "<< action_time << std::endl;
@@ -368,27 +362,27 @@ void handleKeys()
 	}
 	if(keyStates['a'])
     {
-		plane.rotateAround( 1, Vector3f(0,1,0));//plane.relativeAxis[0]);
+		plane.rotateAround( 100 * t_delta, Vector3f(0,1,0));//plane.relativeAxis[0]);
     }
 	if (keyStates['d'])
 	{
-		plane.rotateAround(-1, Vector3f(0,1,0));//plane.relativeAxis[0]);
+		plane.rotateAround(-100 * t_delta, Vector3f(0,1,0));//plane.relativeAxis[0]);
 	}
 	if (keyStates['i'])
 	{
-		plane.rotateAround( 1, Vector3f(0,0,1));
+		plane.rotateAround( 100 * t_delta, Vector3f(0,0,1));
 	}
 	if (keyStates['k'])
 	{
-		plane.rotateAround(-1, Vector3f(0,0,1));
+		plane.rotateAround(-100 * t_delta, Vector3f(0,0,1));
 	}
 	if (keyStates['j'])
 	{
-		plane.rotateAround(-1, Vector3f(1,0,0));//plane.relativeAxis[0]);
+		plane.rotateAround(-100 * t_delta, Vector3f(1,0,0));//plane.relativeAxis[0]);
 	}
 	if (keyStates['l'])
 	{
-		plane.rotateAround( 1, Vector3f(1,0,0));//plane.relativeAxis[0]);
+		plane.rotateAround( 100 * t_delta, Vector3f(1,0,0));//plane.relativeAxis[0]);
 	}
 }
 
