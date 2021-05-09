@@ -61,7 +61,7 @@ Model ground;
 
 Model ring;
 
-Player plane(0.1f, Vector3f(10.0f,10.0f,25.0f), Vector3f(0,0,0));
+Player plane(0.1f, Vector3f(25.0f,10.0f,10.0f), Vector3f(0,0,0));
 
 GLuint texture;
 GLuint texture1;
@@ -77,9 +77,9 @@ bool PentaToggle = false;
 bool WireFrame = false;
 
 // Time
-float t_new = 0.0;
-float t_old = 0.0;
-float t_delta = 0.0;
+double t_new = 0.0;
+double t_old = 0.0;
+double t_delta = 0.0;
 
 double t_sinceSecond = 0.0;
 
@@ -281,7 +281,8 @@ void display(void)
 
 	//! HUD Elements
 	ThirdPersonHUD.render2dText(fps_count,0,0,0,-1,0.95f);
-	ThirdPersonHUD.render2dText(std::to_string(score),0,0,0,-1.0f,0.85f);
+	ThirdPersonHUD.render2dText(std::to_string(score),0,0,0,-1.0f,0.90f);
+	ThirdPersonHUD.render2dText(( "Speed: " + std::to_string(plane.getSpeed())),0,0,0,-1.0f,0.85f);
 
     //Swap Buffers and post redisplay
 	glutSwapBuffers();
@@ -353,36 +354,35 @@ void handleKeys()
     //Keys are handled here
 	if(keyStates['w'])
     {
-		//Moving Forward
-		//plane.addForce(plane.relativeAxis[0] * 1.0f); // plane.relativeAxis[2]);
+		plane.addBoost(2);
     }
 	if (keyStates['s'])
 	{
-		//plane.addForce(plane.relativeAxis[0] * -1.0f); // plane.relativeAxis[2]);
+		plane.addBoost(-1);
 	}
 	if(keyStates['a'])
     {
-		plane.rotateAround( 100 * t_delta, Vector3f(0,1,0));//plane.relativeAxis[0]);
+		plane.addSpin(Vector3f(0, 1,0));//plane.relativeAxis[0]);
     }
 	if (keyStates['d'])
 	{
-		plane.rotateAround(-100 * t_delta, Vector3f(0,1,0));//plane.relativeAxis[0]);
+		plane.addSpin(Vector3f(0,-1,0));//plane.relativeAxis[0]);
 	}
 	if (keyStates['i'])
 	{
-		plane.rotateAround( 100 * t_delta, Vector3f(0,0,1));
+		plane.addSpin(Vector3f(0,0,1));
 	}
 	if (keyStates['k'])
 	{
-		plane.rotateAround(-100 * t_delta, Vector3f(0,0,1));
+		plane.addSpin(Vector3f(0,0,-1));
 	}
 	if (keyStates['j'])
 	{
-		plane.rotateAround(-100 * t_delta, Vector3f(1,0,0));//plane.relativeAxis[0]);
+		plane.addSpin(Vector3f(1,0,0));//plane.relativeAxis[0]);
 	}
 	if (keyStates['l'])
 	{
-		plane.rotateAround( 100 * t_delta, Vector3f(1,0,0));//plane.relativeAxis[0]);
+		plane.addSpin(Vector3f(-1,0,0));//plane.relativeAxis[0]);
 	}
 }
 

@@ -2,6 +2,7 @@
 #include <type_traits>
 
 #define minSpeed 2.5f
+#define bias 0.96f
 
 //! Constructors and Destructors 
 Player::Player()
@@ -17,9 +18,7 @@ Player::~Player()
 
 void Player::update(float frac)
 {
-
-
-    //! Go down faster then it goes up
+    //! Velocity
     speed -= Model::relativeAxis[0].y * frac * 20.0f;
     if(speed < minSpeed)
     {
@@ -27,23 +26,29 @@ void Player::update(float frac)
     }
     //std::cout << speed << std::endl; 
 
+    //! Rotations
+    relativeRotations.toIdentity();
+
+    spin = spin + spinAcceleration * frac * 2.0f;
+
+    relativeRotations.rotate(spin.x, 1,0,0);
+    relativeRotations.rotate(spin.y, 0,1,0);
+    relativeRotations.rotate(spin.z, 0,0,1); 
+
     //! Decays Forces
-    velocity = Model::relativeAxis[0] * speed ;
-    spin = spin * (0.95f);
+    boost = boost * (0.99f);
+    spinAcceleration = spinAcceleration * (0.95f);
 
 
-
+    velocity = Model::relativeAxis[0] * (speed + boost * frac);
     //addForce( gravity * frac );
     Model::translate(velocity * frac);
-    Model::rotate(spin * frac);
-
-    
-    
+    //Model::rotate(spin * frac);
 }
 
-void Player::addForce(Vector3f newForce)
+void Player::addBoost(float newBoost)
 {
-    velocity = velocity + newForce;
+    boost = boost + newBoost;
 }
 
 void Player::stop()
@@ -53,40 +58,11 @@ void Player::stop()
 
 void Player::addSpin(Vector3f newSpin)
 {
-    spin = spin + newSpin;
-}
-
-void Player::rotateAround(float angle, Vector3f axis)
-{
-    relativeRotations.rotate(angle, axis.x, axis.y, axis.z);
+    spinAcceleration = spinAcceleration + newSpin * 2.0f;
 }
  
 void Player::Draw(MasterShader shader)
-{
-
-    Vector3f up, right, forward;
-    forward =Model::position + Model::relativeAxis[0] * 10;
-    up = Model::position + Model::relativeAxis[1] * 10;
-    right = Model::position + Model::relativeAxis[2] * 10;
-
-    /*
-    glBegin(GL_LINES);
-  	glVertex3f(forward.x, forward.y, forward.z);
-  	glVertex3f(Model::position.x, Model::position.y, Model::position.z);
-	glEnd();
-
-    glBegin(GL_LINES);
-  	glVertex3f(up.x, up.y, up.z);
-  	glVertex3f(Model::position.x, Model::position.y, Model::position.z);
-	glEnd();
-
-    glBegin(GL_LINES);
-  	glVertex3f(right.x, right.y, right.z);
-  	glVertex3f(Model::position.x, Model::position.y, Model::position.z);
-	glEnd();
-    */
-
-    //relativeRotations.toIdentity();
+{   
     Model::ModelMatrix = getMatrix();
 
     Model::Draw(shader);
@@ -100,7 +76,11 @@ Matrix4x4 Player::getMatrix()
     model = model * relativeRotations;
 
     return model;
+}
 
+float Player::getSpeed()
+{
+    return velocity.length();
 }
 
 //! Debug

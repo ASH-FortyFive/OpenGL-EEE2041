@@ -1,6 +1,6 @@
 #include "Vector.h"
 #include <Camera.h>
-#define bias 0.2f //For Spring Function
+#define bias 0.4f //For Spring Function
 
 //! Constructors and Destructors 
 Camera::Camera(): position(1.0,1.0,0.0)
@@ -22,9 +22,9 @@ void Camera::updateShader(MasterShader shader)
 
     glUniformMatrix4fv(
 		shader.ProjectionUniformLocation,	//Uniform location
-		1,							//Number of Uniforms
-		false,						//Transpose 
-		ProjectionMatrix.getPtr());	//Pointer to ModelViewMatrixValues
+		1,									//Number of Uniforms
+		false,								//Transpose 
+		ProjectionMatrix.getPtr());			//Pointer to ModelViewMatrixValues
 
 	glUniformMatrix4fv(
         shader.ViewMatrixUniformLocation,

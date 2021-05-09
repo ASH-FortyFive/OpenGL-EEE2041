@@ -145,9 +145,11 @@ void Model::Draw(MasterShader shader)
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	glUniform1i(TextureMapUniformLocation, 0);
 
+    glUniform3f(shader.ColourUniformLocation, colour.x,colour.y,colour.z);
     //! Uses Parents Draw Function after applying Transforms and Texture
     Mesh::Draw(shader.vertexPositionAttribute, shader.vertexNormalAttribute, shader.vertexTexcoordAttribute);
 
+    glUniform3f(shader.ColourUniformLocation, 0,0,0);
 }
 
 //! Main Function of the Class, draws the model (using parent function) and adds transforms and textures

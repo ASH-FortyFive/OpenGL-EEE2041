@@ -211,6 +211,7 @@ Hitbox::hbType Map::checkCollisions(Vector3f pos, std::vector<Hitbox*> boxes)
                         if(ringHB->Type == Hitbox::Target)
                         {
                             ring->hitboxes.erase(badCounter);
+                            ring->colour = Vector3f(0,0.25f,0);
                             std::cout <<"Git good" << std::endl;
                         }
                         return ringHB->Type;

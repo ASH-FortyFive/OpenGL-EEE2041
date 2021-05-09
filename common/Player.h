@@ -14,22 +14,25 @@ class Player : public Model
 {
 //! Member Variables
 private:
-    Vector3f velocity;
+    Vector3f spinAcceleration;
     Vector3f spin;
-    Vector3f gravity = Vector3f(0.0f, -9.8f, 0.0f);
-    //Vector3f gravity = Vector3f(0.0f, 0.0f, 0.0f);
     Matrix4x4 relativeRotations;
 
-    float speed = 5.0f;
-public:
+    float boost;
 
+    Vector3f velocity;
+    float speed = 1.0f;
+
+    Vector3f gravity = Vector3f(0.0f, -9.8f, 0.0f);
+public:
 //! Member Functions
 private:
 
 public:
-    void addForce(Vector3f); // Takes the input and turns it into motion
+    //! Basic Inputs
+    void addBoost(float); // Takes the input and turns it into motion
     void addSpin(Vector3f);
-    void rotateAround(float, Vector3f);
+    
     void update(float);
 
     void Draw(MasterShader shader); // Overloads the draw function to allow for relative rotations, this is immensly cursed
@@ -40,6 +43,7 @@ public:
 
     //! Accessor
     Matrix4x4 getMatrix();
+    float getSpeed();
 
 	//! Constructors and Destructors     
     Player();
@@ -48,6 +52,8 @@ public:
 		Vector3f pos, 
 		Vector3f rot);
     ~Player();
+
+    
 };
 
 #endif

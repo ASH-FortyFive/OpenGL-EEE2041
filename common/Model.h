@@ -46,6 +46,7 @@ protected:
 		Vector3f(0,0,1)
 	};
 	
+	
 public:
 	//! Personal ModelViewMatrix	
 	Matrix4x4 ModelMatrix;
@@ -58,6 +59,9 @@ public:
 		Vector3f(0,1,0),
 		Vector3f(0,0,1)
 	};
+
+	//! Here out of lazyness
+	Vector3f colour;
 //! Functions
 public:
     //! Overloads functions from Mesh to Allow for Transforms, Textures, and Colours (BROKEN)
