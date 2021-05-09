@@ -75,6 +75,7 @@ double t_old = 0.0;
 double t_delta = 0.0;
 
 double t_sinceSecond = 0.0;
+double t_deathTimer;
 
 Map map;
 
@@ -88,7 +89,8 @@ int score(0);
 //! States
 enum State{
     paused,
-    menu,
+    start,
+	end,
     playing,
 	died
 };
@@ -203,7 +205,10 @@ void display(void)
 	//! Handels Consquences of Reset
 	if(currentState == died)
 	{
-		1 == 1;
+		if(t_new - t_deathTimer > 1000)
+		{
+			currentState= playing;
+		}
 	}
 
 	if(currentState == playing)
@@ -302,11 +307,18 @@ void keyboard(unsigned char key, int x, int y)
 	{
 		LoadMap("../maps/map2.map");
 	}
-	else if(key == 'r')
+	else if(key == ' ')
 	{
-	plane.colour = Vector3f(1,0,0);
+		if(currentState == paused)
+		{
+			currentState = playing;
+		}
+		else if(currentState == playing)
+		{
+			currentState = paused;
+		}
 	}
-	else
+	else 
 	{
 		//std::cout << key <<std::endl;
 	}
@@ -376,12 +388,15 @@ void motion(int x, int y)
 //! Reset Function
 void Reset()
 {
+	currentState = died;
+	t_deathTimer = t_new;
+
 	score = 0;
 
 	plane.Reset();
 	map.Reset();
 
-	//plane.colour = Vector3f(0,0,0);
+	plane.colour = Vector3f(0.25f,0,0);
 }
 
 void LoadMap(std::string mapPath)

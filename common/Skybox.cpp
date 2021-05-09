@@ -30,12 +30,12 @@ void Skybox::Init(GLuint TextureMapUniformLocation, std::string * texture_faces)
 
 void Skybox::makeBox()
 {
-    cube[0].translate(0.0f,0.0f,1.0f);
-    cube[1].translate(0.0f,0.0f,-1.0f);
-    cube[2].translate(0.0f,1.0f,0.0f);
-    cube[3].translate(0.0f,-1.0f,0.0f);
-    cube[4].translate(-1.0f,0.0f,0.0f);
-    cube[5].translate(1.0f,0.0f,0.0f);
+    cube[0].translate(0.0f,0.0f,0.99f);
+    cube[1].translate(0.0f,0.0f,-0.99f);
+    cube[2].translate(0.0f,0.99f,0.0f);
+    cube[3].translate(0.0f,-0.99f,0.0f);
+    cube[4].translate(-0.99f,0.0f,0.0f);
+    cube[5].translate(.99f,0.0f,0.0f);
 }
 
 //! Main Function of the Class, draws the skybox and adds textures
