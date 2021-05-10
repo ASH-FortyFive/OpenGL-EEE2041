@@ -58,6 +58,7 @@ Player plane;
 //! Ring Template
 Model ring;
 Model box;
+Model coin;
 
 //! All Textures
 GLuint texture;
@@ -147,12 +148,16 @@ int main(int argc, char** argv)
 	ModelHelper::initTexture("../models/Crate.bmp", texture2);
 
 	//Creates Ring template to be used in Map
-	ring.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture1);
+	ring.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture2);
 	ring.loadHitbox("../models/hitboxes/torus.hitbox");
 
 	//Creates Box Obstacle 
 	box.loadOBJ("../models/cube.obj", defaultShader.TextureMapUniformLocation, texture2);
 	box.loadHitbox("../models/hitboxes/box.hitbox");
+
+	//Creates Coin template to be used in Map
+	coin.loadOBJ("../models/coin.obj", defaultShader.TextureMapUniformLocation, texture1);
+	coin.loadHitbox("../models/hitboxes/coin.hitbox");
 
 	//! If specific map is given, that is loaded other wise the default array occurs
 	if(argc != 1)
@@ -179,7 +184,7 @@ int main(int argc, char** argv)
 	//ThirdPerson.followUpdate(plane.relativeAxis, plane.getRotation(), plane.getMeshCentroid());		
 
 	// Init Light
-	Vector3f lightPosition= Vector3f(1000.0,1000.0,-1414.0f);
+	Vector3f lightPosition= Vector3f(-1000.0,1000.0,-1414.0f);
 	glUseProgram(defaultShader.ID);
 	glUniform3f(defaultShader.LightPositionUniformLocation, lightPosition.x,lightPosition.y,lightPosition.z);
     glUniform4f(defaultShader.AmbientUniformLocation, ambient.x, ambient.y, ambient.z, 1.0);
@@ -305,6 +310,10 @@ void display(void)
 	{
 		collectedRings++;
 		score += 150;
+	}
+	else if (collison == Hitbox::Coin)
+	{
+		score += 50;
 	}
 
 	//! Stops Player From Leaving Map Bounds
@@ -524,7 +533,7 @@ void LoadMap(std::string mapPath)
 {
 	score = 0;
 	collectedRings = 0;
-	if(map.Init(mapPath, skyboxShader, defaultShader,ring,box))
+	if(map.Init(mapPath, skyboxShader, defaultShader,ring,box,coin))
 	{
 		std::cout << "Map file loaded" << std::endl;
 	}

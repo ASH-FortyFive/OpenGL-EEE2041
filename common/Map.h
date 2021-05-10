@@ -29,6 +29,7 @@ private:
     Model * ground;
     std::vector<Model*> rings; 
     std::vector<Model*> boxes;  
+    std::vector<Model*> coins; 
 
     float mapDimensionBuffer = 10.0f; // extra space around the ground plane
 public:
@@ -49,7 +50,8 @@ public:
         MasterShader skyboxShader,
         MasterShader defaultShader, 
         Model ring,
-        Model box);
+        Model box,
+        Model coin);
     //! Resets based on previous Map File
     void Reset(); 
 

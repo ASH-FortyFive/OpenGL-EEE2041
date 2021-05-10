@@ -32,6 +32,7 @@ public:
         Obstacle,
         Target,
         Main,
+        Coin,
         NONE
     };
 

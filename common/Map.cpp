@@ -25,6 +25,10 @@ void Map::Draw(MasterShader shader)
     {
         box->Draw(shader);
     }
+    for(auto coin : coins)
+    {
+        coin->Draw(shader);
+    }
 
     ground->Draw(shader);
     
@@ -47,12 +51,16 @@ void Map::DrawHitboxes(MasterShader shader)
     {
         box->DrawHitboxes(shader);
     }
+    for(auto coin : coins)
+    {
+        coin->DrawHitboxes(shader);
+    }
 
     ground->DrawHitboxes(shader);
 }
 
 
-bool Map::Init(std::string mapPath, MasterShader skyboxShader, MasterShader defaultShader, Model ring, Model box)
+bool Map::Init(std::string mapPath, MasterShader skyboxShader, MasterShader defaultShader, Model ring, Model box, Model coin)
 {
 
     std::fstream newFile;
@@ -196,6 +204,47 @@ bool Map::Init(std::string mapPath, MasterShader skyboxShader, MasterShader defa
         boxes.back()->reloadHitbox();
     }
 
+     //! Boxes are optional so they may be skipped
+    if(newFile.eof())
+    {
+        newFile.close();
+        return true;    
+    }
+
+    //================================================//
+    //! Coin Loading
+    std::cout << std::endl << "//========== Loading Coins ==========\\\\" << std::endl;
+    newFile >> num;
+
+    coins.clear();
+
+    for(int i(0); i < num; i++)
+    {
+        if(newFile.eof())
+        {
+            newFile.close();
+            return false;
+        }
+            
+        newFile >> location.x   >> location.y   >> location.z  
+                >> rotation.x   >> rotation.y   >> rotation.z;
+
+        if(!inBounds(location))
+        {
+            std::cout << "Coin " << i << " is Out of Bounds"<< std::endl;
+        }
+        
+        coins.push_back(new Model(coin));
+
+        //rings.back()->loadOBJ("../models/torus.obj");
+        coins.back()->setPosition(location);
+        coins.back()->setRotation(rotation);
+        coins.back()->setScale(1);
+
+        coins.back()->reloadHitbox();
+    }
+
+
     //! Ensures file was read succsefully
     if(newFile.eof())
     {
@@ -214,6 +263,13 @@ void Map::Reset()
         ring->reloadHitbox();
         ring->colour = Vector3f();
     } 
+    for(auto coin : coins)
+    {
+        if(coin->getMeshCentroid().y < -1000)
+        {
+            coin->translate(0,5000,0);
+        }
+    }
 }
 
 //! Create
@@ -322,6 +378,27 @@ Hitbox::hbType Map::checkCollisions(Vector3f pos, std::vector<Hitbox*> otherBoxe
                     if(otherHB->doCollsions(*boxHB))
                     {
                         return boxHB->Type;
+                    }
+                }
+            }
+        }
+        
+    }
+
+    //! For hitting or passing through
+    for(auto coin : coins)
+    {
+        //i++;
+        if((coin->getMeshCentroid() - pos).length() < 10.0f)
+        {
+            for(auto coinHB : coin->hitboxes)
+            {
+                for(auto otherHB : otherBoxes)
+                {
+                    if(otherHB->doCollsions(*coinHB))
+                    {
+                        coin->translate(0,-5000,0);
+                        return coinHB->Type;
                     }
                 }
             }

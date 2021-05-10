@@ -96,6 +96,11 @@ bool Model::reloadHitbox()
                 type = Hitbox::Main;
                 break;
             } 
+            case 3:
+            {
+                type = Hitbox::Coin;
+                break;
+            } 
         }
 
         //new Hitbox(newOBB);
