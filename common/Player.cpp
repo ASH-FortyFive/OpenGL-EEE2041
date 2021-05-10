@@ -2,6 +2,7 @@
 #include <type_traits>
 
 #define minSpeed 2.5f
+#define maxSpeed 40.0f
 #define bias 0.96f
 
 //! Constructors and Destructors 
@@ -19,12 +20,17 @@ Player::~Player()
 void Player::update(float frac)
 {
     //! Velocity
-    speed -= Model::relativeAxis[0].y * frac * 20.0f;
+    speed -= Model::relativeAxis[0].y * frac * 2.5f;
+    speed += boost * frac;
     if(speed < minSpeed)
     {
         speed = minSpeed;
     }
-    //std::cout << speed << std::endl; 
+    if(speed > maxSpeed)
+    {
+        speed = maxSpeed;
+        boost = 0;
+    }
 
     //! Rotations
     relativeRotations.toIdentity();
@@ -36,11 +42,12 @@ void Player::update(float frac)
     relativeRotations.rotate(spin.z, 0,0,1); 
 
     //! Decays Forces
-    boost = boost * (0.99f);
+    speed = speed * (0.99999f);
+    boost = boost * (0.95f);
     spinAcceleration = spinAcceleration * (0.95f);
 
 
-    velocity = Model::relativeAxis[0] * (speed + boost * frac);
+    velocity = Model::relativeAxis[0] * (speed);
     //addForce( gravity * frac );
     Model::translate(velocity * frac);
     //Model::rotate(spin * frac);
@@ -48,7 +55,7 @@ void Player::update(float frac)
 
 void Player::addBoost(float newBoost)
 {
-    boost = boost + newBoost;
+    boost = boost + newBoost * 0.2f;
 }
 
 void Player::stop()
@@ -86,6 +93,9 @@ float Player::getSpeed()
 //! Debug
 void Player::Reset()
 {
+    boost = 0;
+    spinAcceleration = Vector3f();
+
     velocity = Vector3f();
     spin = Vector3f();
     relativeRotations.toIdentity();

@@ -79,6 +79,7 @@ double t_delta = 0.0;
 
 double t_sinceSecond = 0.0;
 double t_timer;
+double t_score;
 
 Map map;
 std::vector<std::string> mapPaths;
@@ -91,6 +92,7 @@ int outOfBoundsTimer;
 
 int collectedRings(0);
 int score(0);
+std::vector<int> scores;
 
 //! States
 enum State{
@@ -147,16 +149,19 @@ int main(int argc, char** argv)
 	ring.loadHitbox("../models/hitboxes/torus.hitbox");
 
 	//! If specific map is given, that is loaded other wise the default array occurs
-	if(argc = 1)
+	if(argc != 1)
 	{
-		std::cout << *argv << std::endl;
-		LoadMap("../maps/default.map");
+		std::cout << argv[1] << std::endl;
+		LoadMap(argv[1]);
 	}
 	else
 	{
-		LoadMap("../maps/default.map");
+		mapPaths.push_back("../maps/map3.map");
+		mapPaths.push_back("../maps/map2.map");
+		mapPaths.push_back("../maps/map1.map");
 	}
 	
+	LoadMap(mapPaths.back());
 
 	//! Main Player Plane
 	plane.loadOBJ("../models/plane2.obj", defaultShader.TextureMapUniformLocation, texture);
@@ -229,9 +234,25 @@ void display(void)
 		ThirdPersonHUD.render2dText(("Level Complete!"),0,0,0,-0.15f,0);
 		if(t_new - t_timer > 1500)
 		{
-			win = false;	
-			Reset();
-			currentState = end;
+			
+			if(!mapPaths.empty())
+			{
+				mapPaths.pop_back();
+			}
+
+			
+			scores.push_back(score);
+			win = false;
+
+			if(mapPaths.empty())
+			{
+				currentState = end;
+			}
+			else
+			{
+				currentState = start;
+				LoadMap(mapPaths.back());
+			}
 		}
 	}
 	else if(collectedRings >= map.ringCount)
@@ -252,6 +273,13 @@ void display(void)
 
 	if(currentState == playing)
 	{
+	//! Removes score slowly as time passes
+	if(t_new - t_score >= 1000.0)
+	{
+			score -= 10;
+			t_score += 1000.0;
+	}
+
 	//! Does Collisions
 	Hitbox::hbType collison = map.checkCollisions(plane.getMeshCentroid(), plane.hitboxes);
 	if(collison == Hitbox::Obstacle)
@@ -265,6 +293,7 @@ void display(void)
 	else if (collison == Hitbox::Target)
 	{
 		collectedRings++;
+		score += 150;
 	}
 
 	//! Stops Player From Leaving Map Bounds
@@ -322,7 +351,16 @@ void display(void)
 	}
 	else if(currentState == end)
 	{
+		
+		ThirdPersonHUD.render2dText(("Your Scores: "),1,1,1,-0.1f,0.85f);
+		int i(1);
+		for(auto mapScore : scores)
+		{
+			ThirdPersonHUD.render2dText(("Level " +  std::to_string(i) + ": " + std::to_string(mapScore)),1,1,1,-0.2f,0.85f - (0.1f * i));
+			i++;
+		}
 
+		ThirdPersonHUD.render2dText(("Press any key to Quit"),1,1,1,-0.2f,-0.85f);
 	}
 	else
 	{
@@ -349,9 +387,6 @@ void display(void)
 	}
 
 
-
-	
-
     //Swap Buffers and post redisplay
 	glutSwapBuffers();
 	glutPostRedisplay();
@@ -360,6 +395,10 @@ void display(void)
 //! Keyboard Interaction
 void keyboard(unsigned char key, int x, int y)
 {
+	if(currentState == end)
+	{
+		exit(0);
+	}
 	key = tolower(key);
 	//Quits program when esc is pressed
 	if (key == 27)	//esc key code
@@ -385,6 +424,10 @@ void keyboard(unsigned char key, int x, int y)
 			currentState = paused;
 		}
 	}
+	else if(key == '/')
+	{
+		win = true;
+	}
 
     //Set key status
 
@@ -405,7 +448,7 @@ void handleKeys()
     //Keys are handled here
 	if(keyStates['w'])
     {
-		plane.addBoost(2);
+		plane.addBoost(1);
     }
 	if (keyStates['s'])
 	{
@@ -453,6 +496,7 @@ void motion(int x, int y)
 //! Reset Function
 void Reset()
 {
+	score = 0;
 	collectedRings = 0;
 	plane.colour = Vector3f(0,0,0);
 	plane.Reset();
@@ -462,6 +506,7 @@ void Reset()
 
 void LoadMap(std::string mapPath)
 {
+	score = 0;
 	collectedRings = 0;
 	if(map.Init(mapPath, skyboxShader, defaultShader,ring))
 	{

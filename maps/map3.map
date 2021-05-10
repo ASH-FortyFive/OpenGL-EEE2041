@@ -1,0 +1,19 @@
+20 150 100
+../models/skybox/right3.bmp
+../models/skybox/left3.bmp
+../models/skybox/top3.bmp
+../models/skybox/bottom3.bmp
+../models/skybox/front3.bmp
+../models/skybox/back3.bmp
+500 200 200
+../models/grass.bmp
+9
+ 70 135 100  90 90 0 4
+100 115 100 110 90 0 4
+120  85 100 140 90 0 3
+175  90 100  60 105 0 3
+220  95 90   60  90 0 3
+240  95 100  90  90 0 3
+275  75 100  0  90 0 3
+230  55 100  90  90 0 3
+200  55 100  90  90 0 3
