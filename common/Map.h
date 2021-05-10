@@ -27,12 +27,8 @@ private:
     Skybox * sky;
     Vector3f mapDimensions;
     Model * ground;
-    std::vector<Model*> rings;  
-
-    //! All the Previous Values
-    Model ringTemplate;
-
-
+    std::vector<Model*> rings; 
+    std::vector<Model*> boxes;  
 
     float mapDimensionBuffer = 10.0f; // extra space around the ground plane
 public:
@@ -52,7 +48,8 @@ public:
         std::string mapPath, 
         MasterShader skyboxShader,
         MasterShader defaultShader, 
-        Model ring);
+        Model ring,
+        Model box);
     //! Resets based on previous Map File
     void Reset(); 
 

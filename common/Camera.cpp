@@ -1,6 +1,6 @@
 #include "Vector.h"
 #include <Camera.h>
-#define bias 0.4f //For Spring Function
+#define TPbias 0.4f //For Spring Function
 
 //! Constructors and Destructors 
 Camera::Camera(): position(1.0,1.0,0.0)
@@ -8,8 +8,9 @@ Camera::Camera(): position(1.0,1.0,0.0)
 	std::cerr << "No Target to Follow" << std::endl;
     ProjectionMatrix.perspective(110,1.0,0.01,1000.0);
 }
-Camera::Camera(Vector3f posOffset, Vector3f tarOffset, Vector3f pos) : positionOffset(posOffset), targetOffset(tarOffset), position(pos)
+Camera::Camera(Vector3f posOffset, Vector3f tarOffset, Vector3f pos) : thirdPersonOffset(posOffset), targetOffset(tarOffset), position(pos)
 {
+	positionOffset = thirdPersonOffset;
     ProjectionMatrix.perspective(110,1.0,0.01,1000.0);
 }
 Camera::~Camera()
@@ -44,6 +45,22 @@ Vector3f Camera::getDirection()
 }
 
 
+//! First Person
+void Camera::togglePOV()
+{
+	if(firstPerson) //! if FP switch to TP
+	{
+		positionOffset = firstPersonOffset;
+		bias = 1;
+	}
+	else //! if TP switch to FP
+	{
+		positionOffset = thirdPersonOffset;
+		bias = TPbias;
+	}
+	firstPerson = !firstPerson;
+}
+
 //! Moves Camera
 void Camera::move(Vector3f increment)
 {
@@ -69,44 +86,11 @@ void Camera::follow(Matrix4x4 &playerMatrix, Vector3f playerAxis[3],  Vector3f p
 
 	direction 	= direction.normalise(playerPosition-position); 
 
-	//! Prevents Camera from Flipping
-	/*
-	if(std::to_string(camRight.y)[0] == '-')
-	{
-		std::cout << "Flippen" << std::endl;
-		GlobalUp = Vector3f(0,-1,0);
-	}
-	else
-	{
-		GlobalUp = Vector3f(0, 1,0);
-	}
-	*/
-
-	glBegin(GL_LINES);
-  	glVertex3f(playerPosition.x, playerPosition.y, playerPosition.z);
-  	glVertex3f(playerPosition.x + playerAxis[1].x, playerPosition.y + playerAxis[1].y, playerPosition.z + playerAxis[1].z);
-	glEnd();
-
-	glBegin(GL_LINES);
-  	glVertex3f(playerPosition.x, playerPosition.y, playerPosition.z);
-  	glVertex3f(playerPosition.x + playerAxis[1].x, playerPosition.y + playerAxis[1].y, playerPosition.z + playerAxis[1].z);
-	glEnd();
-
-	glBegin(GL_LINES);
-  	glVertex3f(playerPosition.x, playerPosition.y, playerPosition.z);
-  	glVertex3f(playerPosition.x + playerAxis[1].x, playerPosition.y + playerAxis[1].y, playerPosition.z + playerAxis[1].z);
-	glEnd();
-
 }
 
 //! Main Function that Updates the Camera Position
 void Camera::followUpdate(Matrix4x4 &playerMatrix, Vector3f playerAxis[3], Vector3f playerPosition)
 {
-
-
-
-	//std::cout << "In of Cam: " <<player.getMeshCentroid() << std::endl;
-
 	follow(playerMatrix, playerAxis, playerPosition, positionOffset, targetOffset);
 
 	ViewMatrix.lookAt(

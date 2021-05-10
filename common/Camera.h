@@ -31,11 +31,18 @@ private:
 
     Vector3f targetOffset,positionOffset;
 
+    float bias = 0.4f;
+
     bool flipped = false;
 
     //! Perspective Module
     Matrix4x4 ProjectionMatrix;
     Matrix4x4 ViewMatrix;
+
+    //!
+    bool firstPerson = false;
+    const Vector3f firstPersonOffset = Vector3f(1.5f,0.2f,0);
+    Vector3f thirdPersonOffset;
 //! Functios
 public:
     //! Moving Camera
@@ -45,7 +52,9 @@ public:
     Vector3f getPosition();
     Vector3f getDirection();
 
-    
+    //! Toggle First Person
+    void togglePOV();
+
     void updateShader(MasterShader); //Sends projection to given address
 
     void followUpdate(Matrix4x4&, Vector3f*, Vector3f);

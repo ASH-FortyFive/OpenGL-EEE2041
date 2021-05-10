@@ -57,6 +57,7 @@ Player plane;
 
 //! Ring Template
 Model ring;
+Model box;
 
 //! All Textures
 GLuint texture;
@@ -142,17 +143,22 @@ int main(int argc, char** argv)
 	GLuint texture, texture1, texture2;
 
 	ModelHelper::initTexture("../models/plane1.bmp", texture);
-	ModelHelper::initTexture("../models/Crate.bmp", texture1);
+	ModelHelper::initTexture("../models/coin.bmp", texture1);
+	ModelHelper::initTexture("../models/Crate.bmp", texture2);
 
 	//Creates Ring template to be used in Map
 	ring.loadOBJ("../models/torus.obj", defaultShader.TextureMapUniformLocation, texture1);
 	ring.loadHitbox("../models/hitboxes/torus.hitbox");
 
+	//Creates Box Obstacle 
+	box.loadOBJ("../models/cube.obj", defaultShader.TextureMapUniformLocation, texture2);
+	box.loadHitbox("../models/hitboxes/box.hitbox");
+
 	//! If specific map is given, that is loaded other wise the default array occurs
 	if(argc != 1)
 	{
 		std::cout << argv[1] << std::endl;
-		LoadMap(argv[1]);
+		mapPaths.push_back(argv[1]);
 	}
 	else
 	{
@@ -162,6 +168,7 @@ int main(int argc, char** argv)
 	}
 	
 	LoadMap(mapPaths.back());
+	
 
 	//! Main Player Plane
 	plane.loadOBJ("../models/plane2.obj", defaultShader.TextureMapUniformLocation, texture);
@@ -246,6 +253,7 @@ void display(void)
 
 			if(mapPaths.empty())
 			{
+				Reset();
 				currentState = end;
 			}
 			else
@@ -271,7 +279,7 @@ void display(void)
 		}
 	}
 
-	if(currentState == playing)
+	if(currentState == playing && !win)
 	{
 	//! Removes score slowly as time passes
 	if(t_new - t_score >= 1000.0)
@@ -284,11 +292,14 @@ void display(void)
 	Hitbox::hbType collison = map.checkCollisions(plane.getMeshCentroid(), plane.hitboxes);
 	if(collison == Hitbox::Obstacle)
 	{
+		if(currentState != win)
+		{
 		plane.colour = Vector3f(0.25f,0,0);
 		currentState = died;
 		t_timer = t_new;
 
 		collectedRings = 0;
+		}
 	} 
 	else if (collison == Hitbox::Target)
 	{
@@ -317,10 +328,11 @@ void display(void)
 	//! Does Plane Physics
 	plane.update(t_delta);
 
-	//! Calculates Third Person Camera Follow
-	ThirdPerson.followUpdate(plane.ModelMatrix, plane.relativeAxis, plane.getMeshCentroid());	
-	}
 	
+	}
+
+	//! Calculates Third Person Camera Follow
+	ThirdPerson.followUpdate(plane.ModelMatrix, plane.relativeAxis, plane.getMeshCentroid());			
 
 	if(currentState != end)
 	{
@@ -332,7 +344,7 @@ void display(void)
 	ThirdPerson.updateShader(defaultShader);
 	plane.Draw(defaultShader);
 	map.Draw(defaultShader); // Includes Rings and Ground
-	
+
 	//! Hitboxes
 	if(WireFrame)
 	{
@@ -424,6 +436,10 @@ void keyboard(unsigned char key, int x, int y)
 			currentState = paused;
 		}
 	}
+	else if(key == 'f')
+	{
+		ThirdPerson.togglePOV();
+	}
 	else if(key == '/')
 	{
 		win = true;
@@ -508,7 +524,7 @@ void LoadMap(std::string mapPath)
 {
 	score = 0;
 	collectedRings = 0;
-	if(map.Init(mapPath, skyboxShader, defaultShader,ring))
+	if(map.Init(mapPath, skyboxShader, defaultShader,ring,box))
 	{
 		std::cout << "Map file loaded" << std::endl;
 	}
@@ -517,6 +533,6 @@ void LoadMap(std::string mapPath)
 		std::cout << "Could not load Map file" << std::endl;
 		exit(0);
 	}
-
+	plane.Reset();
 	plane.setPosition(map.planePos);
 }

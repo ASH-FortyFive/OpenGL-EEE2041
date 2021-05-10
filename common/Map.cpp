@@ -9,6 +9,10 @@ Map::~Map()
     {
         delete ring;
     }
+    for(auto box : boxes)
+    {
+        delete box;
+    }
 }
 
 void Map::Draw(MasterShader shader)
@@ -16,6 +20,10 @@ void Map::Draw(MasterShader shader)
     for(auto ring : rings)
     {
         ring->Draw(shader);
+    }
+    for(auto box : boxes)
+    {
+        box->Draw(shader);
     }
 
     ground->Draw(shader);
@@ -35,15 +43,17 @@ void Map::DrawHitboxes(MasterShader shader)
         //std::cout << "Ring" <<std::endl;
         ring->DrawHitboxes(shader);
     }
+    for(auto box : boxes)
+    {
+        box->DrawHitboxes(shader);
+    }
 
     ground->DrawHitboxes(shader);
 }
 
 
-bool Map::Init(std::string mapPath, MasterShader skyboxShader, MasterShader defaultShader, Model ring)
+bool Map::Init(std::string mapPath, MasterShader skyboxShader, MasterShader defaultShader, Model ring, Model box)
 {
-    ringTemplate = ring;
-    
 
     std::fstream newFile;
     newFile.open(mapPath, std::ios::in);
@@ -108,7 +118,6 @@ bool Map::Init(std::string mapPath, MasterShader skyboxShader, MasterShader defa
     //================================================//
     //! Ring Loading
     std::cout << std::endl << "//========== Loading Rings ==========\\\\" << std::endl;
-    int num;
     newFile >> ringCount;
 
     Vector3f location, rotation;
@@ -141,6 +150,50 @@ bool Map::Init(std::string mapPath, MasterShader skyboxShader, MasterShader defa
         rings.back()->setScale(scale);
 
         rings.back()->reloadHitbox();
+    }
+
+    //! Boxes are optional so they may be skipped
+    if(newFile.eof())
+    {
+        newFile.close();
+        return true;    
+    }
+
+    //================================================//
+    //! Box Loading
+    std::cout << std::endl << "//========== Loading Boxes ==========\\\\" << std::endl;
+    int num;
+    newFile >> num;
+
+    Vector3f vecScale; //New Vector for boxes
+
+    boxes.clear();
+
+    for(int i(0); i < num; i++)
+    {
+        if(newFile.eof())
+        {
+            newFile.close();
+            return false;
+        }
+            
+        newFile >> location.x   >> location.y   >> location.z  
+                >> rotation.x   >> rotation.y   >> rotation.z 
+                >> vecScale.x   >> vecScale.y   >> vecScale.z;
+
+        if(!inBounds(location))
+        {
+            std::cout << "Box " << i << " is Out of Bounds"<< std::endl;
+        }
+        
+        boxes.push_back(new Model(box));
+
+        //rings.back()->loadOBJ("../models/torus.obj");
+        boxes.back()->setPosition(location);
+        boxes.back()->setRotation(rotation);
+        boxes.back()->setScale(scale);
+
+        boxes.back()->reloadHitbox();
     }
 
     //! Ensures file was read succsefully
@@ -212,9 +265,24 @@ bool Map::inBounds(Vector3f pos)
 }
 
 //! This is where the main collision math gets donea
-Hitbox::hbType Map::checkCollisions(Vector3f pos, std::vector<Hitbox*> boxes)
+Hitbox::hbType Map::checkCollisions(Vector3f pos, std::vector<Hitbox*> otherBoxes)
 {
-    //int i(0);   
+    //! For hitting the floor
+    if(pos.y < 5)
+    {
+        for(auto groundHB : ground->hitboxes)
+        {
+            for(auto otherHB : otherBoxes)
+            {
+                if(otherHB->doCollsions(*groundHB))
+                {
+                    return groundHB->Type;
+                }
+            }
+        }
+    }
+    
+    //! For hitting or passing through
     for(auto ring : rings)
     {
         //i++;
@@ -223,7 +291,7 @@ Hitbox::hbType Map::checkCollisions(Vector3f pos, std::vector<Hitbox*> boxes)
             auto badCounter = ring->hitboxes.begin();
             for(auto ringHB : ring->hitboxes)
             {
-                for(auto otherHB : boxes)
+                for(auto otherHB : otherBoxes)
                 {
                     if(otherHB->doCollsions(*ringHB))
                     {
@@ -240,19 +308,28 @@ Hitbox::hbType Map::checkCollisions(Vector3f pos, std::vector<Hitbox*> boxes)
         }
         
     }
-    if(pos.y < 5)
+
+    //! For hitting or passing through
+    for(auto box : boxes)
     {
-        for(auto groundHB : ground->hitboxes)
+        //i++;
+        if((box->getMeshCentroid() - pos).length() < 10.0f)
         {
-            for(auto otherHB : boxes)
+            for(auto boxHB : box->hitboxes)
             {
-                if(otherHB->doCollsions(*groundHB))
+                for(auto otherHB : otherBoxes)
                 {
-                    return groundHB->Type;
+                    if(otherHB->doCollsions(*boxHB))
+                    {
+                        return boxHB->Type;
+                    }
                 }
             }
         }
+        
     }
+
+    
     //
     return Hitbox::NONE;
 }
